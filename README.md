@@ -7,17 +7,21 @@ Calgary, AB. Available for roles in Canada and global remote.
 
 ## Status
 
-v2 is in design. `site/index.html` is the holding page currently deployed.
+v2 is in design. `index.html` is the holding page currently deployed.
 
-## site/
+## Layout
 
-A single self-contained HTML file. No build step, no dependencies, no external
-assets: the portrait is embedded as a data URI and the only network request is
-Google Fonts. Drop it on any static host.
+`index.html` sits at the repository root, which is what Vercel and GitHub Pages
+serve with no configuration. It is one self-contained document: no build step, no
+dependencies, and no external assets. The portrait is embedded as a data URI, so
+the only network request is Google Fonts.
 
 ```bash
-python3 -m http.server 4321 --directory site
+python3 -m http.server 4321
 ```
+
+`build.py` regenerates it from the source template in the scratchpad. You do not
+need it to deploy; `index.html` is committed and complete on its own.
 
 ## Design tokens
 
