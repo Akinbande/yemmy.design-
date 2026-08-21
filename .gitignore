@@ -1,0 +1,13 @@
+# Personal material. Never commit: this repository is public.
+Documents/
+Photo/
+Salary Format/
+media1/
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Editor / tooling
+.claude/settings.local.json
+node_modules/
