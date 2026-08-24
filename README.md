@@ -11,7 +11,7 @@ Calgary, AB. Available for roles in Canada and global remote.
 | --- | --- | --- |
 | [NexOrbit](https://www.nexorbit.com.au/) | Lead product designer | Early access |
 | [OrbitForm](https://www.nexorbit.com.au/orbitform) | Lead product designer | Live |
-| [Menaget](https://www.menaget.com/) | Senior product designer | Live |
+| Dental practice management SaaS | Product designer | In progress |
 | YTL Technologies | Founder, lead product designer | Site offline |
 
 ## Status
@@ -40,7 +40,7 @@ saturation.
 
 | Token | Hex | Use |
 | --- | --- | --- |
-| `--brand` | `#3B6FEB` | Print, CV, deck. 4.48:1 dark, 4.50:1 light |
+| `--brand` | `#3B6FEB` | Print and uncontrolled grounds. 4.48:1 dark, 4.50:1 light |
 | `--brand-on-dark` | `#6190FF` | Dark surfaces. 6.67:1 |
 | `--brand-on-light` | `#2552BA` | Light surfaces. 7.01:1 |
 | `--ink` | `#09090A` | Page ground |

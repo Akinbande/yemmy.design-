@@ -4,6 +4,13 @@ Photo/
 Salary Format/
 media1/
 
+# Belt and braces: no CV, resume, or document file anywhere in the tree.
+*.pdf
+*.docx
+*Solomon*
+*_CV*
+*[Rr]esume*
+
 # macOS
 .DS_Store
 **/.DS_Store
