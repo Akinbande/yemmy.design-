@@ -320,6 +320,19 @@
     color:var(--muted);
     max-width:36ch;
   }
+  .card .feat{display:flex;flex-wrap:wrap;gap:6px;margin-top:3px;}
+  .card .feat span{
+    font-family:var(--mono);
+    font-size:10.5px;
+    letter-spacing:.05em;
+    color:var(--muted);
+    border:1px solid var(--line);
+    border-radius:5px;
+    padding:4px 8px;
+    background:rgba(235,238,245,.02);
+    white-space:nowrap;
+  }
+
   .card .links{display:flex;flex-wrap:wrap;gap:7px 15px;margin-top:2px;}
   .card .links a{
     display:inline-flex;
@@ -469,10 +482,19 @@
       </article>
 
       <article class="card">
-        <span class="tag">Dental SaaS</span>
-        <h2>Practice management and booking</h2>
-        <p>A platform for dental clinics: scheduling, patient records, and online booking
-        for patients.</p>
+        <span class="tag">Clinic management</span>
+        <h2>One system for the whole practice</h2>
+        <p>Practice management software for dental clinics. Front desk, chair and back office
+        run on one record, so a patient's booking, chart, treatment plan and invoice are the
+        same thing rather than four systems that disagree.</p>
+        <div class="feat">
+          <span>Online booking</span>
+          <span>Scheduling</span>
+          <span>Patient records</span>
+          <span>Treatment plans</span>
+          <span>Invoicing</span>
+          <span>Reminders</span>
+        </div>
         <span class="arrow">Case study in progress <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       </article>
 
