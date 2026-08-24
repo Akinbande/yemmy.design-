@@ -11,7 +11,7 @@ F = lambda n,s: ImageFont.truetype(str(HERE/"fonts"/n), s)
 disp   = F("Archivo-SemiBold.ttf", 78)
 markf  = F("Archivo-SemiBold.ttf", 34)
 monof  = F("PlexMono-Regular.ttf", 17)
-mono_s = F("PlexMono-Regular.ttf", 15)
+mono_s = F("PlexMono-Regular.ttf", 14)
 
 def tracked(draw, xy, text, font, fill, track=0.0):
     """Draw text with letter-spacing; returns the advance width."""
@@ -73,8 +73,8 @@ for cx,cy in ((box[0],box[1]),(box[2],box[1]),(box[0],box[3]),(box[2],box[3])):
 
 # ---- footer block
 d.line([(PAD,486),(760,486)], fill=(41,43,46), width=1)
-tracked(d,(PAD,510),"SOLOMON AKINBANDE",monof,FG,1.9)
-tracked(d,(PAD,540),"SENIOR PRODUCT DESIGNER  ·  UX ENGINEER",mono_s,MUTED,1.7)
+tracked(d,(PAD,510),"OLUWAYEMI AKINBANDE",monof,FG,1.9)
+tracked(d,(PAD,540),"SENIOR PRODUCT & SERVICE DESIGNER  ·  UX ENGINEER",mono_s,MUTED,1.7)
 tracked(d,(PAD,566),"CALGARY, AB  ·  CANADA  ·  GLOBAL REMOTE",mono_s,DIM,1.7)
 
 out = pathlib.Path("/Users/yemmy/PROJECT HQ /yemmy.design/og.jpg")

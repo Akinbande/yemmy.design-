@@ -15,14 +15,14 @@ REPO = pathlib.Path("/Users/yemmy/PROJECT HQ /yemmy.design")
 # Absolute origin. Link previews will not render a relative og:image, so this
 # has to match the domain the page is actually served from.
 SITE = "https://yemmy.design"
-OG_V = "1"          # bump to force LinkedIn and friends to re-scrape the card
+OG_V = "2"          # bump to force LinkedIn and friends to re-scrape the card
 
-TITLE    = "Solomon Akinbande, Senior Product Designer"
-OG_TITLE = "Solomon Akinbande, Senior Product Designer and UX Engineer"
-OG_DESC  = ("Seven years building the systems behind fintech, healthcare, energy and SaaS "
-            "products. The next version of yemmy.design is in design. Calgary, Canada, "
-            "and global remote.")
-OG_ALT   = ("Dark card reading The next version is a system, with Solomon Akinbande's "
+TITLE    = "Oluwayemi Akinbande, Senior Product & Service Designer"
+OG_TITLE = "Oluwayemi Akinbande, Senior Product & Service Designer \u00B7 UX Engineer"
+OG_DESC  = ("Seven years designing the systems behind fintech, healthcare, energy and SaaS "
+            "products: service design and research, information architecture, interface, "
+            "design systems, and production code. Calgary, Canada, and global remote.")
+OG_ALT   = ("Dark card reading The next version is a system, with Oluwayemi Akinbande's "
             "portrait on the right.")
 
 tmpl = (HERE / "page.tmpl.html").read_text(encoding="utf-8")
@@ -57,7 +57,7 @@ doc = f"""<!doctype html>
 
 <title>{TITLE}</title>
 <meta name="description" content="{OG_DESC}">
-<meta name="author" content="Solomon Akinbande">
+<meta name="author" content="Oluwayemi Akinbande">
 <link rel="canonical" href="{SITE}/">
 <link rel="icon" href="data:image/svg+xml,{FAVICON}">
 

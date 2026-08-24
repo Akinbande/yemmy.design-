@@ -1,9 +1,18 @@
 # yemmy.design
 
-Portfolio of **Solomon Akinbande**, Senior Product Designer and UX Engineer.
+Portfolio of **Oluwayemi Akinbande**, Senior Product & Service Designer and UX Engineer.
 Calgary, AB. Available for roles in Canada and global remote.
 
 [hello@yemmy.design](mailto:hello@yemmy.design) · [LinkedIn](https://www.linkedin.com/in/akinoluwayemi/)
+
+## Selected work
+
+| Product | Role | Status |
+| --- | --- | --- |
+| [NexOrbit](https://www.nexorbit.com.au/) | Lead product designer | Early access |
+| [OrbitForm](https://www.nexorbit.com.au/orbitform) | Lead product designer | Live |
+| [Menaget](https://www.menaget.com/) | Senior product designer | Live |
+| YTL Technologies | Founder, lead product designer | Site offline |
 
 ## Status
 
