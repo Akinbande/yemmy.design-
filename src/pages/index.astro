@@ -1,0 +1,29 @@
+---
+import Base from '../layouts/Base.astro';
+import SystemScene from '../components/SystemScene.astro';
+import Hero from '../components/Hero.astro';
+import ProofStrip from '../components/ProofStrip.astro';
+import FeaturedWork from '../components/FeaturedWork.astro';
+import Approach from '../components/Approach.astro';
+import SupportingWork from '../components/SupportingWork.astro';
+import Archive from '../components/Archive.astro';
+import About from '../components/About.astro';
+---
+<Base>
+  <SystemScene />
+  <div id="scene-range" class="above">
+    <Hero />
+    <ProofStrip />
+    <FeaturedWork />
+  </div>
+  <div class="above solid">
+    <Approach />
+    <SupportingWork />
+    <Archive />
+    <About />
+  </div>
+</Base>
+<style>
+  .above { position: relative; z-index: 1; }
+  .solid { background: var(--ink); }
+</style>

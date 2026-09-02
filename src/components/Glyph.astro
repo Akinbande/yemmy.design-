@@ -1,0 +1,61 @@
+---
+/* Abstract vector artefact per project. These are diagrams of the design problem, not screenshots. */
+interface Props { kind: string }
+const { kind } = Astro.props;
+---
+<svg class="glyph" viewBox="0 0 480 320" fill="none" aria-hidden="true">
+  {kind === 'orbitform' && (
+    <g>
+      <rect x="40" y="36" width="220" height="248" rx="10" class="s" />
+      {[70, 108, 146].map((y) => <g><rect x="60" y={y} width="180" height="24" rx="5" class="f" /><rect x="68" y={y + 9} width={70 + (y % 50)} height="6" rx="3" class="t" /></g>)}
+      <rect x="60" y="188" width="180" height="24" rx="5" class="f a" /><rect x="68" y="197" width="90" height="6" rx="3" class="ta" />
+      <path d="M240 200 C 290 200, 290 90, 330 90" class="c" />
+      <path d="M240 200 C 290 200, 290 250, 330 250" class="c" />
+      <rect x="330" y="66" width="110" height="48" rx="8" class="s" /><rect x="344" y="84" width="60" height="6" rx="3" class="t" /><rect x="344" y="96" width="40" height="6" rx="3" class="t" />
+      <rect x="330" y="226" width="110" height="48" rx="8" class="s" /><rect x="344" y="244" width="70" height="6" rx="3" class="t" /><rect x="344" y="256" width="36" height="6" rx="3" class="t" />
+      <text x="336" y="136" class="m">IF ELIGIBLE</text><text x="336" y="296" class="m">ELSE ESCALATE</text>
+      <path d="M60 240 h180" class="d" /><text x="60" y="264" class="m">AUDIT TRAIL · WHO · WHEN · WHAT CHANGED</text>
+    </g>
+  )}
+  {kind === 'nexorbit' && (
+    <g>
+      {[0, 1, 2, 3].map((i) => (
+        <g transform={`translate(${60 + i * 26} ${230 - i * 46})`}>
+          <path d="M0 40 L140 0 L300 40 L160 80 Z" class={i === 3 ? 's a' : 's'} />
+          {i === 3 && <path d="M0 40 L140 0 L300 40 L160 80 Z" class="fill" />}
+        </g>
+      ))}
+      <text x="372" y="70" class="m">PARTICIPANTS</text><text x="372" y="116" class="m">ROSTERING</text><text x="372" y="162" class="m">BILLING</text><text x="372" y="208" class="m">COMPLIANCE</text>
+      <path d="M362 66 h-8 M362 112 h-34 M362 158 h-60 M362 204 h-86" class="d" />
+      <text x="60" y="300" class="m">ONE INFORMATION ARCHITECTURE · FOUR OPERATIONS</text>
+    </g>
+  )}
+  {kind === 'collga' && (
+    <g>
+      <path d="M40 160 C 120 160, 120 90, 200 90 S 280 230, 360 230 S 440 160, 440 160" class="c" />
+      {[[40, 160], [200, 90], [360, 230], [440, 160]].map(([x, y], i) => <g><circle cx={x} cy={y} r="9" class={i === 1 ? 'n a' : 'n'} /></g>)}
+      <text x="40" y="196" class="m">NEED</text><text x="176" y="72" class="m">APPLY ONLINE</text><text x="322" y="266" class="m">VERIFY · DECIDE</text><text x="400" y="140" class="m">OUTCOME</text>
+      <path d="M40 40 h400" class="d" /><text x="40" y="30" class="m">CITIZEN JOURNEY · CONCEPT</text>
+      <path d="M40 290 h400" class="d" /><text x="40" y="312" class="m">LINE OF VISIBILITY</text>
+    </g>
+  )}
+  {!['orbitform', 'nexorbit', 'collga'].includes(kind) && (
+    <g>{Array.from({ length: 5 }).map((_, r) => Array.from({ length: 8 }).map((_, c) => <rect x={40 + c * 52} y={60 + r * 44} width="40" height="28" rx="4" class={(r * 3 + c) % 7 === 0 ? 'f a' : 'f'} />))}</g>
+  )}
+</svg>
+
+<style>
+  .glyph { width: 100%; height: auto; }
+  .glyph .s { stroke: var(--line); stroke-width: 1.4; fill: var(--surface); }
+  .glyph .s.a { stroke: var(--accent); }
+  .glyph .fill { fill: rgba(97,144,255,0.08); }
+  .glyph .f { fill: var(--raised); }
+  .glyph .f.a { fill: rgba(97,144,255,0.16); stroke: var(--accent-line); stroke-width: 1; }
+  .glyph .t { fill: #3A3D44; }
+  .glyph .ta { fill: var(--accent); opacity: 0.85; }
+  .glyph .c { stroke: var(--accent); stroke-width: 1.5; opacity: 0.9; }
+  .glyph .d { stroke: var(--line); stroke-width: 1; stroke-dasharray: 3 4; }
+  .glyph .n { fill: var(--surface); stroke: var(--line); stroke-width: 1.4; }
+  .glyph .n.a { stroke: var(--accent); fill: rgba(97,144,255,0.18); }
+  .glyph .m { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.1em; fill: var(--dim); }
+</style>

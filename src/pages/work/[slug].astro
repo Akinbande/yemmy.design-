@@ -1,0 +1,58 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Glyph from '../../components/Glyph.astro';
+
+export async function getStaticPaths() {
+  const all = (await getCollection('work', (e) => e.data.tier <= 2)).sort((a, b) => a.data.order - b.data.order);
+  return all.map((entry, i) => ({ params: { slug: entry.id }, props: { entry, next: all[(i + 1) % all.length] } }));
+}
+const { entry, next } = Astro.props;
+const { Content } = await render(entry);
+const label: Record<string, string> = { live: 'Live', 'early-access': 'Early access', shipped: 'Shipped', concept: 'Concept, not built' };
+const title = `${entry.data.title} · Oluwayemi Akinbande`;
+---
+<Base title={title} ogTitle={entry.data.title} description={entry.data.summary}>
+  <article class="study">
+    <header class="wrap head">
+      <p class="mono meta" data-reveal>
+        <a href="/#work">Work</a><span>/</span><span>{entry.data.org}</span><span>·</span><span>{entry.data.year}</span>
+        <span class="pill" data-status={entry.data.status}>{label[entry.data.status]}</span>
+      </p>
+      <h1 data-reveal data-reveal-delay="0.1">{entry.data.title}</h1>
+      <p class="sum" data-reveal data-reveal-delay="0.2">{entry.data.summary}</p>
+      <div class="row" data-reveal data-reveal-delay="0.3">
+        <ul class="tags">{entry.data.tags.map((t) => <li>{t}</li>)}</ul>
+        {entry.data.link && <a class="btn btn-ghost" href={entry.data.link} target="_blank" rel="noopener noreferrer">See it live<span class="sr-only"> (opens in a new tab)</span>
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M5 11 11 5M11 5H6.2M11 5v4.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>}
+      </div>
+    </header>
+    <div class="wrap"><div class="panel hero-visual" data-reveal><Glyph kind={entry.id} /></div></div>
+    <div class="wrap"><div class="prose"><Content /></div></div>
+    <nav class="wrap next" aria-label="Next case study">
+      <a href={`/work/${next.id}/`} class="panel">
+        <span class="eyebrow">Next</span>
+        <span class="t">{next.data.title}</span>
+        <span class="mono o">{next.data.org} · {next.data.year}</span>
+      </a>
+    </nav>
+  </article>
+</Base>
+
+<style>
+  .study { padding-top: calc(var(--nav-h) + clamp(40px, 8vw, 96px)); padding-bottom: clamp(72px, 10vw, 140px); }
+  .head { display: grid; gap: 18px; max-width: calc(var(--max)); }
+  .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); }
+  .meta a:hover { color: var(--fg); }
+  h1 { font-size: clamp(32px, 5vw, 64px); max-width: 20ch; letter-spacing: -0.04em; }
+  .sum { color: var(--muted); font-size: clamp(16px, 1.4vw, 19px); line-height: 1.6; max-width: 60ch; }
+  .row { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  .tags li { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.06em; color: var(--muted); border: 1px solid var(--line-a); border-radius: 5px; padding: 4px 8px; }
+  .hero-visual { margin: clamp(32px, 4vw, 56px) 0; padding: clamp(24px, 4vw, 64px); background: linear-gradient(160deg, rgba(97,144,255,0.05), var(--surface) 60%); max-width: 980px; }
+  .next { margin-top: clamp(56px, 8vw, 96px); }
+  .next a { display: grid; gap: 8px; padding: 28px; transition: border-color 0.2s; }
+  .next a:hover { border-color: rgba(235,238,245,0.22); }
+  .next .t { font-size: clamp(20px, 2.2vw, 26px); font-weight: 600; letter-spacing: -0.02em; }
+  .next .o { font-size: 11px; color: var(--dim); letter-spacing: 0.08em; text-transform: uppercase; }
+</style>

@@ -18,3 +18,10 @@ media1/
 # Editor / tooling
 .claude/settings.local.json
 node_modules/
+
+# Astro / Node
+node_modules/
+dist/
+.astro/
+.vercel/
+npm-debug.log*

@@ -1,0 +1,38 @@
+---
+import { getCollection } from 'astro:content';
+const ids = ['orbitform', 'nexorbit', 'newdawn', 'collga'];
+const all = await getCollection('work');
+const items = ids.map((id) => all.find((e) => e.id === id)!).filter(Boolean);
+const label: Record<string, string> = { live: 'Live', 'early-access': 'Early access', shipped: 'Shipped', concept: 'Concept' };
+---
+<section class="proof" aria-label="Shipped work">
+  <div class="wrap">
+    <div class="panel grid">
+      {items.map((w, i) => (
+        <div class="cell" data-reveal data-reveal-delay={String(i * 0.08)}>
+          <div class="top"><span class="mono idx">{String(i + 1).padStart(2, '0')}</span><span class="pill" data-status={w.data.status}>{label[w.data.status]}</span></div>
+          <h3>{w.data.org}</h3>
+          <p>{w.data.title}</p>
+          {w.data.link
+            ? <a class="go" href={w.data.link} target="_blank" rel="noopener noreferrer">Visit<span class="sr-only"> {w.data.org} (opens in a new tab)</span><svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M5 11 11 5M11 5H6.2M11 5v4.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+            : <a class="go" href={`/work/${w.id}/`}>Read<span class="sr-only"> about {w.data.org}</span><svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>}
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .proof { padding: 0 0 clamp(72px, 10vw, 140px); }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); background: rgba(16,17,18,0.82); backdrop-filter: blur(8px); }
+  .cell { padding: clamp(20px, 2.2vw, 28px); display: flex; flex-direction: column; gap: 10px; border-right: 1px solid var(--line-a); min-height: 190px; }
+  .cell:last-child { border-right: 0; }
+  .top { display: flex; align-items: center; justify-content: space-between; margin-bottom: auto; }
+  .idx { font-size: 11px; color: var(--dim); letter-spacing: 0.1em; }
+  h3 { font-size: 18px; }
+  p { color: var(--muted); font-size: 13.5px; line-height: 1.5; }
+  .go { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); margin-top: 6px; transition: color 0.2s; min-height: 24px; }
+  .go:hover { color: var(--accent); }
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr 1fr; } .cell:nth-child(2) { border-right: 0; } .cell:nth-child(-n+2) { border-bottom: 1px solid var(--line-a); } }
+  @media (max-width: 520px) { .grid { grid-template-columns: 1fr; } .cell { border-right: 0 !important; border-bottom: 1px solid var(--line-a); } .cell:last-child { border-bottom: 0; } }
+</style>

@@ -1,0 +1,20 @@
+---
+interface Props { kind?: 'progress' | 'concept' }
+const { kind = 'progress' } = Astro.props;
+const label = kind === 'concept' ? 'Concept, not built' : 'In progress';
+---
+<aside class={`note ${kind}`} role="note">
+  <span class="eyebrow">{label}</span>
+  <p><slot /></p>
+</aside>
+<style>
+  .note {
+    display: grid; gap: 8px; padding: 18px 20px; margin: 0 0 32px;
+    border: 1px solid var(--line-a); border-left: 3px solid var(--accent);
+    border-radius: 0 12px 12px 0; background: var(--surface);
+  }
+  .note.concept { border-left-color: var(--warn); }
+  .note.concept .eyebrow { color: var(--warn); }
+  .note.progress .eyebrow { color: var(--accent); }
+  .note p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.6; }
+</style>

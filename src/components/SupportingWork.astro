@@ -1,0 +1,40 @@
+---
+import { getCollection } from 'astro:content';
+const items = (await getCollection('work', (e) => e.data.tier === 2)).sort((a, b) => a.data.order - b.data.order);
+---
+<section class="section supporting" aria-labelledby="sup-h">
+  <div class="wrap">
+    <div class="section-head" data-reveal>
+      <div><p class="eyebrow accent">Supporting work</p><h2 id="sup-h">Shorter studies.</h2></div>
+    </div>
+    <ol class="rows">
+      {items.map((w) => (
+        <li class="row" data-reveal>
+          <a class="main" href={`/work/${w.id}/`}>
+            <span class="mono yr">{w.data.year}</span>
+            <span class="org">{w.data.org}</span>
+            <span class="title">{w.data.title}</span>
+            <span class="tags mono">{w.data.tags.join(' · ')}</span>
+            <svg class="arr" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          {w.data.link && <a class="ext mono" href={w.data.link} target="_blank" rel="noopener noreferrer">Live<span class="sr-only"> site for {w.data.org} (opens in a new tab)</span> ↗</a>}
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .rows { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line-a); }
+  .row { display: flex; align-items: center; gap: 16px; border-bottom: 1px solid var(--line-a); }
+  .main { flex: 1; display: grid; grid-template-columns: 64px 180px minmax(0, 1fr) auto 20px; align-items: center; gap: 20px; padding: 22px 6px; transition: background 0.2s; min-height: 44px; }
+  .main:hover { background: rgba(235,238,245,0.03); }
+  .yr { font-size: 11px; color: var(--dim); }
+  .org { font-weight: 600; font-size: 16px; }
+  .title { color: var(--muted); font-size: 15px; }
+  .tags { font-size: 10.5px; color: var(--dim); letter-spacing: 0.04em; }
+  .arr { color: var(--dim); transition: transform 0.25s var(--ease), color 0.2s; }
+  .main:hover .arr { transform: translateX(4px); color: var(--accent); }
+  .ext { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); padding: 8px 6px; white-space: nowrap; }
+  @media (max-width: 860px) { .main { grid-template-columns: 56px 1fr 18px; grid-template-areas: 'yr org arr' 'yr title arr' 'yr tags arr'; row-gap: 4px; } .yr { grid-area: yr; } .org { grid-area: org; } .title { grid-area: title; } .tags { grid-area: tags; } .arr { grid-area: arr; } }
+</style>

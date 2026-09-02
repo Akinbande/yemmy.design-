@@ -1,0 +1,31 @@
+---
+import { getCollection } from 'astro:content';
+const items = (await getCollection('work', (e) => e.data.tier === 3)).sort((a, b) => a.data.order - b.data.order);
+---
+<section class="section archive" aria-labelledby="arc-h">
+  <div class="wrap">
+    <div class="section-head" data-reveal>
+      <div><p class="eyebrow">Archive</p><h2 id="arc-h" class="small">Earlier work.</h2></div>
+    </div>
+    <ul class="tiles">
+      {items.map((w) => (
+        <li class="tile panel" data-reveal>
+          <span class="mono yr">{w.data.year}</span>
+          <span class="org">{w.data.org}</span>
+          <span class="title">{w.data.title}</span>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .archive { padding-top: 0; }
+  .small { font-size: clamp(22px, 2.4vw, 30px); }
+  .tiles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .tile { padding: 20px; display: grid; gap: 6px; min-height: 130px; align-content: end; }
+  .yr { font-size: 11px; color: var(--dim); margin-bottom: auto; }
+  .org { font-weight: 600; font-size: 15px; }
+  .title { color: var(--muted); font-size: 13.5px; }
+  @media (max-width: 720px) { .tiles { grid-template-columns: 1fr; } }
+</style>

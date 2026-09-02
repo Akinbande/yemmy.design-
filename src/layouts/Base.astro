@@ -1,0 +1,76 @@
+---
+import '@fontsource-variable/archivo';
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/500.css';
+import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+  ogTitle?: string;
+}
+
+const SITE = 'https://yemmy.design';
+const {
+  title = 'Oluwayemi Akinbande · Senior Service & UX Designer | Government Digital Services, Enterprise Platforms, Design Systems',
+  description = 'Senior Service & UX Designer specialising in government-funded, regulated and citizen-facing digital services. Service blueprints, enterprise platforms and design systems, from research to production.',
+  ogImage = '/og.jpg?v=3',
+  ogTitle,
+} = Astro.props;
+const canonical = new URL(Astro.url.pathname, SITE).toString();
+const ogImg = new URL(ogImage, SITE).toString();
+---
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#09090A" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <meta name="author" content="Oluwayemi Akinbande" />
+  <link rel="canonical" href={canonical} />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="yemmy.design" />
+  <meta property="og:locale" content="en_CA" />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:title" content={ogTitle ?? title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image" content={ogImg} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={ogTitle ?? title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={ogImg} />
+  <script is:inline>
+    document.documentElement.classList.remove('no-js');
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('reduced-motion');
+  </script>
+  <ClientRouter />
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <Nav />
+  <main id="main">
+    <slot />
+  </main>
+  <Footer />
+  <script src="../scripts/motion.ts"></script>
+  <script src="../scripts/menu.ts"></script>
+</body>
+</html>
+
+<style is:global>
+  .skip {
+    position: absolute; left: 16px; top: -60px; z-index: 100;
+    background: var(--fg); color: #09090A; padding: 10px 14px; border-radius: 8px;
+    font-weight: 500; font-size: 14px; transition: top 0.2s;
+  }
+  .skip:focus { top: 16px; }
+</style>

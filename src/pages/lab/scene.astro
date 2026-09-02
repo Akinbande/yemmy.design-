@@ -1,0 +1,29 @@
+---
+import Base from '../../layouts/Base.astro';
+import SystemScene from '../../components/SystemScene.astro';
+---
+<Base title="Scene lab · yemmy.design" description="Tuning page for the system scene.">
+  <SystemScene manual />
+  <div class="lab">
+    <label class="mono" for="p">Progress <output id="pv">0.00</output></label>
+    <input id="p" type="range" min="0" max="1" step="0.001" value="0" />
+    <p class="mono hint">0 to 0.42 scatter to layers · 0.46 to 0.80 layers to screen · 0.80 to 0.90 frame</p>
+  </div>
+</Base>
+<script>
+  const bind = () => {
+    const s = document.getElementById('p') as HTMLInputElement | null, o = document.getElementById('pv');
+    if (!s || !o) return;
+    const apply = () => { const v = parseFloat(s.value); o.textContent = v.toFixed(2); (window as any).__scene?.setProgress(v); };
+    s.addEventListener('input', apply); apply();
+  };
+  window.addEventListener('scene:ready', bind);
+  document.addEventListener('astro:page-load', () => { if ((window as any).__scene) bind(); });
+</script>
+<style>
+  .lab { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); z-index: 5; width: min(520px, 90vw); display: grid; gap: 10px; padding: 16px 18px; background: rgba(16,17,18,0.86); border: 1px solid var(--line-a); border-radius: 14px; backdrop-filter: blur(10px); }
+  label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); display: flex; justify-content: space-between; }
+  output { color: var(--accent); }
+  input { width: 100%; accent-color: var(--accent); }
+  .hint { font-size: 10.5px; color: var(--dim); letter-spacing: 0.04em; }
+</style>

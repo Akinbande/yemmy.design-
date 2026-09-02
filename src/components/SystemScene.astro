@@ -1,0 +1,74 @@
+---
+interface Props { manual?: boolean }
+const { manual = false } = Astro.props;
+---
+<div class="scene" id="scene" data-manual={manual ? '1' : undefined} aria-hidden="true">
+  <canvas id="system-canvas"></canvas>
+  <svg class="scene-fallback" viewBox="0 0 1200 800" fill="none">
+    <g stroke="#2C2E34" stroke-width="1.2">
+      {Array.from({ length: 10 }).map((_, r) => Array.from({ length: 16 }).map((_, c) => (
+        <rect x={330 + c * 34} y={230 + r * 22} width="28" height="16" rx="2" fill={((r * 7 + c * 3) % 11 === 0) ? '#6190FF' : ((r + c) % 2 ? '#1B1C21' : '#2C2E34')} stroke="none" />
+      )))}
+    </g>
+    <rect x="318" y="218" width="580" height="244" stroke="#6190FF" stroke-width="1.5" />
+    {[[318, 218], [898, 218], [318, 462], [898, 462]].map(([x, y]) => <rect x={x - 5} y={y - 5} width="10" height="10" fill="#09090A" stroke="#6190FF" stroke-width="1.5" />)}
+  </svg>
+</div>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  gsap.registerPlugin(ScrollTrigger);
+
+  let handle: import('../scripts/scene').SceneHandle | null = null;
+
+  async function boot() {
+    const wrap = document.getElementById('scene');
+    const canvas = document.getElementById('system-canvas') as HTMLCanvasElement | null;
+    if (!wrap || !canvas || canvas.dataset.booted) return;
+    canvas.dataset.booted = '1';
+
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const hasGL = (() => { try { const c = document.createElement('canvas'); return !!(c.getContext('webgl2') || c.getContext('webgl')); } catch { return false; } })();
+    if (!hasGL) { wrap.classList.add('no-webgl'); return; }
+
+    // load after first paint so the scene never blocks reading
+    await new Promise<void>((r) => ('requestIdleCallback' in window ? (window as any).requestIdleCallback(() => r(), { timeout: 900 }) : setTimeout(r, 120)));
+    const { initScene } = await import('../scripts/scene');
+    handle = initScene(canvas, { reducedMotion });
+    if (!handle) { wrap.classList.add('no-webgl'); return; }
+    wrap.classList.add('is-ready');
+    (window as any).__scene = handle;
+    window.dispatchEvent(new CustomEvent('scene:ready'));
+
+    if (wrap.dataset.manual) return;
+    const range = document.getElementById('scene-range');
+    if (!range) return;
+    if (reducedMotion) { handle.setProgress(0.86); return; }
+
+    ScrollTrigger.create({
+      trigger: range, start: 'top top', end: 'bottom bottom', scrub: 0.5,
+      onUpdate: (self) => handle?.setProgress(self.progress),
+      onToggle: (self) => handle?.setActive(self.isActive || self.progress < 1),
+    });
+    gsap.fromTo(wrap, { opacity: 1 }, {
+      opacity: 0, ease: 'none', immediateRender: false,
+      scrollTrigger: { trigger: range, start: 'bottom 70%', end: 'bottom 15%', scrub: true,
+        onLeave: () => handle?.setActive(false), onEnterBack: () => handle?.setActive(true) },
+    });
+  }
+
+  document.addEventListener('astro:page-load', boot);
+  document.addEventListener('astro:before-swap', () => { handle?.destroy(); handle = null; (window as any).__scene = null; });
+</script>
+
+<style>
+  /* The wrapper's opacity belongs to the scroll fade (GSAP, inline). The fade-in lives on the
+     canvas so the two never fight over one property. */
+  .scene { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+  .scene canvas { width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 1.4s var(--ease); }
+  .scene.is-ready canvas { opacity: 1; }
+  .scene-fallback { display: none; position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.85; }
+  .scene.no-webgl canvas { display: none; }
+  .scene.no-webgl .scene-fallback { display: block; }
+</style>

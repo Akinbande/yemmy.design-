@@ -1,0 +1,70 @@
+---
+import { getCollection } from 'astro:content';
+import Glyph from './Glyph.astro';
+const items = (await getCollection('work', (e) => e.data.tier === 1)).sort((a, b) => a.data.order - b.data.order);
+const label: Record<string, string> = { live: 'Live', 'early-access': 'Early access', shipped: 'Shipped', concept: 'Concept, not built' };
+---
+<section class="section featured" id="work" aria-labelledby="work-h">
+  <div class="wrap">
+    <div class="section-head" data-reveal>
+      <div>
+        <p class="eyebrow accent">Selected work</p>
+        <h2 id="work-h">Three studies, ordered by relevance, not by date.</h2>
+        <p>Each one follows the same structure: the problem, the decisions and why, the outcome, the artefacts. The decisions carry the weight.</p>
+      </div>
+    </div>
+
+    <div class="list">
+      {items.map((w, i) => (
+        <article class="panel card" data-reveal>
+          <div class="body">
+            <div class="meta mono">
+              <span class="idx">{String(i + 1).padStart(2, '0')}</span>
+              <span>{w.data.org}</span><span class="sep">·</span><span>{w.data.year}</span>
+              <span class="pill" data-status={w.data.status}>{label[w.data.status]}</span>
+            </div>
+            <h3><a href={`/work/${w.id}/`}>{w.data.title}</a></h3>
+            <p class="sum">{w.data.summary}</p>
+            <ul class="tags">{w.data.tags.map((t) => <li>{t}</li>)}</ul>
+            <div class="actions">
+              <a class="btn btn-ghost" href={`/work/${w.id}/`}>Read the case study
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </a>
+              {w.data.link && <a class="live" href={w.data.link} target="_blank" rel="noopener noreferrer">See it live<span class="sr-only"> (opens in a new tab)</span>
+                <svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M5 11 11 5M11 5H6.2M11 5v4.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>}
+            </div>
+          </div>
+          <div class="visual"><Glyph kind={w.id} /></div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .featured { padding-top: 0; }
+  /* the section head sits directly on the scene; a soft local scrim keeps it legible on narrow screens */
+  .featured .section-head { position: relative; }
+  .featured .section-head::before {
+    content: ''; position: absolute; inset: -24px -20px; z-index: -1; pointer-events: none;
+    background: radial-gradient(70% 80% at 30% 50%, rgba(9,9,10,0.85), rgba(9,9,10,0) 100%);
+  }
+  .list { display: grid; gap: 18px; }
+  .card { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); background: rgba(16,17,18,0.86); backdrop-filter: blur(8px); transition: border-color 0.3s, transform 0.4s var(--ease); }
+  .card:hover { border-color: rgba(235,238,245,0.2); }
+  .body { padding: clamp(24px, 3vw, 44px); display: flex; flex-direction: column; gap: 16px; }
+  .meta { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); }
+  .idx { color: var(--accent); }
+  .sep { opacity: 0.5; }
+  .meta .pill { margin-left: auto; }
+  h3 { font-size: clamp(22px, 2.4vw, 32px); max-width: 22ch; }
+  h3 a { transition: color 0.2s; }
+  h3 a:hover { color: var(--accent); }
+  .sum { color: var(--muted); font-size: 15.5px; line-height: 1.6; max-width: 52ch; }
+  .tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  .tags li { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.06em; color: var(--muted); border: 1px solid var(--line-a); border-radius: 5px; padding: 4px 8px; }
+  .actions { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-top: auto; padding-top: 8px; }
+  .live { display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 500; color: var(--accent); border-bottom: 1px solid var(--accent-line); padding-bottom: 1px; min-height: 24px; }
+  .visual { border-left: 1px solid var(--line-a); background: linear-gradient(160deg, rgba(97,144,255,0.05), transparent 60%); display: grid; place-items: center; padding: clamp(20px, 3vw, 40px); }
+  @media (max-width: 860px) { .card { grid-template-columns: 1fr; } .visual { border-left: 0; border-top: 1px solid var(--line-a); } }
+</style>

@@ -1,0 +1,24 @@
+---
+const year = new Date().getFullYear();
+---
+<footer class="foot">
+  <div class="wrap in">
+    <a class="mark" href="/">yemmy<i>.</i></a>
+    <nav class="links" aria-label="Footer">
+      <a href="/#work">Work</a><a href="/#approach">Approach</a><a href="/#about">About</a>
+      <a href="https://www.linkedin.com/in/akinoluwayemi/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a href="mailto:hello@yemmy.design">hello@yemmy.design</a>
+    </nav>
+    <p class="mono meta">Oluwayemi Akinbande &middot; Calgary, Canada &middot; &copy; {year}</p>
+  </div>
+</footer>
+<style>
+  .foot { position: relative; z-index: 1; border-top: 1px solid var(--line-a); background: var(--ink); }
+  .in { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px 32px; padding-top: 36px; padding-bottom: 36px; }
+  .mark { font-weight: 600; font-size: 20px; letter-spacing: -0.035em; }
+  .mark i { font-style: normal; color: var(--accent); }
+  .links { display: flex; flex-wrap: wrap; gap: 6px 22px; font-size: 13.5px; color: var(--muted); }
+  .links a { padding: 6px 0; min-height: 24px; }
+  .links a:hover { color: var(--fg); }
+  .meta { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--dim); }
+</style>
