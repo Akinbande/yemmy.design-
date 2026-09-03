@@ -1,59 +1,84 @@
 ---
-/* The method drawn as a service blueprint: four stages across, four lanes down. */
-const stages = ['The problem', 'The decisions', 'The outcome', 'Artefacts'];
+/* The method, drawn as a service blueprint. On entry the nodes arrive scattered and settle into place. */
+const stages = ['Problem', 'Decisions', 'Outcome', 'Artefacts'];
 const lanes = ['People', 'Frontstage', 'Backstage', 'Systems'];
 const cells = [
-  ['What people need, in their words', 'The journey we commit to', 'What changed for them', 'Journey maps'],
-  ['Where the service fails them', 'Interface and content decisions', 'What shipped', 'Wireframes, prototypes'],
-  ['Why it fails: policy, process, handoffs', 'Service model and governance', 'What the team can now run', 'Service blueprints'],
-  ['What the data and platforms allow', 'Information architecture, tokens, components', 'What is measured', 'IA, design system'],
+  ['What people need', 'The journey we commit to', 'What changed for them', 'Journey maps'],
+  ['Where it fails them', 'Interface decisions', 'What shipped', 'Prototypes'],
+  ['Why it fails', 'Service model', 'What staff can run', 'Service blueprints'],
+  ['What systems allow', 'Architecture and tokens', 'What is measured', 'Design system'],
 ];
-const W = 1200, H = 560, L = 150, T = 70, CW = (W - L - 20) / 4, RH = (H - T - 20) / 4;
+const W = 1200, H = 520, L = 140, T = 64, CW = (W - L - 24) / 4, RH = (H - T - 24) / 4;
 ---
 <section class="section approach" id="approach" aria-labelledby="approach-h">
   <div class="wrap">
     <div class="section-head" data-reveal>
       <div>
         <p class="eyebrow accent">How I work</p>
-        <h2 id="approach-h">The method, drawn as a blueprint.</h2>
-        <p>Every case study is structured the same way. The blueprint is how I think about a service before I think about a screen: what people experience, what staff do, and what the systems underneath allow.</p>
+        <h2 id="approach-h">How I break a difficult problem down.</h2>
+        <p>Separate what people experience from what staff do and what the systems allow, then decide in that order. The blueprint is the tool. The decisions are the work.</p>
       </div>
     </div>
 
-    <div class="panel bp" data-reveal>
+    <div class="panel bp" id="bp">
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-labelledby="bp-title bp-desc">
         <title id="bp-title">Service blueprint of the case study method</title>
-        <desc id="bp-desc">Four stages across the top (problem, decisions, outcome, artefacts) and four lanes down (people, frontstage, backstage, systems), with the line of visibility between frontstage and backstage.</desc>
-        {stages.map((s, i) => <text x={L + i * CW + 16} y="42" class="stage">{s.toUpperCase()}</text>)}
-        {stages.map((_, i) => <line x1={L + i * CW} y1={T - 12} x2={L + i * CW} y2={H - 20} class="col" />)}
-        {lanes.map((l, r) => (
-          <g>
-            <text x="16" y={T + r * RH + RH / 2 + 4} class="lane">{l.toUpperCase()}</text>
-            {cells[r].map((c, i) => (
-              <g>
-                <rect x={L + i * CW + 16} y={T + r * RH + 14} width={CW - 32} height={RH - 28} rx="8" class={`node ${i === 1 ? 'key' : ''}`} />
-                <foreignObject x={L + i * CW + 28} y={T + r * RH + 22} width={CW - 56} height={RH - 44}>
-                  <div xmlns="http://www.w3.org/1999/xhtml" class="txt">{c}</div>
-                </foreignObject>
-              </g>
-            ))}
-          </g>
-        ))}
-        <line x1={L} y1={T + 2 * RH} x2={W - 20} y2={T + 2 * RH} class="vis" />
-        <text x={W - 24} y={T + 2 * RH - 8} class="vislbl" text-anchor="end">LINE OF VISIBILITY</text>
-        <line x1={L} y1={T + 3 * RH} x2={W - 20} y2={T + 3 * RH} class="vis soft" />
-        <text x={W - 24} y={T + 3 * RH - 8} class="vislbl" text-anchor="end">LINE OF INTERNAL INTERACTION</text>
-        <path d={`M ${L + 16} ${T - 30} H ${W - 40}`} class="flow" marker-end="url(#arr)" />
-        <defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#6190FF" /></marker></defs>
+        <desc id="bp-desc">Four stages across (problem, decisions, outcome, artefacts) and four lanes down (people, frontstage, backstage, systems), with the line of visibility between frontstage and backstage.</desc>
+        <g class="bp-frame">
+          {stages.map((s, i) => <text x={L + i * CW + 16} y="38" class="stage">{s.toUpperCase()}</text>)}
+          {stages.map((_, i) => <line x1={L + i * CW} y1={T - 14} x2={L + i * CW} y2={H - 24} class="col" />)}
+          {lanes.map((l, r) => <text x="16" y={T + r * RH + RH / 2 + 4} class="lane">{l.toUpperCase()}</text>)}
+          <line x1={L} y1={T + 2 * RH} x2={W - 24} y2={T + 2 * RH} class="vis" />
+          <text x={W - 28} y={T + 2 * RH - 8} class="vislbl" text-anchor="end">LINE OF VISIBILITY</text>
+          <line x1={L} y1={T + 3 * RH} x2={W - 24} y2={T + 3 * RH} class="vis soft" />
+          <text x={W - 28} y={T + 3 * RH - 8} class="vislbl" text-anchor="end">LINE OF INTERNAL INTERACTION</text>
+        </g>
+        <g class="bp-nodes">
+          {lanes.map((_, r) => cells[r].map((c, i) => (
+            <g class={`node ${i === 1 ? 'key' : ''}`}>
+              <rect x={L + i * CW + 16} y={T + r * RH + 14} width={CW - 32} height={RH - 28} rx="8" />
+              <text x={L + i * CW + CW / 2} y={T + r * RH + RH / 2 + 5} text-anchor="middle" class="lbl">{c}</text>
+            </g>
+          )))}
+        </g>
       </svg>
     </div>
-
-    <ul class="legend mono" data-reveal>
-      <li><i class="k"></i>The decisions column is where a design lead is separated from an executor. It gets the most space in every study.</li>
-      <li><i></i>Artefacts are evidence of the thinking, never the deliverable on their own.</li>
-    </ul>
   </div>
 </section>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  gsap.registerPlugin(ScrollTrigger);
+
+  function init() {
+    const bp = document.getElementById('bp');
+    if (!bp || bp.dataset.init) return;
+    bp.dataset.init = '1';
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const nodes = bp.querySelectorAll<SVGGElement>('.node');
+    const frame = bp.querySelectorAll<SVGElement>('.bp-frame > *');
+    const seeded = (n: number) => { const s = Math.sin(n * 12.9898) * 43758.5453; return s - Math.floor(s); };
+
+    // the problem arrives in pieces
+    nodes.forEach((el, i) => gsap.set(el, {
+      x: (seeded(i + 1) - 0.5) * 320, y: (seeded(i + 7) - 0.5) * 220,
+      rotation: (seeded(i + 13) - 0.5) * 18, opacity: 0, transformOrigin: '50% 50%',
+    }));
+    gsap.set(frame, { opacity: 0 });
+
+    // then settles into the blueprint, decisions last and lit
+    const tl = gsap.timeline({ paused: true, defaults: { ease: 'power3.out' } });
+    tl.to(nodes, { opacity: 1, duration: 0.5, stagger: { each: 0.03, from: 'random' } }, 0)
+      .to(nodes, { x: 0, y: 0, rotation: 0, duration: 1.5, stagger: { each: 0.045, from: 'random' } }, 0.1)
+      .to(frame, { opacity: 1, duration: 0.8, stagger: 0.015 }, 1.05)
+      .to(bp.querySelectorAll('.node.key rect'), { stroke: '#6190FF', fill: 'rgba(97,144,255,0.07)', duration: 0.7 }, 1.75);
+
+    ScrollTrigger.create({ trigger: bp, start: 'top 72%', once: true, onEnter: () => tl.play() });
+  }
+  document.addEventListener('astro:page-load', init);
+</script>
 
 <style>
   .bp { padding: clamp(12px, 2vw, 24px); overflow-x: auto; }
@@ -61,15 +86,10 @@ const W = 1200, H = 560, L = 150, T = 70, CW = (W - L - 20) / 4, RH = (H - T - 2
   .stage { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; fill: var(--fg); }
   .lane { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em; fill: var(--dim); }
   .col { stroke: var(--line-a); stroke-width: 1; }
-  .node { fill: var(--raised); stroke: var(--line); stroke-width: 1; }
-  .node.key { stroke: var(--accent-line); fill: rgba(97,144,255,0.06); }
-  .txt { font-family: var(--sans); font-size: 13.5px; line-height: 1.4; color: var(--muted); }
+  .node rect { fill: var(--raised); stroke: var(--line); stroke-width: 1; }
+  .lbl { font-family: var(--sans); font-size: 14px; fill: var(--muted); }
+  .node.key .lbl { fill: var(--fg); }
   .vis { stroke: var(--accent); stroke-width: 1.2; stroke-dasharray: 6 5; opacity: 0.9; }
   .vis.soft { stroke: var(--dim); opacity: 0.8; }
   .vislbl { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.14em; fill: var(--dim); }
-  .flow { stroke: var(--accent); stroke-width: 1.2; opacity: 0.7; }
-  .legend { list-style: none; margin: 22px 0 0; padding: 0; display: grid; gap: 10px; font-size: 12px; letter-spacing: 0.02em; color: var(--muted); max-width: 70ch; }
-  .legend li { display: flex; gap: 12px; align-items: baseline; }
-  .legend i { flex: none; width: 10px; height: 10px; border-radius: 3px; background: var(--raised); border: 1px solid var(--line); transform: translateY(1px); }
-  .legend i.k { border-color: var(--accent); background: rgba(97,144,255,0.12); }
 </style>

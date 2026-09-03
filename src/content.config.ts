@@ -13,6 +13,7 @@ const work = defineCollection({
     summary: z.string(),
     tags: z.array(z.string()),
     link: z.string().url().optional(),
+    thumb: z.string().optional(),
     keywords: z.array(z.string()).default([]),
   }),
 });

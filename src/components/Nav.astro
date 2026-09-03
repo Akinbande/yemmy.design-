@@ -17,7 +17,7 @@ const links = [
     <div class="nav-actions">
       <a class="btn btn-primary btn-sm" href="mailto:hello@yemmy.design">Get in touch</a>
       <button class="menu-btn" id="menu-open" type="button" aria-controls="layers" aria-expanded="false">
-        <span class="menu-label">Menu</span>
+        <span class="sr-only">Open menu</span>
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
           <rect x="1.5" y="2.5" width="15" height="4" rx="1" stroke="currentColor" stroke-width="1.4"/>
           <rect x="1.5" y="11" width="15" height="4" rx="1" stroke="currentColor" stroke-width="1.4"/>
@@ -84,7 +84,6 @@ const links = [
     border-bottom: 1px solid transparent;
   }
   .nav--solid { background: rgba(9, 9, 10, 0.72); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom-color: var(--line-soft); }
-  .nav--hidden { transform: translateY(-100%); }
   .nav-in { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
   .mark { font-weight: 600; font-size: 22px; letter-spacing: -0.035em; line-height: 1; display: inline-flex; align-items: baseline; }
   .mark i { font-style: normal; color: var(--accent); }
@@ -93,15 +92,14 @@ const links = [
   .nav-links a:hover { color: var(--fg); }
   .nav-actions { display: flex; align-items: center; gap: 10px; }
   .btn-sm { padding: 9px 15px; font-size: 13.5px; min-height: 40px; }
-  .menu-btn { gap: 8px; padding: 0 12px 0 14px; width: auto; font: 500 13.5px/1 var(--sans); }
-  .menu-label { color: var(--fg); }
   .menu-btn, .icon-btn {
     display: inline-flex; align-items: center; justify-content: center; min-width: 40px; height: 40px;
     border-radius: 10px; border: 1px solid var(--line-a); background: rgba(235,238,245,0.03); color: var(--fg); cursor: pointer;
     transition: background 0.2s, border-color 0.2s;
   }
+  .menu-btn { display: none; }               /* desktop: the top-bar links carry the menu */
   .menu-btn:hover, .icon-btn:hover { background: rgba(235,238,245,0.08); border-color: rgba(235,238,245,0.2); }
-  @media (max-width: 760px) { .nav-links { display: none; } .btn-sm { display: none; } .menu-label { display: none; } .menu-btn { padding: 0; width: 40px; } }
+  @media (max-width: 760px) { .nav-links { display: none; } .btn-sm { display: none; } .menu-btn { display: inline-flex; } }
 
   /* ---------- layers panel ---------- */
   .layers-backdrop { position: fixed; inset: 0; z-index: 50; background: rgba(9,9,10,0.55); opacity: 0; transition: opacity 0.3s; }

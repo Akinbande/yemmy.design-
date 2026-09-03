@@ -25,7 +25,6 @@ function init() {
   let last = window.scrollY;
   const onScroll = () => {
     const y = window.scrollY;
-    nav.classList.toggle('nav--hidden', y > last && y > 140 && !panel.classList.contains('is-open'));
     nav.classList.toggle('nav--solid', y > 24);
     last = y;
   };

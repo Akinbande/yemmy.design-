@@ -1,0 +1,55 @@
+---
+import { getCollection } from 'astro:content';
+import Glyph from './Glyph.astro';
+const items = (await getCollection('work', (e) => e.data.tier >= 2)).sort((a, b) => a.data.order - b.data.order);
+const loop = [...items, ...items];
+---
+<section class="section strip" aria-labelledby="strip-h">
+  <div class="wrap section-head" data-reveal>
+    <div>
+      <p class="eyebrow accent">More work</p>
+      <h2 id="strip-h">Shorter studies and earlier work.</h2>
+    </div>
+  </div>
+  <div class="marquee" data-reveal>
+    <ul class="track">
+      {loop.map((w, i) => {
+        const dup = i >= items.length;
+        const study = w.data.tier === 2;
+        return (
+          <li class="tile" aria-hidden={dup ? 'true' : undefined}>
+            {study ? (
+              <a class="tile-in" href={`/work/${w.id}/`} tabindex={dup ? -1 : undefined}>
+                <div class="thumb">{w.data.thumb ? <img src={w.data.thumb} alt="" loading="lazy" decoding="async" /> : <Glyph kind={w.id} />}</div>
+                <div class="cap"><span class="org">{w.data.org}</span><span class="mono meta">{w.data.year} &middot; {w.data.tags[0]}</span></div>
+              </a>
+            ) : (
+              <div class="tile-in">
+                <div class="thumb">{w.data.thumb ? <img src={w.data.thumb} alt="" loading="lazy" decoding="async" /> : <Glyph kind={w.id} />}</div>
+                <div class="cap"><span class="org">{w.data.org}</span><span class="mono meta">{w.data.year} &middot; {w.data.tags[0]}</span></div>
+              </div>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .strip { overflow: hidden; }
+  .marquee { overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent); mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent); }
+  .track { list-style: none; margin: 0; padding: 4px 0; display: flex; gap: 16px; width: max-content; animation: marquee 52s linear infinite; }
+  .marquee:hover .track, .marquee:focus-within .track { animation-play-state: paused; }
+  @keyframes marquee { to { transform: translateX(calc(-50% - 8px)); } }
+  .tile { flex: none; width: clamp(250px, 26vw, 340px); }
+  .tile-in { display: block; border: 1px solid var(--line-a); border-radius: var(--r); background: var(--surface); overflow: hidden; transition: border-color 0.25s, transform 0.45s var(--ease); }
+  a.tile-in:hover, a.tile-in:focus-visible { border-color: rgba(235,238,245,0.24); transform: translateY(-4px); }
+  .thumb { aspect-ratio: 16 / 10; display: grid; place-items: center; padding: 8%; background: linear-gradient(160deg, rgba(97,144,255,0.06), transparent 60%); border-bottom: 1px solid var(--line-a); }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .thumb :global(.glyph) { width: 100%; height: auto; }
+  .cap { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 14px 16px; }
+  .org { font-weight: 600; font-size: 14.5px; letter-spacing: -0.01em; }
+  .meta { font-size: 10.5px; color: var(--dim); letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
+  @media (prefers-reduced-motion: reduce) { .track { animation: none; } .marquee { overflow-x: auto; -webkit-mask-image: none; mask-image: none; } }
+</style>
