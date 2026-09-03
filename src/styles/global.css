@@ -16,6 +16,7 @@ body {
   overflow-x: hidden;
 }
 
+[hidden] { display: none !important; }   /* the browser default loses to any display:*; make it win */
 a { color: inherit; text-decoration: none; }
 img, svg { max-width: 100%; display: block; }
 h1, h2, h3, h4, p { margin: 0; }
@@ -79,6 +80,7 @@ section { position: relative; }
 .panel { border: 1px solid var(--line-a); border-radius: var(--r); background: var(--surface); overflow: hidden; }
 
 /* ---------- reveal (motion.ts drives these) ---------- */
+.no-js .hero-title, .reduced-motion .hero-title { visibility: visible !important; }
 [data-reveal] { opacity: 0; transform: translateY(18px); }
 .no-js [data-reveal], .reduced-motion [data-reveal] { opacity: 1; transform: none; }
 

@@ -1,0 +1,48 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+const posts = (await getCollection('writing', (e) => !e.data.draft)).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const fmt = new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+<Base title="Writing · Oluwayemi Akinbande" description="Notes on service design, compliance, design systems and the work of making regulated services usable.">
+  <section class="page wrap">
+    <header class="head">
+      <p class="eyebrow accent" data-reveal>Writing</p>
+      <h1 data-reveal data-reveal-delay="0.1">Notes from the work.</h1>
+      <p class="lede" data-reveal data-reveal-delay="0.2">Short pieces on service design, compliance, design systems, and what it takes to make regulated services usable.</p>
+    </header>
+    {posts.length === 0 ? (
+      <div class="panel empty" data-reveal>
+        <span class="eyebrow">First pieces in progress</span>
+        <p>Nothing published yet. If there is a topic you would want my view on, <a href="mailto:hello@yemmy.design">write to me</a>.</p>
+      </div>
+    ) : (
+      <ol class="posts">
+        {posts.map((p) => (
+          <li data-reveal>
+            <a class="post" href={`/writing/${p.id}/`}>
+              <span class="mono date">{fmt.format(p.data.date)}</span>
+              <span class="t">{p.data.title}</span>
+              <span class="s">{p.data.summary}</span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    )}
+  </section>
+</Base>
+<style>
+  .page { padding-top: calc(var(--nav-h) + clamp(40px, 8vw, 96px)); padding-bottom: clamp(72px, 10vw, 140px); }
+  .head { display: grid; gap: 16px; margin-bottom: clamp(32px, 5vw, 56px); }
+  h1 { font-size: clamp(34px, 5vw, 64px); letter-spacing: -0.04em; max-width: 14ch; }
+  .lede { color: var(--muted); font-size: clamp(16px, 1.4vw, 19px); max-width: 52ch; line-height: 1.6; }
+  .empty { padding: clamp(24px, 3vw, 36px); display: grid; gap: 10px; max-width: 640px; }
+  .empty p { color: var(--muted); font-size: 15px; line-height: 1.6; }
+  .empty a { color: var(--accent); border-bottom: 1px solid var(--accent-line); }
+  .posts { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line-a); max-width: 780px; }
+  .post { display: grid; gap: 6px; padding: 24px 4px; border-bottom: 1px solid var(--line-a); transition: background 0.2s; }
+  .post:hover { background: rgba(235,238,245,0.03); }
+  .date { font-size: 11px; color: var(--dim); letter-spacing: 0.08em; text-transform: uppercase; }
+  .t { font-size: clamp(18px, 2vw, 24px); font-weight: 600; letter-spacing: -0.02em; }
+  .s { color: var(--muted); font-size: 15px; }
+</style>

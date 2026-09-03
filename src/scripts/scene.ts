@@ -28,16 +28,17 @@ type Pose = { x: number; y: number; z: number; rx: number; ry: number; rz: numbe
 function buildStates() {
   const A: Pose[] = [], B: Pose[] = [], C: Pose[] = [];
   for (let i = 0; i < N; i++) {
-    // A: scattered in a flattened ellipsoid, biased right so the hero copy stays clear
-    const u = seeded(i * 1.1), v = seeded(i * 2.3), w = seeded(i * 3.7);
-    const th = u * Math.PI * 2, ph = Math.acos(2 * v - 1), rad = 2.0 + w * 4.4;
+    // A: a loose 3D grid with jitter, biased right so the hero copy stays clear.
+    //    Reads as something designed coming apart, not as random debris.
+    const gx = i % 8, gy = Math.floor(i / 8) % 5, gz = Math.floor(i / 40);
+    const jit = (k: number) => (seeded(i * k) - 0.5);
     A.push({
-      x: rad * Math.sin(ph) * Math.cos(th) * 1.25 + 1.6,
-      y: rad * Math.sin(ph) * Math.sin(th) * 0.78,
-      z: rad * Math.cos(ph) * 0.9,
-      rx: (seeded(i * 4.1) - 0.5) * Math.PI,
-      ry: (seeded(i * 5.3) - 0.5) * Math.PI,
-      rz: (seeded(i * 6.7) - 0.5) * Math.PI * 0.6,
+      x: (gx - 3.5) * 0.98 + jit(1.1) * 0.7 + 2.1,
+      y: (gy - 2) * 0.82 + jit(2.3) * 0.6 + (gz - 1.5) * 0.18,
+      z: (gz - 1.5) * 1.9 + jit(3.7) * 1.2,
+      rx: jit(4.1) * 0.9,
+      ry: jit(5.3) * 1.1,
+      rz: jit(6.7) * 0.5,
     });
     // B: four exploded layers of 8 x 5
     const L = Math.floor(i / 40), j = i % 40, bx = j % 8, by = Math.floor(j / 8);
@@ -116,18 +117,17 @@ export function initScene(canvas: HTMLCanvasElement, opts: { reducedMotion: bool
   }
 
   const { A, B, C } = buildStates();
-  const rotA = { x: 0.12, y: -0.22, z: 0.02 }, rotB = { x: -0.46, y: 0.58, z: 0.06 }, rotC = { x: 0, y: 0, z: 0 };
+  const rotA = { x: 0.18, y: -0.32, z: 0.03 }, rotB = { x: -0.46, y: 0.58, z: 0.06 }, rotC = { x: 0, y: 0, z: 0 };
   const dummy = new THREE.Object3D();
 
   let progress = 0, active = true, raf = 0;
-  const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
 
   function apply(p: number, t: number) {
     const sA = smooth(0, 0.42, p), sB = smooth(0.46, 0.8, p);
-    mouse.x = lerp(mouse.x, mouse.tx, 0.06); mouse.y = lerp(mouse.y, mouse.ty, 0.06);
+    const breathe = opts.reducedMotion ? 0 : (1 - sA) * 0.05;
     group.rotation.set(
-      lerp(lerp(rotA.x, rotB.x, sA), rotC.x, sB) + mouse.y * 0.05,
-      lerp(lerp(rotA.y, rotB.y, sA), rotC.y, sB) + mouse.x * 0.09,
+      lerp(lerp(rotA.x, rotB.x, sA), rotC.x, sB) + Math.sin(t * 0.22) * breathe,
+      lerp(lerp(rotA.y, rotB.y, sA), rotC.y, sB) + Math.cos(t * 0.17) * breathe,
       lerp(lerp(rotA.z, rotB.z, sA), rotC.z, sB),
     );
     group.position.x = lerp(0, -0.2, sB);
@@ -138,16 +138,16 @@ export function initScene(canvas: HTMLCanvasElement, opts: { reducedMotion: bool
       const a = smooth(0, 0.42, p + st), b = smooth(0.46, 0.8, p + st * 0.6);
       const pa = A[i], pb = B[i], pc = C[i];
       const drift = (1 - a) * (opts.reducedMotion ? 0 : 1);
-      const dx = Math.sin(t * 0.5 + i * 0.37) * 0.10 * drift;
-      const dy = Math.cos(t * 0.42 + i * 0.61) * 0.12 * drift;
+      const dx = Math.sin(t * 0.32 + i * 0.37) * 0.07 * drift;
+      const dy = Math.cos(t * 0.27 + i * 0.61) * 0.09 * drift;
       dummy.position.set(
         lerp(lerp(pa.x, pb.x, a), pc.x, b) + dx,
         lerp(lerp(pa.y, pb.y, a), pc.y, b) + dy,
         lerp(lerp(pa.z, pb.z, a), pc.z, b),
       );
       dummy.rotation.set(
-        lerp(lerp(pa.rx, pb.rx, a), pc.rx, b) + Math.sin(t * 0.35 + i) * 0.08 * drift,
-        lerp(lerp(pa.ry, pb.ry, a), pc.ry, b) + Math.cos(t * 0.3 + i * 0.5) * 0.08 * drift,
+        lerp(lerp(pa.rx, pb.rx, a), pc.rx, b) + Math.sin(t * 0.25 + i) * 0.05 * drift,
+        lerp(lerp(pa.ry, pb.ry, a), pc.ry, b) + Math.cos(t * 0.21 + i * 0.5) * 0.05 * drift,
         lerp(lerp(pa.rz, pb.rz, a), pc.rz, b),
       );
       const s = lerp(lerp(0.86, 1, a), 1, b);
@@ -178,13 +178,6 @@ export function initScene(canvas: HTMLCanvasElement, opts: { reducedMotion: bool
     raf = requestAnimationFrame(frameLoop);
   }
 
-  const onPointer = (e: PointerEvent) => {
-    if (e.pointerType !== 'mouse') return;
-    mouse.tx = (e.clientX / window.innerWidth - 0.5) * 2;
-    mouse.ty = (e.clientY / window.innerHeight - 0.5) * 2;
-  };
-  window.addEventListener('pointermove', onPointer, { passive: true });
-
   if (opts.reducedMotion) { progress = 0.86; renderOnce(); }
   else raf = requestAnimationFrame(frameLoop);
 
@@ -197,7 +190,6 @@ export function initScene(canvas: HTMLCanvasElement, opts: { reducedMotion: bool
     },
     destroy() {
       active = false; cancelAnimationFrame(raf); ro.disconnect();
-      window.removeEventListener('pointermove', onPointer);
       geo.dispose(); mat.dispose(); frameGeo.dispose(); frameMat.dispose();
       handleGeo.dispose(); handleGeoIn.dispose(); handleMat.dispose(); handleInner.dispose();
       renderer.dispose();
