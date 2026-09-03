@@ -6,10 +6,10 @@ const items = (await getCollection('work', (e) => e.data.tier >= 2)).sort((a, b)
 <section class="section more" id="more" aria-labelledby="more-h">
   <div class="wrap grid">
     <div class="side">
-      <div class="sticky" data-reveal>
+      <div class="sticky">
         <p class="eyebrow accent">More work</p>
         <h2 id="more-h">Shorter studies and earlier work.</h2>
-        <p class="sub">Open any one to step through its screens.</p>
+        <p class="sub">Screens and short notes from each.</p>
         <ol class="index mono" id="more-index" aria-hidden="true">
           {items.map((w, i) => <li data-i={i}><span class="n">{String(i + 1).padStart(2, '0')}</span><span class="o">{w.data.org}</span><span class="y">{w.data.year}</span></li>)}
         </ol>
@@ -17,46 +17,20 @@ const items = (await getCollection('work', (e) => e.data.tier >= 2)).sort((a, b)
     </div>
 
     <div class="cards" id="more-cards">
-      {items.map((w, i) => {
-        const gallery = w.data.gallery?.length ? w.data.gallery : null;
-        return (
-          <button class="card" type="button" data-i={i}
-            data-org={w.data.org} data-title={w.data.title} data-year={w.data.year}
-            data-study={w.data.tier === 2 ? `/work/${w.id}/` : undefined}
-            data-gallery={gallery ? JSON.stringify(gallery) : undefined}>
-            <span class="thumb">{w.data.thumb ? <img src={w.data.thumb} alt="" loading="lazy" decoding="async" /> : <Glyph kind={w.id} />}</span>
-            <span class="cap">
-              <span class="mono n">{String(i + 1).padStart(2, '0')}</span>
-              <span class="org">{w.data.org}</span>
-              <span class="mono meta">{w.data.year} &middot; {w.data.tags[0]}</span>
-              <span class="mono open">Open screens <svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-            </span>
-            <span class="sr-only">Open screens for {w.data.org}</span>
-          </button>
-        );
-      })}
+      {items.map((w, i) => (
+        <a class="card" href={`/screens/${w.id}/`} data-i={i}>
+          <span class="thumb">{w.data.thumb ? <img src={w.data.thumb} alt="" loading="lazy" decoding="async" /> : <Glyph kind={w.id} />}</span>
+          <span class="cap">
+            <span class="mono n">{String(i + 1).padStart(2, '0')}</span>
+            <span class="org">{w.data.org}</span>
+            <span class="mono meta">{w.data.year} &middot; {w.data.tags[0]}</span>
+            <span class="mono open">See screens <svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </span>
+          <span class="sr-only">{w.data.title}</span>
+        </a>
+      ))}
     </div>
   </div>
-
-  <dialog class="viewer" id="viewer" aria-label="Project screens">
-    <div class="v-frame">
-      <div class="v-head">
-        <div class="v-meta"><span class="v-org" id="v-org"></span><span class="mono v-title" id="v-title"></span></div>
-        <button class="v-close" type="button" data-v="close"><span class="sr-only">Close</span><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
-      </div>
-      <div class="v-stage" id="v-stage"><div class="v-track" id="v-track"></div></div>
-      <div class="v-bar">
-        <span class="mono v-cap" id="v-cap"></span>
-        <div class="v-nav">
-          <button type="button" data-v="prev"><span class="sr-only">Previous screen</span><svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M13 8H4M7.5 4.5 4 8l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-          <span class="mono v-count" id="v-count" aria-live="polite"></span>
-          <button type="button" data-v="next"><span class="sr-only">Next screen</span><svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-        </div>
-        <a id="v-study" class="btn btn-ghost v-study" hidden>Read the case study</a>
-      </div>
-      <div class="v-dots" id="v-dots" aria-hidden="true"></div>
-    </div>
-  </dialog>
 </section>
 
 <script>
@@ -64,22 +38,20 @@ const items = (await getCollection('work', (e) => e.data.tier >= 2)).sort((a, b)
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
   gsap.registerPlugin(ScrollTrigger);
 
-  type Frame = { src?: string; caption?: string; html?: string };
-  let frames: Frame[] = [], idx = 0, ctl: AbortController | null = null;
-
   function fly() {
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const index = document.getElementById('more-index');
-    document.querySelectorAll<HTMLElement>('#more-cards .card').forEach((card) => {
-      // rises in from below as it approaches the middle of the screen
-      gsap.fromTo(card, { y: 96, opacity: 0, rotateX: 7, transformOrigin: '50% 100%' }, {
-        y: 0, opacity: 1, rotateX: 0, ease: 'none',
-        scrollTrigger: { trigger: card, start: 'top 96%', end: 'top 58%', scrub: true },
+    document.querySelectorAll<HTMLElement>('#more-cards .card').forEach((card, i) => {
+      const dir = i % 2 ? -1 : 1;   // alternate the toss so the stack does not march in a line
+      // tossed in from below with a little spin, catching up behind the scroll (scrub: 1)
+      gsap.fromTo(card, { y: 140, x: 36 * dir, rotate: 4 * dir, opacity: 0, transformOrigin: '50% 100%' }, {
+        y: 0, x: 0, rotate: 0, opacity: 1, ease: 'power2.out',
+        scrollTrigger: { trigger: card, start: 'top 98%', end: 'top 52%', scrub: 1 },
       });
-      // then lifts away and thins out as it leaves the top
+      // and thrown on upward as it leaves
       gsap.to(card, {
-        y: -80, opacity: 0, scale: 0.95, ease: 'none', immediateRender: false,
-        scrollTrigger: { trigger: card, start: 'bottom 42%', end: 'bottom 6%', scrub: true },
+        y: -120, x: -28 * dir, rotate: -3 * dir, opacity: 0, scale: 0.94, ease: 'power2.in', immediateRender: false,
+        scrollTrigger: { trigger: card, start: 'bottom 40%', end: 'bottom 2%', scrub: 1 },
       });
       ScrollTrigger.create({
         trigger: card, start: 'top 60%', end: 'bottom 45%',
@@ -87,55 +59,7 @@ const items = (await getCollection('work', (e) => e.data.tier >= 2)).sort((a, b)
       });
     });
   }
-
-  function viewer() {
-    ctl?.abort(); ctl = new AbortController(); const { signal } = ctl;
-    const dlg = document.getElementById('viewer') as HTMLDialogElement | null;
-    const track = document.getElementById('v-track'), cap = document.getElementById('v-cap');
-    const count = document.getElementById('v-count'), dots = document.getElementById('v-dots');
-    const org = document.getElementById('v-org'), title = document.getElementById('v-title');
-    const study = document.getElementById('v-study') as HTMLAnchorElement | null;
-    if (!dlg || !track || !cap || !count || !dots || !org || !title || !study) return;
-
-    const paint = () => {
-      track.style.transform = `translateX(${-idx * 100}%)`;
-      cap.textContent = frames[idx]?.caption ?? '';
-      count.textContent = `${idx + 1} / ${frames.length}`;
-      [...dots.children].forEach((d, i) => d.classList.toggle('on', i === idx));
-      track.querySelectorAll('.v-screen').forEach((s, i) => s.classList.toggle('on', i === idx));
-    };
-    const go = (n: number) => { idx = (n + frames.length) % frames.length; paint(); };
-    const open = (btn: HTMLElement) => {
-      const g = btn.dataset.gallery ? (JSON.parse(btn.dataset.gallery) as Frame[]) : null;
-      frames = g ?? [{ html: btn.querySelector('.thumb')?.innerHTML ?? '', caption: 'Screens are on their way' }];
-      idx = 0;
-      org.textContent = btn.dataset.org ?? ''; title.textContent = btn.dataset.title ?? '';
-      if (btn.dataset.study) { study.href = btn.dataset.study; study.hidden = false; } else study.hidden = true;
-      track.innerHTML = frames.map((f) => f.src
-        ? `<figure class="v-screen"><img src="${f.src}" alt="${(f.caption ?? '').replace(/"/g, '&quot;')}" /></figure>`
-        : `<figure class="v-screen v-placeholder">${f.html}</figure>`).join('');
-      dots.innerHTML = frames.map(() => '<i></i>').join('');
-      paint();
-      (window as any).__lenis?.stop?.();
-      dlg.showModal();
-    };
-    const close = () => { dlg.close(); (window as any).__lenis?.start?.(); };
-
-    document.querySelectorAll<HTMLElement>('#more-cards .card').forEach((b) => b.addEventListener('click', () => open(b), { signal }));
-    dlg.addEventListener('click', (e) => {
-      const t = e.target as HTMLElement;
-      const act = t.closest<HTMLElement>('[data-v]')?.dataset.v;
-      if (act === 'close') close(); else if (act === 'prev') go(idx - 1); else if (act === 'next') go(idx + 1);
-      else if (t === dlg) close();
-    }, { signal });
-    dlg.addEventListener('close', () => (window as any).__lenis?.start?.(), { signal });
-    dlg.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight') go(idx + 1); if (e.key === 'ArrowLeft') go(idx - 1); }, { signal });
-    let sx = 0;
-    dlg.addEventListener('touchstart', (e) => { sx = e.touches[0].clientX; }, { passive: true, signal });
-    dlg.addEventListener('touchend', (e) => { const dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 48) go(idx + (dx < 0 ? 1 : -1)); }, { signal });
-  }
-
-  document.addEventListener('astro:page-load', () => { if (document.getElementById('more-cards')) { fly(); viewer(); } });
+  document.addEventListener('astro:page-load', () => { if (document.getElementById('more-cards')) fly(); });
 </script>
 
 <style>
@@ -149,8 +73,8 @@ const items = (await getCollection('work', (e) => e.data.tier >= 2)).sort((a, b)
   .index li.on .n { color: var(--accent); }
   .index .y { color: var(--dim); }
 
-  .cards { display: grid; gap: clamp(24px, 3vw, 40px); perspective: 1400px; }
-  .card { display: block; width: 100%; text-align: left; padding: 0; font: inherit; color: inherit; cursor: pointer; border: 1px solid var(--line-a); border-radius: var(--r); background: var(--surface); overflow: hidden; transition: border-color 0.25s; will-change: transform, opacity; }
+  .cards { display: grid; gap: clamp(24px, 3vw, 40px); }
+  .card { display: block; border: 1px solid var(--line-a); border-radius: var(--r); background: var(--surface); overflow: hidden; transition: border-color 0.25s; will-change: transform, opacity; }
   .card:hover, .card:focus-visible { border-color: rgba(235,238,245,0.26); }
   .thumb { display: grid; place-items: center; aspect-ratio: 16 / 10; padding: 7%; background: linear-gradient(160deg, rgba(97,144,255,0.07), transparent 60%); border-bottom: 1px solid var(--line-a); }
   .thumb img { width: 100%; height: 100%; object-fit: cover; }
@@ -162,33 +86,5 @@ const items = (await getCollection('work', (e) => e.data.tier >= 2)).sort((a, b)
   .open { display: inline-flex; align-items: center; gap: 6px; font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); transition: color 0.2s; }
   .card:hover .open { color: var(--fg); }
   @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } .sticky { position: static; } .index { display: none; } .cap { grid-template-columns: auto 1fr; } .meta, .open { display: none; } }
-
-  /* ---------- viewer ---------- */
-  .viewer { border: 0; padding: 0; background: transparent; max-width: none; max-height: none; width: 100vw; height: 100dvh; color: var(--fg); }
-  .viewer::backdrop { background: rgba(5,5,6,0.82); backdrop-filter: blur(10px); }
-  .viewer[open] { display: grid; place-items: center; }
-  .v-frame { width: min(1040px, calc(100vw - 32px)); display: grid; gap: 12px; }
-  .v-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-  .v-meta { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-  .v-org { font-weight: 600; font-size: 17px; letter-spacing: -0.01em; }
-  .v-title { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); }
-  .v-close, .v-nav button { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--line-a); background: rgba(235,238,245,0.04); color: var(--fg); cursor: pointer; transition: background 0.2s, border-color 0.2s; }
-  .v-close:hover, .v-nav button:hover { background: rgba(235,238,245,0.09); border-color: rgba(235,238,245,0.22); }
-  .v-stage { position: relative; overflow: hidden; border: 1px solid var(--line-a); border-radius: var(--r); background: var(--surface); aspect-ratio: 16 / 10; }
-  .v-track { display: flex; height: 100%; transition: transform 0.42s cubic-bezier(0.22, 0.61, 0.36, 1); }
-  .v-screen { flex: none; width: 100%; height: 100%; margin: 0; display: grid; place-items: center; opacity: 0.35; transform: scale(0.97); transition: opacity 0.42s, transform 0.42s cubic-bezier(0.22, 0.61, 0.36, 1); }
-  .v-screen.on { opacity: 1; transform: none; }
-  .v-screen img { width: 100%; height: 100%; object-fit: contain; }
-  .v-placeholder { padding: 8%; background: linear-gradient(160deg, rgba(97,144,255,0.06), transparent 60%); }
-  .v-placeholder :global(.glyph) { width: min(100%, 560px); height: auto; }
-  .v-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-  .v-cap { font-size: 11px; letter-spacing: 0.06em; color: var(--muted); }
-  .v-nav { display: flex; align-items: center; gap: 10px; }
-  .v-count { font-size: 11px; color: var(--dim); min-width: 44px; text-align: center; }
-  .v-study { padding: 9px 14px; font-size: 13px; min-height: 40px; }
-  .v-dots { display: flex; justify-content: center; gap: 6px; }
-  .v-dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--line); transition: background 0.2s, transform 0.2s; }
-  .v-dots i.on { background: var(--accent); transform: scale(1.3); }
-  @media (max-width: 600px) { .v-stage { aspect-ratio: 4 / 5; } }
-  @media (prefers-reduced-motion: reduce) { .v-track, .v-screen { transition: none; } .card { opacity: 1 !important; transform: none !important; } }
+  @media (prefers-reduced-motion: reduce) { .card { opacity: 1 !important; transform: none !important; } }
 </style>
