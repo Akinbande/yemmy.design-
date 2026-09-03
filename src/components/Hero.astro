@@ -48,7 +48,7 @@ import portrait from '../assets/portrait.jpg';
   .portrait { display: grid; justify-items: end; padding-bottom: 6px; }
   @property --arc { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
   .avatar {
-    position: relative; display: block; width: clamp(140px, 16vw, 216px); aspect-ratio: 1; border-radius: 50%;
+    position: relative; display: block; width: clamp(112px, 12vw, 168px); aspect-ratio: 1; border-radius: 50%;
     padding: 6px; background: var(--ink);
     animation: float 6s ease-in-out infinite;
   }
@@ -78,6 +78,6 @@ import portrait from '../assets/portrait.jpg';
     .hero-in { grid-template-columns: 1fr; gap: 36px; }
     .hero-title { max-width: none; }
     .portrait { justify-items: start; padding-bottom: 0; }
-    .avatar { width: 124px; }
+    .avatar { width: 104px; }
   }
 </style>
