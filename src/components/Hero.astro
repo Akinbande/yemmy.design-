@@ -3,18 +3,28 @@
 <section class="hero" id="top">
   <div class="hero-scrim" aria-hidden="true"></div>
   <div class="wrap hero-in">
-    <p class="eyebrow" data-reveal>Oluwayemi Akinbande &middot; Calgary, Canada</p>
-    <h1 class="display hero-title">Designing the systems behind public services.</h1>
-    <p class="hero-sub" data-reveal data-reveal-delay="0.35">
-      Senior Service &amp; UX Designer with 7 years of practice. Government-funded, regulated
-      and citizen-facing digital services, from service blueprint to production.
-    </p>
-    <div class="hero-cta" data-reveal data-reveal-delay="0.5">
-      <a class="btn btn-primary" href="#work">See the work
-        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </a>
-      <a class="btn btn-ghost" href="mailto:hello@yemmy.design">hello@yemmy.design</a>
+    <div class="copy">
+      <p class="eyebrow" data-reveal>Oluwayemi Akinbande &middot; Calgary, Canada</p>
+      <h1 class="display hero-title">Designing the systems behind public services.</h1>
+      <p class="hero-sub" data-reveal data-reveal-delay="0.35">
+        Senior Service &amp; UX Designer with 7 years of experience. Government-funded,
+        regulated and citizen-facing digital services, from service blueprint to production.
+      </p>
+      <div class="hero-cta" data-reveal data-reveal-delay="0.5">
+        <a class="btn btn-primary" href="#work">See the work
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a class="btn btn-ghost" href="mailto:hello@yemmy.design">hello@yemmy.design</a>
+      </div>
     </div>
+
+    <!-- portrait card: the frame only, for now. The scene shows through the glass. -->
+    <aside class="portrait" aria-hidden="true" data-reveal data-reveal-delay="0.3">
+      <div class="pcard">
+        <i class="ph tl"></i><i class="ph tr"></i><i class="ph bl"></i><i class="ph br"></i>
+        <div class="pmeta mono"><span>Portrait</span><span>3 : 4</span></div>
+      </div>
+    </aside>
   </div>
   <div class="scroll-cue mono" aria-hidden="true"><span></span>Scroll</div>
 </section>
@@ -25,7 +35,20 @@
     position: absolute; inset: 0; pointer-events: none;
     background: linear-gradient(90deg, rgba(9,9,10,0.92) 0%, rgba(9,9,10,0.72) 38%, rgba(9,9,10,0) 68%);
   }
-  .hero-in { position: relative; width: 100%; padding-top: clamp(40px, 8vh, 96px); padding-bottom: clamp(56px, 10vh, 120px); }
+  .hero-in { position: relative; width: 100%; padding-top: clamp(40px, 8vh, 96px); padding-bottom: clamp(56px, 10vh, 120px);
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 360px); gap: clamp(32px, 5vw, 88px); align-items: center; }
+  .portrait { display: block; }
+  .pcard {
+    position: relative; width: 100%; aspect-ratio: 3 / 4; border-radius: var(--r);
+    border: 1px solid rgba(235,238,245,0.16);
+    background: linear-gradient(160deg, rgba(235,238,245,0.07), rgba(235,238,245,0.02) 55%, rgba(97,144,255,0.05));
+    backdrop-filter: blur(12px) saturate(1.1); -webkit-backdrop-filter: blur(12px) saturate(1.1);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(235,238,245,0.09);
+  }
+  .ph { position: absolute; width: 9px; height: 9px; background: var(--ink); border: 1px solid var(--accent); }
+  .ph.tl { top: -5px; left: -5px; } .ph.tr { top: -5px; right: -5px; } .ph.bl { bottom: -5px; left: -5px; } .ph.br { bottom: -5px; right: -5px; }
+  .pmeta { position: absolute; left: 16px; right: 16px; bottom: 14px; display: flex; justify-content: space-between; font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); }
+  @media (max-width: 860px) { .hero-in { grid-template-columns: 1fr; } .portrait { display: none; } }
   .hero-title { max-width: 12ch; margin: 22px 0 26px; visibility: hidden; }
   .hero-title :global(.line) { overflow: hidden; }
   .hero-sub { max-width: 46ch; color: var(--muted); font-size: clamp(15.5px, 1.35vw, 17.5px); line-height: 1.6; }
