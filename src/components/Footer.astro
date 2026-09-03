@@ -37,7 +37,6 @@ const links = [
   </div>
   <div class="wrap base mono">
     <span>&copy; {year} Oluwayemi Akinbande</span>
-    <span>Built with Astro and Three.js</span>
   </div>
 </footer>
 
@@ -54,19 +53,24 @@ const links = [
 
     const letters = [...svg.querySelectorAll<SVGPathElement>('.ltr')];
     const dot = svg.querySelector<SVGPathElement>('.dot');
-    letters.forEach((p) => {
-      const len = p.getTotalLength();
-      gsap.set(p, { strokeDasharray: len, strokeDashoffset: len, fillOpacity: 0, strokeWidth: 1.1 });
-    });
-    if (dot) gsap.set(dot, { scale: 0, transformOrigin: '50% 50%' });
+    const len = (_: number, el: Element) => (el as SVGPathElement).getTotalLength();
+    letters.forEach((p) => gsap.set(p, { strokeDasharray: p.getTotalLength() }));
 
-    // the mark is drawn, then inked, then the point lands
-    const tl = gsap.timeline({ paused: true });
+    // drawn, inked, the point lands, held, then lifted and drawn again. Runs only while in view.
+    const tl = gsap.timeline({
+      repeat: -1, repeatDelay: 0.8,
+      scrollTrigger: { trigger: svg, start: 'top 96%', end: 'bottom top', toggleActions: 'play pause resume pause' },
+    });
+    tl.set(letters, { strokeDashoffset: len, fillOpacity: 0, strokeWidth: 1.1 });
+    if (dot) tl.set(dot, { scale: 0, transformOrigin: '50% 50%' });
     tl.to(letters, { strokeDashoffset: 0, duration: 1.5, ease: 'power2.inOut', stagger: 0.11 })
       .to(letters, { fillOpacity: 1, duration: 0.7, ease: 'power2.out', stagger: 0.05 }, '-=0.7')
       .to(letters, { strokeWidth: 0, duration: 0.5 }, '-=0.35');
     if (dot) tl.to(dot, { scale: 1, duration: 0.55, ease: 'back.out(2.4)' }, '-=0.3');
-    ScrollTrigger.create({ trigger: svg, start: 'top 94%', once: true, onEnter: () => tl.play() });
+    tl.to({}, { duration: 2.8 })
+      .to(letters, { fillOpacity: 0, strokeWidth: 1.1, duration: 0.6, ease: 'power2.in' });
+    if (dot) tl.to(dot, { scale: 0, duration: 0.35, ease: 'power2.in' }, '<');
+    tl.to(letters, { strokeDashoffset: len, duration: 1.1, ease: 'power2.inOut', stagger: { each: 0.08, from: 'end' } }, '-=0.2');
   }
   document.addEventListener('astro:page-load', init);
 </script>

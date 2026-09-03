@@ -14,6 +14,7 @@ const work = defineCollection({
     tags: z.array(z.string()),
     link: z.string().url().optional(),
     thumb: z.string().optional(),
+    gallery: z.array(z.object({ src: z.string(), caption: z.string().optional() })).default([]),
     keywords: z.array(z.string()).default([]),
   }),
 });

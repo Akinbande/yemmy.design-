@@ -1,5 +1,5 @@
 ---
-/* The method, drawn as a service blueprint. On entry the nodes arrive scattered and settle into place. */
+/* The method drawn as a service blueprint. Nodes arrive scattered, settle, hold, dissolve, and arrive again. */
 const stages = ['Problem', 'Decisions', 'Outcome', 'Artefacts'];
 const lanes = ['People', 'Frontstage', 'Backstage', 'Systems'];
 const cells = [
@@ -8,7 +8,7 @@ const cells = [
   ['Why it fails', 'Service model', 'What staff can run', 'Service blueprints'],
   ['What systems allow', 'Architecture and tokens', 'What is measured', 'Design system'],
 ];
-const W = 1200, H = 520, L = 140, T = 64, CW = (W - L - 24) / 4, RH = (H - T - 24) / 4;
+const W = 1200, H = 520, L = 140, R = 190, T = 64, CW = (W - L - R) / 4, RH = (H - T - 24) / 4;
 ---
 <section class="section approach" id="approach" aria-labelledby="approach-h">
   <div class="wrap">
@@ -21,17 +21,20 @@ const W = 1200, H = 520, L = 140, T = 64, CW = (W - L - 24) / 4, RH = (H - T - 2
     </div>
 
     <div class="panel bp" id="bp">
-      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-labelledby="bp-title bp-desc">
+      <svg class="bp-svg" viewBox={`0 0 ${W} ${H}`} role="img" aria-labelledby="bp-title bp-desc">
         <title id="bp-title">Service blueprint of the case study method</title>
         <desc id="bp-desc">Four stages across (problem, decisions, outcome, artefacts) and four lanes down (people, frontstage, backstage, systems), with the line of visibility between frontstage and backstage.</desc>
         <g class="bp-frame">
           {stages.map((s, i) => <text x={L + i * CW + 16} y="38" class="stage">{s.toUpperCase()}</text>)}
           {stages.map((_, i) => <line x1={L + i * CW} y1={T - 14} x2={L + i * CW} y2={H - 24} class="col" />)}
+          <line x1={L + 4 * CW} y1={T - 14} x2={L + 4 * CW} y2={H - 24} class="col" />
           {lanes.map((l, r) => <text x="16" y={T + r * RH + RH / 2 + 4} class="lane">{l.toUpperCase()}</text>)}
-          <line x1={L} y1={T + 2 * RH} x2={W - 24} y2={T + 2 * RH} class="vis" />
-          <text x={W - 28} y={T + 2 * RH - 8} class="vislbl" text-anchor="end">LINE OF VISIBILITY</text>
-          <line x1={L} y1={T + 3 * RH} x2={W - 24} y2={T + 3 * RH} class="vis soft" />
-          <text x={W - 28} y={T + 3 * RH - 8} class="vislbl" text-anchor="end">LINE OF INTERNAL INTERACTION</text>
+          <line x1={L} y1={T + 2 * RH} x2={L + 4 * CW} y2={T + 2 * RH} class="vis" />
+          <text x={L + 4 * CW + 14} y={T + 2 * RH - 4} class="vislbl">LINE OF</text>
+          <text x={L + 4 * CW + 14} y={T + 2 * RH + 10} class="vislbl">VISIBILITY</text>
+          <line x1={L} y1={T + 3 * RH} x2={L + 4 * CW} y2={T + 3 * RH} class="vis soft" />
+          <text x={L + 4 * CW + 14} y={T + 3 * RH - 4} class="vislbl">LINE OF INTERNAL</text>
+          <text x={L + 4 * CW + 14} y={T + 3 * RH + 10} class="vislbl">INTERACTION</text>
         </g>
         <g class="bp-nodes">
           {lanes.map((_, r) => cells[r].map((c, i) => (
@@ -42,6 +45,17 @@ const W = 1200, H = 520, L = 140, T = 64, CW = (W - L - 24) / 4, RH = (H - T - 2
           )))}
         </g>
       </svg>
+
+      <div class="bp-mobile">
+        {stages.map((s, i) => (
+          <div class={`mstage ${i === 1 ? 'key' : ''}`}>
+            <span class="eyebrow">{s}</span>
+            <ul>
+              {lanes.map((l, r) => <li class="mnode"><span class="mono ml">{l}</span><span class="mt">{cells[r][i]}</span></li>)}
+            </ul>
+          </div>
+        ))}
+      </div>
     </div>
   </div>
 </section>
@@ -51,45 +65,65 @@ const W = 1200, H = 520, L = 140, T = 64, CW = (W - L - 24) / 4, RH = (H - T - 2
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
   gsap.registerPlugin(ScrollTrigger);
 
+  // arrive in pieces, settle, hold, dissolve; repeatRefresh re-rolls the scatter every cycle
+  function shuffle(nodes: Element[], sx: number, sy: number, rot: number, trigger: Element) {
+    return gsap.timeline({
+      repeat: -1, repeatRefresh: true, defaults: { ease: 'power3.out' },
+      scrollTrigger: { trigger, start: 'top 85%', end: 'bottom 15%', toggleActions: 'play pause resume pause' },
+    })
+      .set(nodes, { x: () => (Math.random() - 0.5) * sx, y: () => (Math.random() - 0.5) * sy, rotation: () => (Math.random() - 0.5) * rot, opacity: 0, transformOrigin: '50% 50%' })
+      .to(nodes, { opacity: 1, duration: 0.5, stagger: { each: 0.03, from: 'random' } })
+      .to(nodes, { x: 0, y: 0, rotation: 0, duration: 1.5, stagger: { each: 0.045, from: 'random' } }, '<0.1')
+      .to({}, { duration: 3 })
+      .to(nodes, { opacity: 0, y: '+=12', duration: 0.45, ease: 'power2.in', stagger: { each: 0.02, from: 'random' } });
+  }
+
+  let current: gsap.core.Timeline | null = null;
+  const mq = matchMedia('(min-width: 761px)');
+
+  function start(bp: HTMLElement) {
+    current?.scrollTrigger?.kill(); current?.kill(); current = null;
+    const nodes = mq.matches ? [...bp.querySelectorAll('.node')] : [...bp.querySelectorAll('.mnode')];
+    gsap.set([...bp.querySelectorAll('.node, .mnode')], { clearProps: 'all' });
+    current = mq.matches ? shuffle(nodes, 320, 220, 18, bp) : shuffle(nodes, 120, 60, 8, bp);
+  }
+
   function init() {
     const bp = document.getElementById('bp');
     if (!bp || bp.dataset.init) return;
     bp.dataset.init = '1';
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-    const nodes = bp.querySelectorAll<SVGGElement>('.node');
-    const frame = bp.querySelectorAll<SVGElement>('.bp-frame > *');
-    const seeded = (n: number) => { const s = Math.sin(n * 12.9898) * 43758.5453; return s - Math.floor(s); };
-
-    // the problem arrives in pieces
-    nodes.forEach((el, i) => gsap.set(el, {
-      x: (seeded(i + 1) - 0.5) * 320, y: (seeded(i + 7) - 0.5) * 220,
-      rotation: (seeded(i + 13) - 0.5) * 18, opacity: 0, transformOrigin: '50% 50%',
-    }));
-    gsap.set(frame, { opacity: 0 });
-
-    // then settles into the blueprint, decisions last and lit
-    const tl = gsap.timeline({ paused: true, defaults: { ease: 'power3.out' } });
-    tl.to(nodes, { opacity: 1, duration: 0.5, stagger: { each: 0.03, from: 'random' } }, 0)
-      .to(nodes, { x: 0, y: 0, rotation: 0, duration: 1.5, stagger: { each: 0.045, from: 'random' } }, 0.1)
-      .to(frame, { opacity: 1, duration: 0.8, stagger: 0.015 }, 1.05)
-      .to(bp.querySelectorAll('.node.key rect'), { stroke: '#6190FF', fill: 'rgba(97,144,255,0.07)', duration: 0.7 }, 1.75);
-
-    ScrollTrigger.create({ trigger: bp, start: 'top 72%', once: true, onEnter: () => tl.play() });
+    start(bp);
+    mq.addEventListener('change', () => start(bp));   // crossing the breakpoint swaps the variant
   }
   document.addEventListener('astro:page-load', init);
+  document.addEventListener('astro:before-swap', () => { current?.scrollTrigger?.kill(); current?.kill(); current = null; });
 </script>
 
 <style>
-  .bp { padding: clamp(12px, 2vw, 24px); overflow-x: auto; }
-  .bp svg { min-width: 760px; width: 100%; height: auto; display: block; }
+  .bp { padding: clamp(12px, 2vw, 24px); }
+  .bp-svg { width: 100%; height: auto; display: block; }
   .stage { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; fill: var(--fg); }
   .lane { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em; fill: var(--dim); }
   .col { stroke: var(--line-a); stroke-width: 1; }
   .node rect { fill: var(--raised); stroke: var(--line); stroke-width: 1; }
+  .node.key rect { stroke: var(--accent-line); fill: rgba(97,144,255,0.07); }
   .lbl { font-family: var(--sans); font-size: 14px; fill: var(--muted); }
   .node.key .lbl { fill: var(--fg); }
   .vis { stroke: var(--accent); stroke-width: 1.2; stroke-dasharray: 6 5; opacity: 0.9; }
   .vis.soft { stroke: var(--dim); opacity: 0.8; }
-  .vislbl { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.14em; fill: var(--dim); }
+  .vislbl { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.12em; fill: var(--dim); }
+
+  .bp-mobile { display: none; }
+  @media (max-width: 760px) {
+    .bp-svg { display: none; }
+    .bp-mobile { display: grid; gap: 14px; }
+    .mstage { display: grid; gap: 10px; padding: 14px; border: 1px solid var(--line-a); border-radius: 12px; }
+    .mstage.key { border-color: var(--accent-line); background: rgba(97,144,255,0.05); }
+    .mstage ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+    .mnode { display: grid; grid-template-columns: 82px 1fr; gap: 10px; align-items: baseline; padding: 10px 12px; border-radius: 8px; background: var(--raised); border: 1px solid var(--line); }
+    .ml { font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); }
+    .mt { font-size: 14px; color: var(--muted); }
+    .mstage.key .mt { color: var(--fg); }
+  }
 </style>
