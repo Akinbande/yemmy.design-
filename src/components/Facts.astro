@@ -1,0 +1,25 @@
+---
+/* The facts panel shared by case studies and screens pages, so both read the same. */
+interface Props { d: any }
+const { d } = Astro.props;
+const label: Record<string, string> = { live: 'Live', 'early-access': 'Early access', shipped: 'Shipped', concept: 'Concept, not built' };
+const host = d.link ? new URL(d.link).hostname.replace(/^www\./, '') : null;
+---
+<dl class="panel facts">
+  <div><dt>Client</dt><dd>{d.client ?? d.org}</dd></div>
+  {d.industry?.length > 0 && <div><dt>Industry</dt><dd>{d.industry.map((x: string) => <span>{x}</span>)}</dd></div>}
+  {d.role && <div><dt>Role</dt><dd>{d.role}</dd></div>}
+  {d.services?.length > 0 && <div><dt>Services</dt><dd>{d.services.map((x: string) => <span>{x}</span>)}</dd></div>}
+  <div><dt>Timeline</dt><dd>{d.year}</dd></div>
+  <div><dt>Status</dt><dd><span class="pill" data-status={d.status}>{label[d.status]}</span></dd></div>
+  {d.link && host && <div><dt>Live</dt><dd><a class="live" href={d.link} target="_blank" rel="noopener noreferrer">{host}<span class="sr-only"> (opens in a new tab)</span> <svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M5 11 11 5M11 5H6.2M11 5v4.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></dd></div>}
+</dl>
+<style>
+  .facts { margin: 0; padding: 4px 0; }
+  .facts > div { display: grid; grid-template-columns: 96px 1fr; gap: 16px; padding: 15px 22px; border-bottom: 1px solid var(--line-a); }
+  .facts > div:last-child { border-bottom: 0; }
+  dt { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); padding-top: 3px; }
+  dd { margin: 0; font-size: 14.5px; line-height: 1.5; color: var(--fg); text-align: right; display: grid; gap: 3px; justify-items: end; }
+  .live { color: var(--accent); display: inline-flex; align-items: center; gap: 4px; border-bottom: 1px solid var(--accent-line); }
+  @media (max-width: 860px) { dd { text-align: left; justify-items: start; } }
+</style>

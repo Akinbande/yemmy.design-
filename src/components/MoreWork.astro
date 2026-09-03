@@ -8,8 +8,8 @@ const items = (await getCollection('work', (e) => e.data.tier >= 2)).sort((a, b)
     <div class="side">
       <div class="sticky">
         <p class="eyebrow accent">More work</p>
-        <h2 id="more-h">Shorter studies and earlier work.</h2>
-        <p class="sub">Screens and short notes from each.</p>
+        <h2 id="more-h">Earlier and smaller work.</h2>
+        <p class="sub">Screens from each project, with a short note on what it was for.</p>
         <ol class="index mono" id="more-index" aria-hidden="true">
           {items.map((w, i) => <li data-i={i}><span class="n">{String(i + 1).padStart(2, '0')}</span><span class="o">{w.data.org}</span><span class="y">{w.data.year}</span></li>)}
         </ol>
@@ -63,7 +63,9 @@ const items = (await getCollection('work', (e) => e.data.tier >= 2)).sort((a, b)
 </script>
 
 <style>
-  .grid { display: grid; grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr); gap: clamp(32px, 5vw, 88px); align-items: start; }
+  /* stretch, not start: the left cell must span the whole row for its sticky child to have room to stick */
+  .grid { display: grid; grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr); gap: clamp(32px, 5vw, 88px); align-items: stretch; }
+  .side { align-self: stretch; }
   .sticky { position: sticky; top: calc(var(--nav-h) + 48px); display: grid; gap: 14px; }
   h2 { font-size: clamp(28px, 3.4vw, 42px); max-width: 14ch; }
   .sub { color: var(--muted); font-size: 15.5px; max-width: 36ch; }
