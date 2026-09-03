@@ -18,15 +18,13 @@ import portrait from '../assets/portrait.jpg';
         </a>
         <a class="btn btn-ghost" href="mailto:hello@yemmy.design">hello@yemmy.design</a>
       </div>
-
-      <div class="who" data-reveal data-reveal-delay="0.7">
-        <span class="avatar">
-          <Image src={portrait} alt="Oluwayemi Akinbande" width={240} height={240} format="webp" quality={82} loading="eager" />
-        </span>
-        <span class="who-t mono"><b>Oluwayemi Akinbande</b><span>Calgary, Alberta</span></span>
-      </div>
     </div>
 
+    <div class="portrait" data-reveal data-reveal-delay="0.4">
+      <span class="avatar">
+        <Image src={portrait} alt="Oluwayemi Akinbande" width={560} height={560} format="webp" quality={82} loading="eager" />
+      </span>
+    </div>
   </div>
   <div class="scroll-cue mono" aria-hidden="true"><span></span>Scroll</div>
 </section>
@@ -35,16 +33,23 @@ import portrait from '../assets/portrait.jpg';
   .hero { min-height: 100svh; display: flex; align-items: center; padding-top: var(--nav-h); overflow: hidden; }
   .hero-scrim {
     position: absolute; inset: 0; pointer-events: none;
-    background: linear-gradient(90deg, rgba(9,9,10,0.92) 0%, rgba(9,9,10,0.72) 38%, rgba(9,9,10,0) 68%);
+    background: linear-gradient(90deg, rgba(5,5,6,0.92) 0%, rgba(5,5,6,0.72) 38%, rgba(5,5,6,0) 68%);
   }
-  .hero-in { position: relative; width: 100%; padding-top: clamp(40px, 8vh, 96px); padding-bottom: clamp(72px, 12vh, 140px); }
+  .hero-in {
+    position: relative; width: 100%; padding-top: clamp(40px, 8vh, 96px); padding-bottom: clamp(56px, 10vh, 120px);
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: clamp(32px, 6vw, 96px); align-items: center;
+  }
+  .hero-title { max-width: 12ch; margin: 22px 0 26px; visibility: hidden; }
+  .hero-title :global(.line) { overflow: hidden; }
+  .hero-sub { max-width: 46ch; color: var(--muted); font-size: clamp(15.5px, 1.35vw, 17.5px); line-height: 1.6; }
+  .hero-cta { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 30px; }
 
-  /* ---------- avatar ---------- */
-  .who { display: flex; align-items: center; gap: 18px; margin-top: clamp(40px, 6vh, 64px); }
+  /* ---------- portrait, right ---------- */
+  .portrait { display: grid; justify-items: end; }
   @property --arc { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
   .avatar {
-    position: relative; flex: none; width: clamp(84px, 9vw, 112px); aspect-ratio: 1; border-radius: 50%;
-    padding: 4px; background: var(--ink);
+    position: relative; display: block; width: clamp(180px, 22vw, 300px); aspect-ratio: 1; border-radius: 50%;
+    padding: 6px; background: var(--ink);
     animation: float 6s ease-in-out infinite;
   }
   .avatar::before {
@@ -54,20 +59,25 @@ import portrait from '../assets/portrait.jpg';
     animation: arc 5s linear infinite;
   }
   .avatar::after {
-    content: ''; position: absolute; inset: -14px; border-radius: 50%; pointer-events: none;
-    background: radial-gradient(circle, rgba(97,144,255,0.18), transparent 62%);
+    content: ''; position: absolute; inset: -18%; border-radius: 50%; pointer-events: none;
+    background: radial-gradient(circle, rgba(97,144,255,0.16), transparent 62%);
     animation: glow 6s ease-in-out infinite;
   }
-  .avatar :global(img) { position: relative; z-index: 1; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; box-shadow: 0 14px 40px rgba(0,0,0,0.55); }
-  .who-t { display: grid; gap: 4px; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); }
-  .who-t b { font-weight: 500; color: var(--fg); }
+  .avatar :global(img) { position: relative; z-index: 1; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; box-shadow: 0 24px 60px rgba(0,0,0,0.6); }
   @keyframes arc { to { --arc: 360deg; } }
-  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
   @keyframes glow { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }
-  @media (prefers-reduced-motion: reduce) { .avatar, .avatar::before, .avatar::after { animation: none; } }
 
   .scroll-cue { position: absolute; left: var(--pad); bottom: 28px; display: flex; align-items: center; gap: 10px; font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); }
   .scroll-cue span { width: 28px; height: 1px; background: var(--dim); transform-origin: left; animation: cue 2.2s var(--ease) infinite; }
   @keyframes cue { 0% { transform: scaleX(0); opacity: 0; } 40% { transform: scaleX(1); opacity: 1; } 100% { transform: scaleX(1) translateX(14px); opacity: 0; } }
-  @media (max-width: 760px) { .hero-scrim { background: linear-gradient(180deg, rgba(9,9,10,0.5), rgba(9,9,10,0.85)); } .hero-title { max-width: none; } }
+
+  @media (prefers-reduced-motion: reduce) { .avatar, .avatar::before, .avatar::after { animation: none; } }
+  @media (max-width: 860px) {
+    .hero-scrim { background: linear-gradient(180deg, rgba(5,5,6,0.5), rgba(5,5,6,0.85)); }
+    .hero-in { grid-template-columns: 1fr; gap: 36px; }
+    .hero-title { max-width: none; }
+    .portrait { justify-items: start; }
+    .avatar { width: 150px; }
+  }
 </style>
