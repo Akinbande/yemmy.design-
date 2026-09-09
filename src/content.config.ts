@@ -11,6 +11,7 @@ const work = defineCollection({
     order: z.number().int(),
     status: z.enum(['live', 'early-access', 'shipped', 'concept']),
     summary: z.string(),
+    short: z.string().optional(),   // one line for the home page proof card
     tags: z.array(z.string()),
     link: z.string().url().optional(),
     thumb: z.string().optional(),
@@ -30,6 +31,7 @@ const writing = defineCollection({
     title: z.string(),
     date: z.coerce.date(),
     summary: z.string(),
+    short: z.string().optional(),   // one line for the home page proof card
     tags: z.array(z.string()).default([]),
     draft: z.boolean().default(false),
   }),
