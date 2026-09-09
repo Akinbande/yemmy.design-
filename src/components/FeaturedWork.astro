@@ -2,7 +2,7 @@
 import { getCollection } from 'astro:content';
 import Glyph from './Glyph.astro';
 const items = (await getCollection('work', (e) => e.data.tier === 1)).sort((a, b) => a.data.order - b.data.order);
-const label: Record<string, string> = { live: 'Live', 'early-access': 'Early access', shipped: 'Shipped', concept: 'Concept, not built' };
+const label: Record<string, string> = { live: 'Live', 'early-access': 'Early access', shipped: 'Shipped', concept: 'Concept' };
 ---
 <section class="section featured" id="work" aria-labelledby="work-h">
   <div class="wrap">

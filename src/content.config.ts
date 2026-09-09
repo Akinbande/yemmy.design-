@@ -15,6 +15,7 @@ const work = defineCollection({
     link: z.string().url().optional(),
     thumb: z.string().optional(),
     client: z.string().optional(),
+    pilot: z.string().optional(),
     industry: z.array(z.string()).default([]),
     role: z.string().optional(),
     services: z.array(z.string()).default([]),

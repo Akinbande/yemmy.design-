@@ -2,11 +2,12 @@
 /* The facts panel shared by case studies and screens pages, so both read the same. */
 interface Props { d: any }
 const { d } = Astro.props;
-const label: Record<string, string> = { live: 'Live', 'early-access': 'Early access', shipped: 'Shipped', concept: 'Concept, not built' };
+const label: Record<string, string> = { live: 'Live', 'early-access': 'Early access', shipped: 'Shipped', concept: 'Concept' };
 const host = d.link ? new URL(d.link).hostname.replace(/^www\./, '') : null;
 ---
 <dl class="panel facts">
   <div><dt>Client</dt><dd>{d.client ?? d.org}</dd></div>
+  {d.pilot && <div><dt>Pilot</dt><dd>{d.pilot}</dd></div>}
   {d.industry?.length > 0 && <div><dt>Industry</dt><dd>{d.industry.map((x: string) => <span>{x}</span>)}</dd></div>}
   {d.role && <div><dt>Role</dt><dd>{d.role}</dd></div>}
   {d.services?.length > 0 && <div><dt>Services</dt><dd>{d.services.map((x: string) => <span>{x}</span>)}</dd></div>}

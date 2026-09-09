@@ -1,7 +1,7 @@
 ---
 interface Props { kind?: 'progress' | 'concept' }
 const { kind = 'progress' } = Astro.props;
-const label = kind === 'concept' ? 'Concept, not built' : 'In progress';
+const label = kind === 'concept' ? 'Concept' : 'In progress';
 ---
 <aside class={`note ${kind}`} role="note">
   <span class="eyebrow">{label}</span>

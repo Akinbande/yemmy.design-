@@ -1,0 +1,26 @@
+---
+/* Smaller screens gliding slowly on a loop. Pauses on hover. */
+import { Image } from 'astro:assets';
+interface Item { src: ImageMetadata; alt: string }
+interface Props { items: Item[]; ratio?: string; speed?: number }
+const { items, ratio = '2400 / 1557', speed = 55 } = Astro.props;
+const loop = [...items, ...items];
+---
+<div class="mq" data-reveal style={`--dur:${speed}s`}>
+  <div class="track">
+    {loop.map((it, i) => (
+      <figure class="fr" style={`aspect-ratio:${ratio}`} aria-hidden={i >= items.length ? 'true' : undefined}>
+        <Image src={it.src} alt={i >= items.length ? '' : it.alt} width={1400} format="webp" quality={80} loading="lazy" />
+      </figure>
+    ))}
+  </div>
+</div>
+<style>
+  .mq { overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
+  .track { display: flex; gap: 16px; width: max-content; animation: mq var(--dur) linear infinite; }
+  .mq:hover .track { animation-play-state: paused; }
+  @keyframes mq { to { transform: translateX(calc(-50% - 8px)); } }
+  .fr { flex: none; width: clamp(300px, 34vw, 460px); margin: 0; border: 1px solid var(--line-a); border-radius: 12px; overflow: hidden; background: #F5F6F5; }
+  .fr :global(img) { width: 100%; height: 100%; object-fit: contain; display: block; }
+  @media (prefers-reduced-motion: reduce) { .track { animation: none; } .mq { overflow-x: auto; -webkit-mask-image: none; mask-image: none; } }
+</style>

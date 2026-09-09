@@ -4,7 +4,9 @@ import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import Facts from '../../components/Facts.astro';
 import Stack from '../../components/Stack.astro';
-import NoteWall from '../../components/NoteWall.astro';
+import Marquee from '../../components/Marquee.astro';
+import SystemBoard from '../../components/SystemBoard.astro';
+import Deck from '../../components/Deck.astro';
 import lockupSvg from '../../../public/collga/collga-lockup.svg?raw';
 
 const entry = (await getEntry('work', 'collga'))!;
@@ -18,31 +20,34 @@ const shots = (names: [string, string][]) => names.map(([n, alt]) => ({ src: img
 const lockup = lockupSvg.replace('<svg ', '<svg class="lockup" ');
 
 const breakdown = [
-  { k: 'Who it serves', v: 'Citizens, businesses and administrators of Odeda LGA', s: '3 account types, one login' },
-  { k: 'What it covers', v: 'Sixteen systems across four tiers of government', s: '12 designed in depth, 4 scoped' },
-  { k: 'Services', v: 'Twenty-one e-services in nine categories', s: 'each with a fee, requirements and a generated form' },
-  { k: 'Channels', v: 'Web, USSD, a ward agent and voice', s: 'in English, Yoruba, Hausa, Igbo and Pidgin' },
-  { k: 'Identity', v: 'Six verifiable credentials in a consent wallet', s: 'agencies ask before they read' },
-  { k: 'The pilot', v: 'Odeda Local Government, Ogun State', s: 'everything on screen is set in 2020' },
+  { k: 'Who it serves', v: 'Citizens, businesses and administrators', s: 'Three account types behind one login' },
+  { k: 'What it covers', v: 'Sixteen systems across four tiers of government', s: 'Federal, state, local government and platform' },
+  { k: 'Services', v: 'Twenty-one e-services in nine categories', s: 'Each with its fee, requirements and generated form' },
+  { k: 'Channels', v: 'Web, USSD, a ward agent and voice', s: 'English, Yoruba, Hausa, Igbo and Nigerian Pidgin' },
+  { k: 'Identity', v: 'Six credentials in a consent wallet', s: 'Agencies ask before they read, and every read is logged' },
+  { k: 'The pilot', v: 'Odeda Local Government, Ogun State', s: 'Every screen is set in the 2020 pilot year' },
 ];
 const tiers = [
-  ['Federal', ['Life-Event Journeys', 'National ID and Consent Wallet'], ['Freedom of Information']],
-  ['State', ['Internal Revenue Service', 'Public Procurement', "Governor's Delivery Dashboard"], ['Physical Planning', 'Social Investment Registry']],
-  ['Local government', ['Citizen and Business Portal', 'Admin Control Panel', 'E-Services Catalogue', 'Land and Property Registry', 'Business Registry'], []],
-  ['Platform', ['Assisted Digital and Inclusion', 'Design System'], ['Government Data Exchange']],
+  ['Federal', ['Life-Event Journeys', 'National ID and Consent Wallet', 'Freedom of Information']],
+  ['State', ['Internal Revenue Service', 'Public Procurement', "Governor's Delivery Dashboard", 'Physical Planning', 'Social Investment Registry']],
+  ['Local government', ['Citizen and Business Portal', 'Admin Control Panel', 'E-Services Catalogue', 'Land and Property Registry', 'Business Registry']],
+  ['Platform', ['Assisted Digital and Inclusion', 'Design System', 'Government Data Exchange']],
 ];
-const rules = [['Enter data once', 'A fact is typed one time and re-used, visibly, by every step that needs it.'], ['Share only with consent', 'An agency must ask, stating the exact fields, the duration and the legal basis.'], ['Log every access', 'Every read is written to a log the citizen can open.'], ['Check claims against measurement', 'What an agency reports sits beside what someone measured on site.']];
+const rules = [['Enter data once', 'A fact is typed one time and re-used, visibly, by every step that needs it.'], ['Share only with consent', 'An agency must ask first, naming the fields, the duration and the legal basis.'], ['Log every access', 'Every read is written to a log the citizen can open.'], ['Check claims against measurement', 'What an agency reports sits beside what someone measured on site.']];
 const decisions = [
-  { t: 'Enter once, re-use with consent', p: "A fact is typed one time. Every step that needs it re-uses it, visibly, and each re-use is tied to a consent the citizen granted and can withdraw. The convenience and the control are one mechanism." },
-  { t: 'Minimal disclosure you can see', img: 'id-1', alt: 'My credentials: six government-issued identities with their numbers masked, verified at source', p: "Credentials show their numbers masked by default, and an officer checking age is told over 18, never a date of birth. What was disclosed and what was withheld both sit on the screen. Privacy stops being a policy in a footer." },
-  { t: 'One notice, two authorities', img: 'consolidated', alt: 'Consolidated demand notice assessing Ogun State taxes and Odeda LGA levies on one document', p: "The consolidated demand notice assesses state taxes and local levies together. A business pays once and each authority receives its share automatically. It ends the most common complaint of Nigerian businesses: being assessed separately, and repeatedly, for the same year." },
-  { t: 'Claimed against verified', img: 'component/04-mda-scorecard-table', alt: 'Ministry scorecard comparing reported progress with what field officers measured', p: "What a ministry reports sits beside what a field officer measured on site, and ministries are scored on reporting accuracy as well as delivery. Designing for that gap, rather than assuming the returns are true, is what a delivery unit is for." },
-  { t: 'Fairness engineered into the flow', img: 'public-evaluation', alt: 'Evaluation room with bidders anonymised A to E and computed financial scores', p: "Bids stay sealed until the public opening, bidders are anonymised A to E, financial scores are computed rather than typed, and the award button stays disabled until every evaluator has submitted. The integrity is in the interaction, not in a document." },
-  { t: 'Assisted is not second-class', img: 'collections', alt: 'Field collection: agents on duty with a POS app issuing numbered receipts settled in real time', p: "Channel is the citizen's choice, never the service's. A receipt issued at a market stall by an agent on a POS device is the same receipt, with the same number, as one issued on the web." },
-  { t: 'A tile cartogram, not a map', img: 'component/02-lga-cartogram', alt: 'Equal-area tile cartogram of local governments', p: "Delivery by local government uses equal-area tiles, so no LGA looks more important than another because of its land area." },
+  { t: 'Enter once, re-use with consent', p: 'A fact is typed one time. Every step that needs it re-uses it in plain sight, and each re-use is tied to a consent the citizen gave and can withdraw. The convenience and the control are the same mechanism.' },
+  { t: 'Privacy you can see working', img: 'id-1', alt: 'Six credentials with their numbers masked, verified at source', p: 'Credential numbers stay masked by default. An officer checking age is told over 18, never a date of birth. What was disclosed and what was withheld both appear on the screen, so privacy is a feature people can watch, not a line in a policy.' },
+  { t: 'One notice, every authority', img: 'consolidated', alt: 'A consolidated demand notice assessing state taxes and local levies together', p: 'State taxes and local levies are assessed on one notice. A business pays once and each authority receives its share automatically. It ends the most common complaint of Nigerian businesses: being assessed twice for the same year.' },
+  { t: 'Fairness built into the flow', img: 'public-evaluation', alt: 'Evaluation room with bidders anonymised A to E and financial scores computed', p: 'Bids stay sealed until the public opening, bidders are anonymised A to E, financial scores are computed rather than typed, and the award button stays disabled until every evaluator has submitted. The integrity lives in the interaction.' },
+  { t: 'Assisted is not second-class', img: 'collections', alt: 'Field collection: agents on duty with a POS app issuing numbered receipts', p: "The channel is the citizen's choice, never the service's. A receipt issued at a market stall by an agent on a POS device is the same receipt, with the same number, as one issued on the web." },
+  { t: 'A tile map, not a land map', img: 'component/02-lga-cartogram', alt: 'Equal-area tile cartogram of local governments', p: 'Delivery by local government uses equal-area tiles, so no LGA looks more important than another because of its size on a map.' },
 ];
 const swatches = [['#4C9C40', 'Collga Green', 'Primary actions, active nav, brand'], ['#6CB460', 'Leaf', 'Light half of the shield, hover'], ['#1E3F1A', 'Forest', 'Dark buttons, issued badges'], ['#F0913A', 'Civic Orange', 'Landing login, due status'], ['#1E88E5', 'Info Blue', 'Sent, under review'], ['#E53935', 'Danger Red', 'Unpaid, overdue, rejected'], ['#E0E8F0', 'Mist', 'Shield interior, neutral badges'], ['#F5F6F5', 'Ground', 'Page background']];
-const comps: [string, string][] = [['component/02-system-card', 'System card'], ['component/03-credential-card', 'Credential card'], ['component/04-service-card', 'Service card'], ['component/05-stat-card', 'Stat card'], ['component/06-shield-choice-card', 'Shield choice card'], ['component/01-pillar-ring-card', 'Pillar ring card'], ['component/10-multi-party-signing', 'Multi-party signing'], ['component/04-mda-scorecard-table', 'Scorecard table'], ['component/02-lga-cartogram', 'LGA cartogram']];
+const deck = [
+  { title: 'Cards that carry a system', note: 'One card anatomy for a system, a credential and a service, so sixteen products read as one.', cards: [{ src: img('component/02-system-card'), alt: 'System card' }, { src: img('component/03-credential-card'), alt: 'Credential card' }, { src: img('component/04-service-card'), alt: 'Service card' }] },
+  { title: 'Small pieces, strict rules', note: 'Stat cards, the shield choice and the pillar ring share the same radii, shadows and spacing.', cards: [{ src: img('component/05-stat-card'), alt: 'Stat card' }, { src: img('component/06-shield-choice-card'), alt: 'Shield choice card' }, { src: img('component/01-pillar-ring-card'), alt: 'Pillar ring card' }] },
+  { title: 'The thinking pieces', note: 'Multi-party signing for land transfers, and status badges mapped to meaning rather than decoration.', cards: [{ src: img('component/10-multi-party-signing'), alt: 'Multi-party signing', span: 1 }, { src: img('04-status-badges'), alt: 'Status badges', span: 2 }] },
+];
 ---
 <Base title={`${d.title} · Oluwayemi Akinbande`} ogTitle={d.title} description={d.summary}>
   <article class="study">
@@ -58,40 +63,35 @@ const comps: [string, string][] = [['component/02-system-card', 'System card'], 
     <div class="wrap body">
 
       <section class="sec">
-        <div class="copy" data-reveal>
-          <p class="eyebrow accent">01 &middot; At a glance</p>
-          <h2>What was designed, before the screens.</h2>
-        </div>
-        <ul class="cards wide">
+        <div class="copy" data-reveal><h2>What was designed</h2></div>
+        <ul class="cards wide" id="glance">
           {breakdown.map((b, i) => (
-            <li class="panel bd" data-reveal data-reveal-delay={String((i % 3) * 0.07)}><span class="mono k">{b.k}</span><b>{b.v}</b><span class="s">{b.s}</span></li>
+            <li class="bd" data-reveal data-reveal-delay={String((i % 3) * 0.08)} style={`--i:${i}`}><span class="mono k">{b.k}</span><b>{b.v}</b><span class="s">{b.s}</span></li>
           ))}
         </ul>
       </section>
 
       <section class="sec">
         <div class="copy" data-reveal>
-          <p class="eyebrow accent">02 &middot; Where it started</p>
-          <h2>A front door, a login, and a way to pay.</h2>
-          <p>Collga was pitched in 2020 as an e-government platform for Nigerian state and local governments, with Odeda Local Government in Ogun State as the pilot. The first screens were the ones a citizen meets first: the public landing page, One Login, and registration as a citizen or a business, verified against the LGA register.</p>
+          <h2>Where it started</h2>
+          <p>Collga was designed in 2020 for Nigerian state and local governments, with Odeda Local Government as the pilot. The first screens are the ones a citizen meets first: a public front door, one login for everyone, and registration verified against the LGA register.</p>
         </div>
-        <div class="wide"><Stack items={shots([['landingpage', 'Landing page with one search box across government services'], ['aut1', 'Get started: register as a citizen or a business'], ['aut3', 'Citizen account, verified by LGA ID number'], ['aut2', 'Business account, verified by RC number'], ['aut5', 'Fetching the applicant record from the LGA database'], ['aut4', 'Error state when the ID or email does not match']])} /></div>
+        <div class="wide"><Stack items={shots([['landingpage', 'Landing page with one search box across every government service'], ['aut1', 'Get started: register as a citizen or a business'], ['aut3', 'Citizen account, verified by LGA ID number']])} /></div>
+        <div class="wide"><Marquee items={shots([['aut2', 'Business account, verified by RC number'], ['aut5', 'Fetching the applicant record from the LGA database'], ['aut4', 'Error state when the ID or email does not match']])} /></div>
       </section>
 
       <section class="sec">
         <div class="copy" data-reveal>
-          <p class="eyebrow accent">03 &middot; The seam</p>
-          <h2>Government digital work fails between agencies, not on the screen.</h2>
-          <p>A citizen registering a birth deals with a hospital, a local government registry, a federal identity commission and a state health insurer. Four organisations, four forms, four queues, and the same details typed four times. Mapping that one journey is where the design started.</p>
+          <h2>The problem is the seam, not the screen</h2>
+          <p>Every service a citizen needs is spread across agencies that do not share a record. Register a business and you deal with the local government, the state tax office and a federal registry, each with its own form, its own queue and its own copy of your details. Collga was designed around that seam, and the board below shows how much of government it had to hold.</p>
         </div>
-        <div class="wide"><NoteWall /></div>
+        <div class="wide"><SystemBoard /></div>
       </section>
 
       <section class="sec">
         <div class="copy" data-reveal>
-          <p class="eyebrow accent">04 &middot; The idea</p>
-          <h2>The unit of design is the journey across tiers of government, not the form.</h2>
-          <p>Four rules make crossing the seam safe. Almost everything distinctive in the platform comes from them.</p>
+          <h2>Four rules make crossing the seam safe</h2>
+          <p>Almost everything distinctive in the platform comes from them.</p>
         </div>
         <ul class="rules wide">
           {rules.map(([t, p], i) => <li class="panel" data-reveal data-reveal-delay={String(i * 0.07)}><span class="mono n">{String(i + 1).padStart(2, '0')}</span><h3>{t}</h3><p>{p}</p></li>)}
@@ -100,25 +100,18 @@ const comps: [string, string][] = [['component/02-system-card', 'System card'], 
 
       <section class="sec">
         <div class="copy" data-reveal>
-          <p class="eyebrow accent">05 &middot; The platform</p>
-          <h2>Sixteen systems, grouped by the tier that owns them.</h2>
-          <p>Twelve designed in depth, four scoped and deliberately left as outlines. An honest map is more useful than a flattering one.</p>
+          <h2>Sixteen systems, grouped by the tier that owns them</h2>
+          <p>Held together by a platform hub, where an administrator sees the whole estate on one screen.</p>
         </div>
         <div class="tiers wide" data-reveal>
-          {tiers.map(([name, built, planned]) => (
-            <div class="tier panel">
-              <span class="eyebrow">{name}</span>
-              <ul>{(built as string[]).map((s) => <li><i class="ok"></i>{s}</li>)}{(planned as string[]).map((s) => <li class="pl"><i></i>{s}<span class="mono">scoped</span></li>)}</ul>
-            </div>
+          {tiers.map(([name, list]) => (
+            <div class="tier panel"><span class="eyebrow">{name}</span><ul>{(list as string[]).map((s) => <li><i></i>{s}</li>)}</ul></div>
           ))}
         </div>
       </section>
 
       <section class="sec">
-        <div class="copy" data-reveal>
-          <p class="eyebrow accent">06 &middot; The decisions</p>
-          <h2>Seven ideas I would defend in a review.</h2>
-        </div>
+        <div class="copy" data-reveal><h2>Six decisions I would defend in a review</h2></div>
         <ol class="dec wide">
           {decisions.map((x, i) => (
             <li class="d" data-reveal>
@@ -131,54 +124,53 @@ const comps: [string, string][] = [['component/02-system-card', 'System card'], 
 
       <section class="sec">
         <div class="copy" data-reveal>
-          <p class="eyebrow accent">07 &middot; Citizen and Business Portal</p>
-          <h2>Where residents and businesses apply, pay and track.</h2>
-          <p>Twenty-one services in nine categories, a five-step wizard, a live status timeline, invoices, a three-step checkout and a document vault for what gets issued.</p>
+          <h2>Citizen and Business Portal</h2>
+          <p>Where residents and businesses apply, pay levies and track what they applied for. Twenty-one services, a five-step wizard, a live status timeline, and a vault for every document issued.</p>
         </div>
-        <div class="wide"><Stack items={shots([['citizen1', 'Citizen dashboard: wallet, outstanding invoices, active applications, quick actions'], ['citizen2', 'E-Services inside the portal, grouped by category'], ['e-service2', 'The public catalogue with filters, fees and processing times'], ['citizen3', 'Birth Certificate, step one: applicant details pre-filled from the profile'], ['citizen4', 'Step two: the form generated from the service definition'], ['citizen5', 'Application tracking with the reviewer note and a live progress timeline'], ['documen-list', 'Documents: certificates, permits and receipts, each verifiable'], ['payment1', 'Checkout: debit card, bank transfer or the Collga wallet'], ['payment2', 'Payments: the wallet, saved cards and every transaction']])} /></div>
+        <div class="wide"><Stack items={shots([['citizen1', 'Dashboard: wallet, invoices due, active applications and quick actions'], ['citizen3', 'Birth certificate, step one: applicant details pre-filled from the profile'], ['citizen5', 'Application tracking with the reviewer note and a live timeline']])} /></div>
+        <div class="wide"><Marquee items={shots([['citizen2', 'E-services inside the portal'], ['e-service2', 'The public catalogue with fees and processing times'], ['citizen4', 'Step two: the form generated from the service definition'], ['documen-list', 'Documents issued, each verifiable'], ['payment2', 'The wallet and every transaction']])} speed={70} /></div>
       </section>
 
       <section class="sec">
         <div class="copy" data-reveal>
-          <p class="eyebrow accent">08 &middot; Admin Control Panel</p>
-          <h2>The other side of the same counter.</h2>
-          <p>A review queue with assignment and service-level tracking, approve, reject or request-information decisions, citizen and business registries, revenue reporting, staff and roles.</p>
+          <h2>Admin Control Panel</h2>
+          <p>The other side of the same counter. A review queue with assignment and service-level tracking, registries, revenue reporting, and staff with roles.</p>
         </div>
-        <div class="wide"><Stack items={shots([['admin1', 'Admin Control Panel: revenue collected against invoiced, applications by status, daily collections'], ['admin2', 'Applications queue with assignees, priority and status'], ['admin3', 'Business registry with permits and outstanding levies'], ['staff-role', 'Staff and roles across departments'], ['recvenue1', 'Revenue: collections, invoicing and collection rate'], ['revenue2', 'Revenue by service, by channel and by ward']])} /></div>
+        <div class="wide"><Stack items={shots([['admin1', 'Admin dashboard: collected against invoiced, applications by status'], ['admin2', 'Applications queue with assignees, priority and status'], ['staff-role', 'Staff and roles across departments']])} /></div>
+        <div class="wide"><Marquee items={shots([['admin3', 'Business registry with permits and outstanding levies'], ['recvenue1', 'Revenue: collections against invoices'], ['revenue2', 'Revenue by service, channel and ward']])} /></div>
       </section>
 
       <section class="sec">
         <div class="copy" data-reveal>
-          <p class="eyebrow accent">09 &middot; Internal Revenue Service</p>
-          <h2>One notice, every authority, paid once.</h2>
-          <p>A taxpayer registry, the consolidated demand notice that settles state and local authorities from one payment, field collection on POS devices with real-time settlement, and a revenue-assurance queue.</p>
+          <h2>Internal Revenue Service</h2>
+          <p>The state's view: collected against target by tax type and by local government, and a registry of every taxpayer with a TIN.</p>
         </div>
-        <div class="wide"><Stack items={shots([['state-revenue', 'Ogun Internal Revenue Service: collected against target, by tax type and by local government'], ['state-revenue-taxpayer', 'Taxpayers: every individual and business with a TIN'], ['consolidated', 'Consolidated demand notices: state taxes and LGA levies on one notice'], ['collections', 'Field collection: agents on duty and end-of-day reconciliation']])} /></div>
+        <div class="wide"><Stack items={shots([['state-revenue', 'Internal Revenue Service dashboard: collected against target'], ['state-revenue-taxpayer', 'Taxpayers: every individual and business with a TIN']])} /></div>
       </section>
 
       <section class="sec">
         <div class="copy" data-reveal>
-          <p class="eyebrow accent">10 &middot; Identity, land and procurement</p>
-          <h2>Consent, ownership and fairness, designed into the flow.</h2>
-          <p>Six verifiable credentials with consent requests that state their legal basis. A parcel map, a title record with its ownership chain, and a transfer signed in turn. Open tenders, sealed bids and a blind evaluation room.</p>
+          <h2>Identity, land and procurement</h2>
+          <p>Consent requests that name their legal basis. A parcel map, a title record with its ownership chain, and a transfer that each party signs in turn. Tenders published, bids sealed.</p>
         </div>
-        <div class="wide"><Stack items={shots([['id-1', 'My credentials: six identities, verified at source, numbers masked'], ['id-2', 'Consent requests: the fields, the duration and the legal basis, allow or decline'], ['land1', 'Land and Property Registry: parcel map coloured by registration status'], ['land-title2', 'Title record with the ownership chain and encumbrances'], ['id-request', 'Transfer: each party signs in turn through governor\'s consent, stamp duty and registration'], ['public1', 'Public procurement: every tender published with its budget and bids'], ['public-supply2', 'A sealed bid, encrypted until the public opening'], ['public-evaluation', 'Evaluation room: bidders anonymised, financial scores computed']])} /></div>
+        <div class="wide"><Stack items={shots([['id-2', 'Consent requests: the fields, the duration and the legal basis'], ['land1', 'Land and property registry: parcel map by registration status'], ['land-title2', 'Title record with its ownership chain and encumbrances']])} /></div>
+        <div class="wide"><Marquee items={shots([['id-request', 'Transfer: each party signs in turn through consent, stamp duty and registration'], ['public1', 'Public procurement: every tender published'], ['public-supply2', 'A sealed bid, unreadable until the public opening']])} /></div>
       </section>
 
       <section class="sec">
         <div class="copy" data-reveal>
-          <p class="eyebrow accent">11 &middot; Design system</p>
-          <h2>One identity carrying sixteen systems.</h2>
-          <p>Collga Green sampled from the shield. Montserrat for the interface, Roboto for authentication and long copy. One shell, a white sidebar, a floating top bar and cards on a pale ground, themed per system so sixteen products still feel like one government.</p>
+          <h2>One identity for sixteen systems</h2>
+          <p>Collga Green sampled from the shield. Montserrat for the interface, Roboto for sign-in and long copy. One shell, themed per system, so sixteen products still feel like one government.</p>
         </div>
         <figure class="panel board wide" id="logo-board" data-reveal><div class="art" set:html={lockup} /></figure>
         <ul class="swatches wide" data-reveal>
           {swatches.map(([hex, name, use]) => <li><i style={`background:${hex}`}></i><b>{name}</b><span class="mono">{hex}</span><span class="u">{use}</span></li>)}
         </ul>
-        <div class="wide"><Stack ratio="2272 / 1268" items={shots([['01-buttons', 'Buttons'], ['02-inputs', 'Inputs and validation'], ['03-selects-and-toggles', 'Selects, textarea and toggles'], ['04-status-badges', 'Status badges mapped to meaning'], ['05-alerts', 'Alerts'], ['06-stepper-timeline-pagination', 'Stepper, timeline and pagination']])} /></div>
-        <ul class="comps wide">
-          {comps.map(([n, cap], i) => <li class="panel" data-reveal data-reveal-delay={String((i % 3) * 0.06)} style={`--i:${i}`}><Image src={img(n)} alt={cap} width={900} format="webp" quality={80} loading="lazy" /><span class="mono">{cap}</span></li>)}
-        </ul>
+      </section>
+
+      <section class="sec">
+        <div class="copy" data-reveal><h2>The components</h2></div>
+        <div class="wide"><Deck groups={deck} /></div>
         <figure class="panel film wide" data-reveal>
           <video src="/collga/collga-icon-system.mp4" autoplay muted loop playsinline aria-label="The icon system: 72 of the 134 icons, grouped by role, turning on a loop"></video>
         </figure>
@@ -186,9 +178,8 @@ const comps: [string, string][] = [['component/02-system-card', 'System card'], 
 
       <section class="sec">
         <div class="copy" data-reveal>
-          <p class="eyebrow accent">12 &middot; Status and scope</p>
-          <h2>A pitch, not a system in service.</h2>
-          <p>Collga secured stakeholder interest and did not proceed to build. The data on every screen is invented but realistic, modelled on how Nigerian state and local government actually operate: LGA identification numbers, CAC registration, PAYE and tenement rates, governor's consent on land transfers, open-contracting rules. Where a decision is a judgement call rather than a fact, the screen says so.</p>
+          <h2>Scope</h2>
+          <p>Collga is a concept, presented to stakeholders in 2020. The data on every screen is invented but realistic, modelled on how Nigerian state and local government actually operate: LGA identification numbers, CAC registration, PAYE and tenement rates, governor's consent on land transfers, open-contracting rules.</p>
         </div>
       </section>
     </div>
@@ -203,6 +194,13 @@ const comps: [string, string][] = [['component/02-system-card', 'System card'], 
   import gsap from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
   gsap.registerPlugin(ScrollTrigger);
+  function glance() {
+    const el = document.getElementById('glance');
+    if (!el || el.dataset.init) return; el.dataset.init = '1';
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    gsap.to(el.querySelectorAll('.bd'), { '--sweep': '220%', duration: 5, ease: 'none', repeat: -1, stagger: { each: 0.35, repeat: -1 },
+      scrollTrigger: { trigger: el, start: 'top 90%', end: 'bottom 10%', toggleActions: 'play pause resume pause' } });
+  }
   function logo() {
     const board = document.getElementById('logo-board');
     const svg = board?.querySelector<SVGSVGElement>('svg.lockup');
@@ -212,10 +210,8 @@ const comps: [string, string][] = [['component/02-system-card', 'System card'], 
     const dark = q('dark-green'), light = q('light-green'), circle = q('circle'), white = q('circle-white'), gray = q('gray');
     const len = dark.getTotalLength();
     const tl = gsap.timeline({ repeat: -1, repeatDelay: 1.2, scrollTrigger: { trigger: board, start: 'top 85%', end: 'bottom 10%', toggleActions: 'play pause resume pause' } });
-    tl.set([circle, white], { scale: 0, transformOrigin: '50% 50%' })
-      .set(light, { x: -90, opacity: 0 })
-      .set(dark, { strokeDasharray: len, strokeDashoffset: len, fillOpacity: 0, stroke: '#4C9C40', strokeWidth: 3 })
-      .set(gray, { opacity: 0, y: 12 })
+    tl.set([circle, white], { scale: 0, transformOrigin: '50% 50%' }).set(light, { x: -90, opacity: 0 })
+      .set(dark, { strokeDasharray: len, strokeDashoffset: len, fillOpacity: 0, stroke: '#4C9C40', strokeWidth: 3 }).set(gray, { opacity: 0, y: 12 })
       .to(light, { x: 0, opacity: 1, duration: 0.7, ease: 'power3.out' })
       .to(dark, { strokeDashoffset: 0, duration: 2.2, ease: 'power2.inOut' }, '-=0.3')
       .to(dark, { fillOpacity: 1, duration: 0.8, ease: 'power2.out' }, '-=0.9')
@@ -232,7 +228,7 @@ const comps: [string, string][] = [['component/02-system-card', 'System card'], 
     if (!v || v.dataset.init) return; v.dataset.init = '1';
     new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) v.play().catch(() => {}); else v.pause(); }), { threshold: 0.2 }).observe(v);
   }
-  document.addEventListener('astro:page-load', () => { logo(); film(); });
+  document.addEventListener('astro:page-load', () => { glance(); logo(); film(); });
 </script>
 
 <style>
@@ -244,19 +240,20 @@ const comps: [string, string][] = [['component/02-system-card', 'System card'], 
   h1 { font-size: clamp(32px, 4.6vw, 60px); letter-spacing: -0.04em; max-width: 18ch; }
   .sum { color: var(--muted); font-size: clamp(16px, 1.4vw, 19px); line-height: 1.6; max-width: 52ch; }
 
-  /* centred column for reading, wide lane for looking */
   .body { display: grid; gap: clamp(72px, 10vw, 140px); margin-top: clamp(56px, 8vw, 112px); }
   .sec { display: grid; gap: clamp(22px, 3vw, 36px); justify-items: center; }
   .copy { display: grid; gap: 14px; justify-items: center; text-align: center; max-width: 760px; }
   .copy h2 { font-size: clamp(26px, 3vw, 40px); max-width: 22ch; }
-  .copy p:not(.eyebrow) { color: var(--muted); font-size: clamp(15.5px, 1.25vw, 17px); line-height: 1.7; max-width: 64ch; }
+  .copy p { color: var(--muted); font-size: clamp(15.5px, 1.25vw, 17px); line-height: 1.7; max-width: 62ch; }
   .wide { width: 100%; max-width: 1240px; margin: 0 auto; }
 
   .cards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-  .bd { padding: clamp(20px, 2.4vw, 28px); display: grid; gap: 8px; align-content: start; }
-  .bd .k { font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
-  .bd b { font-size: clamp(17px, 1.6vw, 20px); font-weight: 600; letter-spacing: -0.02em; line-height: 1.3; }
-  .bd .s { color: var(--muted); font-size: 13.5px; line-height: 1.5; }
+  .bd { --sweep: -60%; position: relative; overflow: hidden; padding: clamp(22px, 2.6vw, 30px); display: grid; gap: 10px; align-content: start; border-radius: 16px;
+    border: 1px solid rgba(108,180,96,0.22); background: linear-gradient(160deg, #1E3F1A 0%, #14301A 45%, #0E1A12 100%); box-shadow: inset 0 1px 0 rgba(169,224,160,0.12); }
+  .bd::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(115deg, transparent 0%, rgba(169,224,160,0.14) 50%, transparent 100%); transform: translateX(var(--sweep)); }
+  .bd .k { font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: #9CCD93; }
+  .bd b { font-size: clamp(17px, 1.6vw, 20px); font-weight: 600; letter-spacing: -0.02em; line-height: 1.3; color: #F2F8F0; }
+  .bd .s { color: rgba(242,248,240,0.66); font-size: 13.5px; line-height: 1.5; }
 
   .rules { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .rules li { padding: 22px 24px; display: grid; gap: 8px; }
@@ -265,12 +262,9 @@ const comps: [string, string][] = [['component/02-system-card', 'System card'], 
   .rules p { color: var(--muted); font-size: 14.5px; line-height: 1.6; }
   .tiers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .tier { padding: 20px 22px; display: grid; gap: 12px; }
-  .tier ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 14px; }
+  .tier ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 14.5px; color: var(--fg); }
   .tier li { display: flex; align-items: center; gap: 10px; }
-  .tier li i { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); flex: none; }
-  .tier li i.ok { background: var(--ok); }
-  .tier .pl { color: var(--dim); }
-  .tier .pl .mono { margin-left: auto; font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; }
+  .tier li i { width: 7px; height: 7px; border-radius: 50%; background: #4C9C40; flex: none; }
 
   .dec { list-style: none; margin: 0; padding: 0; display: grid; gap: clamp(36px, 5vw, 64px); }
   .d { display: grid; gap: 22px; justify-items: center; }
@@ -289,11 +283,6 @@ const comps: [string, string][] = [['component/02-system-card', 'System card'], 
   .swatches i { height: 44px; border-radius: 8px; margin-bottom: 6px; }
   .swatches .mono { font-size: 10.5px; color: var(--dim); }
   .swatches .u { color: var(--muted); font-size: 12px; }
-  .comps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-  .comps li { padding: 12px; display: grid; gap: 10px; background: #F5F6F5; border-color: transparent; transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease); }
-  .comps li:hover { transform: translateY(-4px) rotate(calc((var(--i) - 4) * 0.25deg)); box-shadow: 0 24px 50px rgba(0,0,0,0.45); }
-  .comps :global(img) { width: 100%; height: auto; display: block; border-radius: 6px; }
-  .comps .mono { font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: #5A605B; }
   .film { margin: 0; padding: 12px; background: #F5F6F5; }
   .film video { width: 100%; height: auto; border-radius: 12px; display: block; }
 
@@ -303,9 +292,6 @@ const comps: [string, string][] = [['component/02-system-card', 'System card'], 
   .next .t { font-size: clamp(20px, 2.2vw, 26px); font-weight: 600; letter-spacing: -0.02em; }
   .next .o { font-size: 11px; color: var(--dim); letter-spacing: 0.08em; text-transform: uppercase; }
 
-  @media (max-width: 860px) {
-    .head, .rules, .tiers, .swatches { grid-template-columns: 1fr; }
-    .cards, .comps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  }
-  @media (max-width: 480px) { .cards, .comps { grid-template-columns: 1fr; } .art :global(svg.lockup) { width: 80%; } }
+  @media (max-width: 860px) { .head, .rules, .tiers, .swatches { grid-template-columns: 1fr; } .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 480px) { .cards { grid-template-columns: 1fr; } .art :global(svg.lockup) { width: 80%; } }
 </style>

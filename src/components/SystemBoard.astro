@@ -1,0 +1,67 @@
+---
+/* How wide the platform is: services and systems from every tier keep landing on the board,
+   overlapping and reshuffling, on a loop. Nothing here is selectable. */
+const notes = [
+  ['Birth certificate', 'LGA registry', 'c1'], ['Tenement rate', 'LGA revenue', 'c1'], ['Business premises permit', 'LGA', 'c1'], ['Market stall allocation', 'LGA', 'c1'],
+  ['Building plan approval', 'Works and planning', 'c1'], ['Waste management levy', 'LGA', 'c1'], ['Certificate of origin', 'LGA', 'c1'], ['Trade licence', 'LGA', 'c1'],
+  ['PAYE and direct assessment', 'State revenue', 'c3'], ['Consolidated demand notice', 'State revenue', 'c3'], ['Field collection on POS', 'State revenue', 'c3'], ['Sealed bids', 'Public procurement', 'c3'],
+  ['Blind evaluation room', 'Public procurement', 'c3'], ['Health insurance enrolment', 'State agency', 'c3'], ["Governor's delivery dashboard", 'Office of the Governor', 'c3'], ['Land transfer and consent', 'Bureau of Lands', 'c3'],
+  ['NIN enrolment', 'Federal identity', 'c2'], ['Consent requests', 'Consent wallet', 'c2'], ['Access log', 'Consent wallet', 'c2'], ["Driver's licence", 'Federal road safety', 'c2'],
+  ["Voter's card", 'Electoral commission', 'c2'], ['Life-event journeys', 'Federal', 'c2'],
+  ['USSD *2020#', 'Any feature phone', 'c0'], ['Ward agent desk', 'Assisted digital', 'c0'], ['Voice in Yoruba, Hausa, Igbo', 'Assisted digital', 'c0'], ['Audit log', 'Every system', 'c0'], ['Staff and roles', 'Every system', 'c0'], ['One Login', 'Every system', 'c0'],
+];
+---
+<div class="board" id="sysboard" aria-label="Services and systems across every tier of government">
+  <div class="head">
+    <span class="eyebrow">One platform, every tier</span>
+    <p class="mono">Twenty-eight of the services and systems it holds, from a ward desk to the Office of the Governor</p>
+  </div>
+  <div class="field" aria-hidden="true">
+    {notes.map(([t, w, c], i) => <div class={`note ${c}`} data-i={i}><b>{t}</b><span class="mono">{w}</span></div>)}
+  </div>
+  <div class="legend mono" aria-hidden="true"><span><i class="c1"></i>Local government</span><span><i class="c3"></i>State</span><span><i class="c2"></i>Federal</span><span><i class="c0"></i>Platform</span></div>
+</div>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  gsap.registerPlugin(ScrollTrigger);
+  function init() {
+    const board = document.getElementById('sysboard');
+    if (!board || board.dataset.init) return; board.dataset.init = '1';
+    const field = board.querySelector<HTMLElement>('.field')!;
+    const notes = [...field.querySelectorAll<HTMLElement>('.note')];
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const seeded = (n: number) => { const s = Math.sin(n * 12.9898) * 43758.5453; return s - Math.floor(s); };
+    const place = (salt: number) => notes.forEach((n, i) => {
+      const cols = field.clientWidth < 700 ? 3 : 6, col = i % cols, row = Math.floor(i / cols);
+      const cw = field.clientWidth / cols, rh = field.clientHeight / Math.ceil(notes.length / cols);
+      gsap.set(n, { left: col * cw + cw * 0.08 + (seeded(i + salt) - 0.5) * cw * 0.35, top: row * rh + (seeded(i * 3 + salt) - 0.5) * rh * 0.5, rotation: (seeded(i * 7 + salt) - 0.5) * 12 });
+    });
+    place(1);
+    if (reduced) { gsap.set(notes, { opacity: 1, scale: 1 }); return; }
+    let salt = 1;
+    const tl = gsap.timeline({ repeat: -1, scrollTrigger: { trigger: board, start: 'top 85%', end: 'bottom 15%', toggleActions: 'play pause resume pause' },
+      onRepeat: () => { salt += 7; place(salt); } });
+    tl.set(notes, { opacity: 0, scale: 0.6, y: 40 })
+      .to(notes, { opacity: 1, scale: 1, y: 0, duration: 0.55, ease: 'back.out(1.6)', stagger: { each: 0.16, from: 'random' } })
+      .to({}, { duration: 2.4 })
+      .to(notes, { opacity: 0, scale: 0.9, y: -30, duration: 0.45, ease: 'power2.in', stagger: { each: 0.03, from: 'random' } });
+    window.addEventListener('resize', () => place(salt), { passive: true });
+  }
+  document.addEventListener('astro:page-load', init);
+</script>
+
+<style>
+  .board { border: 1px solid var(--line-a); border-radius: var(--r); background: linear-gradient(180deg, rgba(30,63,26,0.35), var(--surface) 70%); overflow: hidden; padding: clamp(20px, 3vw, 32px); display: grid; gap: 18px; user-select: none; -webkit-user-select: none; }
+  .head { display: grid; gap: 8px; text-align: center; justify-items: center; }
+  .head .mono { font-size: 11px; letter-spacing: 0.06em; color: var(--muted); max-width: 60ch; }
+  .field { position: relative; height: clamp(420px, 44vw, 560px); pointer-events: none; background-image: radial-gradient(rgba(235,238,245,0.06) 1px, transparent 1px); background-size: 22px 22px; border-radius: 12px; }
+  .note { position: absolute; width: clamp(150px, 15vw, 200px); padding: 14px 15px; border-radius: 4px; display: grid; gap: 6px; color: #1E1F22; opacity: 0; box-shadow: 0 14px 30px rgba(0,0,0,0.4), inset 0 -1px 0 rgba(0,0,0,0.08); transform-origin: 50% 30%; will-change: transform, opacity; }
+  .note b { font-weight: 600; font-size: 14px; letter-spacing: -0.01em; line-height: 1.3; }
+  .note .mono { font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.65; }
+  .c0 { background: #E9F0FF; } .c1 { background: #A9E0A0; } .c2 { background: #9FD3F5; } .c3 { background: #F7E36A; }
+  .legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 18px; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 8px; vertical-align: -1px; }
+  @media (max-width: 700px) { .field { height: 620px; } .note { width: 140px; } }
+</style>
