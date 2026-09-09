@@ -3,7 +3,7 @@ import { getCollection, getEntry } from 'astro:content';
 import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import Facts from '../../components/Facts.astro';
-import Slider from '../../components/Slider.astro';
+import Stack from '../../components/Stack.astro';
 import NoteWall from '../../components/NoteWall.astro';
 import lockupSvg from '../../../public/collga/collga-lockup.svg?raw';
 
@@ -14,29 +14,32 @@ const next = all[(all.findIndex((e) => e.id === 'collga') + 1) % all.length];
 
 const files = import.meta.glob<{ default: ImageMetadata }>('/src/assets/collga/**/*.png', { eager: true });
 const img = (name: string) => { const k = Object.keys(files).find((p) => p.endsWith(`/${name}.png`)); if (!k) throw new Error('missing ' + name); return files[k].default; };
-const g = (names: [string, string][]) => names.map(([n, cap]) => ({ src: img(n), alt: cap, cap }));
+const shots = (names: [string, string][]) => names.map(([n, alt]) => ({ src: img(n), alt }));
 const lockup = lockupSvg.replace('<svg ', '<svg class="lockup" ');
 
+const breakdown = [
+  { k: 'Who it serves', v: 'Citizens, businesses and administrators of Odeda LGA', s: '3 account types, one login' },
+  { k: 'What it covers', v: 'Sixteen systems across four tiers of government', s: '12 designed in depth, 4 scoped' },
+  { k: 'Services', v: 'Twenty-one e-services in nine categories', s: 'each with a fee, requirements and a generated form' },
+  { k: 'Channels', v: 'Web, USSD, a ward agent and voice', s: 'in English, Yoruba, Hausa, Igbo and Pidgin' },
+  { k: 'Identity', v: 'Six verifiable credentials in a consent wallet', s: 'agencies ask before they read' },
+  { k: 'The pilot', v: 'Odeda Local Government, Ogun State', s: 'everything on screen is set in 2020' },
+];
 const tiers = [
   ['Federal', ['Life-Event Journeys', 'National ID and Consent Wallet'], ['Freedom of Information']],
   ['State', ['Internal Revenue Service', 'Public Procurement', "Governor's Delivery Dashboard"], ['Physical Planning', 'Social Investment Registry']],
   ['Local government', ['Citizen and Business Portal', 'Admin Control Panel', 'E-Services Catalogue', 'Land and Property Registry', 'Business Registry'], []],
   ['Platform', ['Assisted Digital and Inclusion', 'Design System'], ['Government Data Exchange']],
 ];
+const rules = [['Enter data once', 'A fact is typed one time and re-used, visibly, by every step that needs it.'], ['Share only with consent', 'An agency must ask, stating the exact fields, the duration and the legal basis.'], ['Log every access', 'Every read is written to a log the citizen can open.'], ['Check claims against measurement', 'What an agency reports sits beside what someone measured on site.']];
 const decisions = [
   { t: 'Enter once, re-use with consent', p: "A fact is typed one time. Every step that needs it re-uses it, visibly, and each re-use is tied to a consent the citizen granted and can withdraw. The convenience and the control are one mechanism." },
-  { t: 'Minimal disclosure you can see', img: 'id-1', alt: 'My credentials: six government-issued identities with their numbers masked, verified at source',
-    p: "Credentials show their numbers masked by default, and an officer checking age is told over 18, never a date of birth. What was disclosed and what was withheld both sit on the screen. Privacy stops being a policy in a footer." },
-  { t: 'One notice, two authorities', img: 'consolidated', alt: 'Consolidated demand notice assessing Ogun State taxes and Odeda LGA levies on one document',
-    p: "The consolidated demand notice assesses state taxes and local levies together. A business pays once and each authority receives its share automatically. It ends the most common complaint of Nigerian businesses: being assessed separately, and repeatedly, for the same year." },
-  { t: 'Claimed against verified', img: 'component/04-mda-scorecard-table', alt: 'Ministry scorecard comparing reported progress with what field officers measured',
-    p: "What a ministry reports sits beside what a field officer measured on site, and ministries are scored on reporting accuracy as well as delivery. Designing for that gap, rather than assuming the returns are true, is what a delivery unit is for." },
-  { t: 'Fairness engineered into the flow', img: 'public-evaluation', alt: 'Evaluation room with bidders anonymised A to E and computed financial scores',
-    p: "Bids stay sealed until the public opening, bidders are anonymised A to E, financial scores are computed rather than typed, and the award button stays disabled until every evaluator has submitted. The integrity is in the interaction, not in a document." },
-  { t: 'Assisted is not second-class', img: 'collections', alt: 'Field collection: agents on duty with a POS app issuing numbered receipts settled in real time',
-    p: "Channel is the citizen's choice, never the service's. A receipt issued at a market stall by an agent on a POS device is the same receipt, with the same number, as one issued on the web." },
-  { t: 'A tile cartogram, not a map', img: 'component/02-lga-cartogram', alt: 'Equal-area tile cartogram of local governments',
-    p: "Delivery by local government uses equal-area tiles, so no LGA looks more important than another because of its land area." },
+  { t: 'Minimal disclosure you can see', img: 'id-1', alt: 'My credentials: six government-issued identities with their numbers masked, verified at source', p: "Credentials show their numbers masked by default, and an officer checking age is told over 18, never a date of birth. What was disclosed and what was withheld both sit on the screen. Privacy stops being a policy in a footer." },
+  { t: 'One notice, two authorities', img: 'consolidated', alt: 'Consolidated demand notice assessing Ogun State taxes and Odeda LGA levies on one document', p: "The consolidated demand notice assesses state taxes and local levies together. A business pays once and each authority receives its share automatically. It ends the most common complaint of Nigerian businesses: being assessed separately, and repeatedly, for the same year." },
+  { t: 'Claimed against verified', img: 'component/04-mda-scorecard-table', alt: 'Ministry scorecard comparing reported progress with what field officers measured', p: "What a ministry reports sits beside what a field officer measured on site, and ministries are scored on reporting accuracy as well as delivery. Designing for that gap, rather than assuming the returns are true, is what a delivery unit is for." },
+  { t: 'Fairness engineered into the flow', img: 'public-evaluation', alt: 'Evaluation room with bidders anonymised A to E and computed financial scores', p: "Bids stay sealed until the public opening, bidders are anonymised A to E, financial scores are computed rather than typed, and the award button stays disabled until every evaluator has submitted. The integrity is in the interaction, not in a document." },
+  { t: 'Assisted is not second-class', img: 'collections', alt: 'Field collection: agents on duty with a POS app issuing numbered receipts settled in real time', p: "Channel is the citizen's choice, never the service's. A receipt issued at a market stall by an agent on a POS device is the same receipt, with the same number, as one issued on the web." },
+  { t: 'A tile cartogram, not a map', img: 'component/02-lga-cartogram', alt: 'Equal-area tile cartogram of local governments', p: "Delivery by local government uses equal-area tiles, so no LGA looks more important than another because of its land area." },
 ];
 const swatches = [['#4C9C40', 'Collga Green', 'Primary actions, active nav, brand'], ['#6CB460', 'Leaf', 'Light half of the shield, hover'], ['#1E3F1A', 'Forest', 'Dark buttons, issued badges'], ['#F0913A', 'Civic Orange', 'Landing login, due status'], ['#1E88E5', 'Info Blue', 'Sent, under review'], ['#E53935', 'Danger Red', 'Unpaid, overdue, rejected'], ['#E0E8F0', 'Mist', 'Shield interior, neutral badges'], ['#F5F6F5', 'Ground', 'Page background']];
 const comps: [string, string][] = [['component/02-system-card', 'System card'], ['component/03-credential-card', 'Credential card'], ['component/04-service-card', 'Service card'], ['component/05-stat-card', 'Stat card'], ['component/06-shield-choice-card', 'Shield choice card'], ['component/01-pillar-ring-card', 'Pillar ring card'], ['component/10-multi-party-signing', 'Multi-party signing'], ['component/04-mda-scorecard-table', 'Scorecard table'], ['component/02-lga-cartogram', 'LGA cartogram']];
@@ -48,42 +51,60 @@ const comps: [string, string][] = [['component/02-system-card', 'System card'], 
         <p class="mono crumbs" data-reveal><a href="/#work">Work</a><span class="sep">/</span><span>{d.org}</span></p>
         <h1 data-reveal data-reveal-delay="0.1">{d.title}</h1>
         <p class="sum" data-reveal data-reveal-delay="0.2">{d.summary}</p>
-        <ul class="stats mono" data-reveal data-reveal-delay="0.3"><li><b>16</b>systems</li><li><b>21</b>services</li><li><b>5</b>languages</li><li><b>4</b>channels</li></ul>
       </div>
       <div data-reveal data-reveal-delay="0.25"><Facts d={d} /></div>
     </header>
 
     <div class="wrap body">
-      <section id="start" class="sec">
-        <p class="eyebrow accent" data-reveal>01 &middot; Where it started</p>
-        <h2 data-reveal>A front door, a login, and a way to pay.</h2>
-        <p data-reveal>Collga was pitched in 2020 as an e-government platform for Nigerian state and local governments, with Odeda Local Government in Ogun State as the pilot. The first screens were the ones a citizen meets first: the public landing page, One Login, and registration as a citizen or a business, verified against the LGA register.</p>
-        <div data-reveal><Slider id="s-start" items={g([['landingpage', 'Landing page: one search box over the whole of government'], ['aut1', 'Let us get you started: e-citizens or e-business'], ['aut3', 'Citizen account, verified by LGA ID number'], ['aut2', 'Business account, verified by RC number'], ['aut5', 'Fetching the record from the LGA database'], ['aut4', 'When the ID or email does not match']])} /></div>
-      </section>
 
-      <section id="seam" class="sec">
-        <p class="eyebrow accent" data-reveal>02 &middot; The seam</p>
-        <h2 data-reveal>Government digital work fails between agencies, not on the screen.</h2>
-        <p data-reveal>A citizen registering a birth deals with a hospital, a local government registry, a federal identity commission and a state health insurer. Four organisations, four forms, four queues, and the same details typed four times. Mapping that one journey is where the design started.</p>
-        <NoteWall />
-      </section>
-
-      <section id="idea" class="sec">
-        <p class="eyebrow accent" data-reveal>03 &middot; The idea</p>
-        <h2 data-reveal>The unit of design is the journey across tiers of government, not the form.</h2>
-        <p data-reveal>Four rules make crossing the seam safe. Almost everything distinctive in the platform comes from them.</p>
-        <ul class="rules">
-          {[['Enter data once', 'A fact is typed one time and re-used, visibly, by every step that needs it.'], ['Share only with consent', 'An agency must ask, stating the exact fields, the duration and the legal basis.'], ['Log every access', 'Every read is written to a log the citizen can open.'], ['Check claims against measurement', 'What an agency reports sits beside what someone measured on site.']].map(([t, p], i) => (
-            <li class="panel" data-reveal data-reveal-delay={String(i * 0.07)}><span class="mono n">{String(i + 1).padStart(2, '0')}</span><h3>{t}</h3><p>{p}</p></li>
+      <section class="sec">
+        <div class="copy" data-reveal>
+          <p class="eyebrow accent">01 &middot; At a glance</p>
+          <h2>What was designed, before the screens.</h2>
+        </div>
+        <ul class="cards wide">
+          {breakdown.map((b, i) => (
+            <li class="panel bd" data-reveal data-reveal-delay={String((i % 3) * 0.07)}><span class="mono k">{b.k}</span><b>{b.v}</b><span class="s">{b.s}</span></li>
           ))}
         </ul>
       </section>
 
-      <section id="platform" class="sec">
-        <p class="eyebrow accent" data-reveal>04 &middot; The platform</p>
-        <h2 data-reveal>Sixteen systems, grouped by the tier that owns them.</h2>
-        <p data-reveal>Twelve designed in depth, four scoped and deliberately left as outlines. An honest map is more useful than a flattering one.</p>
-        <div class="tiers" data-reveal>
+      <section class="sec">
+        <div class="copy" data-reveal>
+          <p class="eyebrow accent">02 &middot; Where it started</p>
+          <h2>A front door, a login, and a way to pay.</h2>
+          <p>Collga was pitched in 2020 as an e-government platform for Nigerian state and local governments, with Odeda Local Government in Ogun State as the pilot. The first screens were the ones a citizen meets first: the public landing page, One Login, and registration as a citizen or a business, verified against the LGA register.</p>
+        </div>
+        <div class="wide"><Stack items={shots([['landingpage', 'Landing page with one search box across government services'], ['aut1', 'Get started: register as a citizen or a business'], ['aut3', 'Citizen account, verified by LGA ID number'], ['aut2', 'Business account, verified by RC number'], ['aut5', 'Fetching the applicant record from the LGA database'], ['aut4', 'Error state when the ID or email does not match']])} /></div>
+      </section>
+
+      <section class="sec">
+        <div class="copy" data-reveal>
+          <p class="eyebrow accent">03 &middot; The seam</p>
+          <h2>Government digital work fails between agencies, not on the screen.</h2>
+          <p>A citizen registering a birth deals with a hospital, a local government registry, a federal identity commission and a state health insurer. Four organisations, four forms, four queues, and the same details typed four times. Mapping that one journey is where the design started.</p>
+        </div>
+        <div class="wide"><NoteWall /></div>
+      </section>
+
+      <section class="sec">
+        <div class="copy" data-reveal>
+          <p class="eyebrow accent">04 &middot; The idea</p>
+          <h2>The unit of design is the journey across tiers of government, not the form.</h2>
+          <p>Four rules make crossing the seam safe. Almost everything distinctive in the platform comes from them.</p>
+        </div>
+        <ul class="rules wide">
+          {rules.map(([t, p], i) => <li class="panel" data-reveal data-reveal-delay={String(i * 0.07)}><span class="mono n">{String(i + 1).padStart(2, '0')}</span><h3>{t}</h3><p>{p}</p></li>)}
+        </ul>
+      </section>
+
+      <section class="sec">
+        <div class="copy" data-reveal>
+          <p class="eyebrow accent">05 &middot; The platform</p>
+          <h2>Sixteen systems, grouped by the tier that owns them.</h2>
+          <p>Twelve designed in depth, four scoped and deliberately left as outlines. An honest map is more useful than a flattering one.</p>
+        </div>
+        <div class="tiers wide" data-reveal>
           {tiers.map(([name, built, planned]) => (
             <div class="tier panel">
               <span class="eyebrow">{name}</span>
@@ -93,66 +114,81 @@ const comps: [string, string][] = [['component/02-system-card', 'System card'], 
         </div>
       </section>
 
-      <section id="decisions" class="sec">
-        <p class="eyebrow accent" data-reveal>05 &middot; The decisions</p>
-        <h2 data-reveal>Seven ideas I would defend in a review.</h2>
-        <ol class="dec">
+      <section class="sec">
+        <div class="copy" data-reveal>
+          <p class="eyebrow accent">06 &middot; The decisions</p>
+          <h2>Seven ideas I would defend in a review.</h2>
+        </div>
+        <ol class="dec wide">
           {decisions.map((x, i) => (
-            <li class={`d ${x.img ? '' : 'text'}`} data-reveal>
+            <li class="d" data-reveal>
               <div class="dt"><span class="mono n">{String(i + 1).padStart(2, '0')}</span><h3>{x.t}</h3><p>{x.p}</p></div>
-              {x.img && <figure class="df"><Image src={img(x.img)} alt={x.alt!} width={2400} format="webp" quality={82} loading="lazy" /></figure>}
+              {x.img && <figure class="shot"><Image src={img(x.img)} alt={x.alt!} width={2400} format="webp" quality={82} loading="lazy" /></figure>}
             </li>
           ))}
         </ol>
       </section>
 
-      <section id="modules" class="sec">
-        <p class="eyebrow accent" data-reveal>06 &middot; Core modules</p>
-        <h2 data-reveal>Both sides of the counter, and the tiers above it.</h2>
-
-        <h3 class="mh" data-reveal>Citizen and Business Portal <span class="mono">local government</span></h3>
-        <p data-reveal>Where residents and businesses of Odeda apply, pay levies and track applications. Twenty-one services in nine categories, a five-step wizard, a live status timeline, invoices, a three-step checkout and a document vault for what gets issued.</p>
-        <div data-reveal><Slider id="s-citizen" items={g([['citizen1', 'Dashboard: wallet, outstanding invoices, applications, quick actions'], ['citizen2', 'E-Services inside the portal, by category'], ['e-service2', 'The public catalogue with filters and fees'], ['citizen3', 'Birth Certificate, step 1: applicant, pre-filled from the profile'], ['citizen4', 'Step 2: the form generated from the service definition'], ['citizen5', 'Application tracking with the reviewer note and progress'], ['documen-list', 'Documents: certificates, permits and receipts, verifiable'], ['payment1', 'Checkout: debit card, bank transfer or wallet'], ['payment2', 'Payments: the Collga wallet and every transaction']])} /></div>
-
-        <h3 class="mh" data-reveal>Admin Control Panel <span class="mono">local government</span></h3>
-        <p data-reveal>The other side of the same counter: a review queue with assignment and service-level tracking, approve, reject or request-information decisions, registries, revenue reporting, staff and roles.</p>
-        <div data-reveal><Slider id="s-admin" items={g([['admin1', 'Admin Control Panel: revenue collected against invoiced, applications by status'], ['admin2', 'Applications queue with assignees, priority and status'], ['admin3', 'Business registry with permits and outstanding levies'], ['staff-role', 'Staff and roles across departments'], ['recvenue1', 'Revenue: collections, invoicing and channel performance'], ['revenue2', 'Revenue by service, by channel and by ward']])} /></div>
-
-        <h3 class="mh" data-reveal>Internal Revenue Service <span class="mono">state</span></h3>
-        <p data-reveal>A taxpayer registry, the consolidated demand notice that settles state and local authorities from one payment, field collection on POS devices with real-time settlement, and a revenue-assurance queue.</p>
-        <div data-reveal><Slider id="s-state" items={g([['state-revenue', 'Ogun Internal Revenue Service: collected against target, by tax type and by LGA'], ['state-revenue-taxpayer', 'Taxpayers: every individual and business with a TIN'], ['consolidated', 'Consolidated demand notices: one notice, every authority'], ['collections', 'Field collection: agents on duty and end-of-day reconciliation']])} /></div>
-
-        <h3 class="mh" data-reveal>Identity, Land and Procurement <span class="mono">federal and state</span></h3>
-        <p data-reveal>Six verifiable credentials with consent requests that state their legal basis. A parcel map, a title record with its ownership chain, and a transfer signed in turn. Open tenders, sealed bids and a blind evaluation room.</p>
-        <div data-reveal><Slider id="s-more" items={g([['id-1', 'My credentials: six identities, verified at source'], ['id-2', 'Consent requests: fields, duration and legal basis, allow or decline'], ['land1', 'Land and Property Registry: parcel map by registration status'], ['land-title2', 'Title record with the ownership chain and encumbrances'], ['id-request', 'Transfer: each party signs in turn through governor\'s consent'], ['public1', 'Public procurement: every tender published'], ['public-supply2', 'A sealed bid, encrypted until the public opening'], ['public-evaluation', 'Evaluation room: bidders anonymised, scores computed']])} /></div>
+      <section class="sec">
+        <div class="copy" data-reveal>
+          <p class="eyebrow accent">07 &middot; Citizen and Business Portal</p>
+          <h2>Where residents and businesses apply, pay and track.</h2>
+          <p>Twenty-one services in nine categories, a five-step wizard, a live status timeline, invoices, a three-step checkout and a document vault for what gets issued.</p>
+        </div>
+        <div class="wide"><Stack items={shots([['citizen1', 'Citizen dashboard: wallet, outstanding invoices, active applications, quick actions'], ['citizen2', 'E-Services inside the portal, grouped by category'], ['e-service2', 'The public catalogue with filters, fees and processing times'], ['citizen3', 'Birth Certificate, step one: applicant details pre-filled from the profile'], ['citizen4', 'Step two: the form generated from the service definition'], ['citizen5', 'Application tracking with the reviewer note and a live progress timeline'], ['documen-list', 'Documents: certificates, permits and receipts, each verifiable'], ['payment1', 'Checkout: debit card, bank transfer or the Collga wallet'], ['payment2', 'Payments: the wallet, saved cards and every transaction']])} /></div>
       </section>
 
-      <section id="system" class="sec">
-        <p class="eyebrow accent" data-reveal>07 &middot; Design system</p>
-        <h2 data-reveal>One identity carrying sixteen systems.</h2>
-        <figure class="panel board" id="logo-board" data-reveal>
-          <div class="art" set:html={lockup} />
-          <figcaption class="mono"><span class="n">The mark</span>Collga Green sampled from the shield, Montserrat for the interface, Roboto for authentication and long copy.</figcaption>
-        </figure>
-        <p data-reveal>One shell, a white sidebar, a floating top bar and cards on a pale ground, themed per system so sixteen products still feel like one government. 134 icons in one family at one weight, grouped by the six roles they play.</p>
-        <ul class="swatches" data-reveal>
+      <section class="sec">
+        <div class="copy" data-reveal>
+          <p class="eyebrow accent">08 &middot; Admin Control Panel</p>
+          <h2>The other side of the same counter.</h2>
+          <p>A review queue with assignment and service-level tracking, approve, reject or request-information decisions, citizen and business registries, revenue reporting, staff and roles.</p>
+        </div>
+        <div class="wide"><Stack items={shots([['admin1', 'Admin Control Panel: revenue collected against invoiced, applications by status, daily collections'], ['admin2', 'Applications queue with assignees, priority and status'], ['admin3', 'Business registry with permits and outstanding levies'], ['staff-role', 'Staff and roles across departments'], ['recvenue1', 'Revenue: collections, invoicing and collection rate'], ['revenue2', 'Revenue by service, by channel and by ward']])} /></div>
+      </section>
+
+      <section class="sec">
+        <div class="copy" data-reveal>
+          <p class="eyebrow accent">09 &middot; Internal Revenue Service</p>
+          <h2>One notice, every authority, paid once.</h2>
+          <p>A taxpayer registry, the consolidated demand notice that settles state and local authorities from one payment, field collection on POS devices with real-time settlement, and a revenue-assurance queue.</p>
+        </div>
+        <div class="wide"><Stack items={shots([['state-revenue', 'Ogun Internal Revenue Service: collected against target, by tax type and by local government'], ['state-revenue-taxpayer', 'Taxpayers: every individual and business with a TIN'], ['consolidated', 'Consolidated demand notices: state taxes and LGA levies on one notice'], ['collections', 'Field collection: agents on duty and end-of-day reconciliation']])} /></div>
+      </section>
+
+      <section class="sec">
+        <div class="copy" data-reveal>
+          <p class="eyebrow accent">10 &middot; Identity, land and procurement</p>
+          <h2>Consent, ownership and fairness, designed into the flow.</h2>
+          <p>Six verifiable credentials with consent requests that state their legal basis. A parcel map, a title record with its ownership chain, and a transfer signed in turn. Open tenders, sealed bids and a blind evaluation room.</p>
+        </div>
+        <div class="wide"><Stack items={shots([['id-1', 'My credentials: six identities, verified at source, numbers masked'], ['id-2', 'Consent requests: the fields, the duration and the legal basis, allow or decline'], ['land1', 'Land and Property Registry: parcel map coloured by registration status'], ['land-title2', 'Title record with the ownership chain and encumbrances'], ['id-request', 'Transfer: each party signs in turn through governor\'s consent, stamp duty and registration'], ['public1', 'Public procurement: every tender published with its budget and bids'], ['public-supply2', 'A sealed bid, encrypted until the public opening'], ['public-evaluation', 'Evaluation room: bidders anonymised, financial scores computed']])} /></div>
+      </section>
+
+      <section class="sec">
+        <div class="copy" data-reveal>
+          <p class="eyebrow accent">11 &middot; Design system</p>
+          <h2>One identity carrying sixteen systems.</h2>
+          <p>Collga Green sampled from the shield. Montserrat for the interface, Roboto for authentication and long copy. One shell, a white sidebar, a floating top bar and cards on a pale ground, themed per system so sixteen products still feel like one government.</p>
+        </div>
+        <figure class="panel board wide" id="logo-board" data-reveal><div class="art" set:html={lockup} /></figure>
+        <ul class="swatches wide" data-reveal>
           {swatches.map(([hex, name, use]) => <li><i style={`background:${hex}`}></i><b>{name}</b><span class="mono">{hex}</span><span class="u">{use}</span></li>)}
         </ul>
-        <div data-reveal><Slider id="s-sys" ratio="2272 / 1268" items={g([['01-buttons', 'Buttons: one primary per view, grey secondary, accent orange for the landing login only'], ['02-inputs', 'Inputs and validation'], ['03-selects-and-toggles', 'Selects, textarea and toggles'], ['04-status-badges', 'Status badges mapped to meaning'], ['05-alerts', 'Alerts'], ['06-stepper-timeline-pagination', 'Stepper, timeline and pagination']])} /></div>
-        <p class="eyebrow" data-reveal>Components cropped from the product</p>
-        <ul class="comps">
+        <div class="wide"><Stack ratio="2272 / 1268" items={shots([['01-buttons', 'Buttons'], ['02-inputs', 'Inputs and validation'], ['03-selects-and-toggles', 'Selects, textarea and toggles'], ['04-status-badges', 'Status badges mapped to meaning'], ['05-alerts', 'Alerts'], ['06-stepper-timeline-pagination', 'Stepper, timeline and pagination']])} /></div>
+        <ul class="comps wide">
           {comps.map(([n, cap], i) => <li class="panel" data-reveal data-reveal-delay={String((i % 3) * 0.06)} style={`--i:${i}`}><Image src={img(n)} alt={cap} width={900} format="webp" quality={80} loading="lazy" /><span class="mono">{cap}</span></li>)}
         </ul>
-        <figure class="panel film" data-reveal>
+        <figure class="panel film wide" data-reveal>
           <video src="/collga/collga-icon-system.mp4" autoplay muted loop playsinline aria-label="The icon system: 72 of the 134 icons, grouped by role, turning on a loop"></video>
-          <figcaption class="mono"><span class="n">Icon system</span>72 of the 134 icons, grouped by role and colour.</figcaption>
         </figure>
       </section>
 
-      <section id="scope" class="sec">
-        <p class="eyebrow accent" data-reveal>08 &middot; Status and scope</p>
-        <div class="panel scope" data-reveal>
-          <p>Collga was a pitch, not a system in government service. It secured stakeholder interest and did not proceed to build. The data on every screen is invented but realistic, modelled on how Nigerian state and local government actually operate: LGA identification numbers, CAC registration, PAYE and tenement rates, governor's consent on land transfers, open-contracting rules. Where a decision is a judgement call rather than a fact, the screen says so.</p>
+      <section class="sec">
+        <div class="copy" data-reveal>
+          <p class="eyebrow accent">12 &middot; Status and scope</p>
+          <h2>A pitch, not a system in service.</h2>
+          <p>Collga secured stakeholder interest and did not proceed to build. The data on every screen is invented but realistic, modelled on how Nigerian state and local government actually operate: LGA identification numbers, CAC registration, PAYE and tenement rates, governor's consent on land transfers, open-contracting rules. Where a decision is a judgement call rather than a fact, the screen says so.</p>
         </div>
       </section>
     </div>
@@ -167,7 +203,7 @@ const comps: [string, string][] = [['component/02-system-card', 'System card'], 
   import gsap from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
   gsap.registerPlugin(ScrollTrigger);
-  function init() {
+  function logo() {
     const board = document.getElementById('logo-board');
     const svg = board?.querySelector<SVGSVGElement>('svg.lockup');
     if (!board || !svg || board.dataset.init) return; board.dataset.init = '1';
@@ -175,7 +211,6 @@ const comps: [string, string][] = [['component/02-system-card', 'System card'], 
     const q = (id: string) => svg.querySelector<SVGPathElement>('#' + id)!;
     const dark = q('dark-green'), light = q('light-green'), circle = q('circle'), white = q('circle-white'), gray = q('gray');
     const len = dark.getTotalLength();
-    // the shield assembles, the wordmark is drawn then inked, the tagline settles; loops while on screen
     const tl = gsap.timeline({ repeat: -1, repeatDelay: 1.2, scrollTrigger: { trigger: board, start: 'top 85%', end: 'bottom 10%', toggleActions: 'play pause resume pause' } });
     tl.set([circle, white], { scale: 0, transformOrigin: '50% 50%' })
       .set(light, { x: -90, opacity: 0 })
@@ -192,41 +227,44 @@ const comps: [string, string][] = [['component/02-system-card', 'System card'], 
       .to([dark, light, circle, white, gray], { opacity: 0, duration: 0.6, ease: 'power2.in' })
       .set([dark, light, circle, white, gray], { opacity: 1 });
   }
-  // the film: some browsers only honour muted autoplay once the element is on screen
   function film() {
     const v = document.querySelector<HTMLVideoElement>('.film video');
     if (!v || v.dataset.init) return; v.dataset.init = '1';
     new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) v.play().catch(() => {}); else v.pause(); }), { threshold: 0.2 }).observe(v);
   }
-  document.addEventListener('astro:page-load', () => { init(); film(); });
+  document.addEventListener('astro:page-load', () => { logo(); film(); });
 </script>
 
 <style>
   .study { padding-top: calc(var(--nav-h) + clamp(40px, 8vw, 96px)); padding-bottom: clamp(72px, 10vw, 140px); }
-  .head { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr); gap: clamp(28px, 5vw, 72px); align-items: start; }
+  .head { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr); gap: clamp(28px, 5vw, 72px); align-items: start; }
   .lead { display: grid; gap: 18px; }
   .crumbs { display: flex; gap: 10px; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); }
   .crumbs a:hover { color: var(--fg); } .sep { opacity: 0.5; }
   h1 { font-size: clamp(32px, 4.6vw, 60px); letter-spacing: -0.04em; max-width: 18ch; }
   .sum { color: var(--muted); font-size: clamp(16px, 1.4vw, 19px); line-height: 1.6; max-width: 52ch; }
-  .stats { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px 26px; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); }
-  .stats li { display: flex; align-items: baseline; gap: 8px; }
-  .stats b { font-size: 20px; font-weight: 500; color: var(--fg); letter-spacing: -0.02em; }
 
-  .body { display: grid; gap: clamp(64px, 9vw, 128px); margin-top: clamp(48px, 7vw, 96px); }
-  .sec { display: grid; gap: 18px; max-width: 1100px; }
-  .sec h2 { font-size: clamp(24px, 2.8vw, 36px); max-width: 24ch; }
-  .sec > p { color: var(--muted); font-size: clamp(15.5px, 1.25vw, 17px); line-height: 1.7; max-width: 66ch; }
-  .sec h3 { font-size: 18px; letter-spacing: -0.02em; }
-  .mh { margin-top: 18px; display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
-  .mh .mono { font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); }
+  /* centred column for reading, wide lane for looking */
+  .body { display: grid; gap: clamp(72px, 10vw, 140px); margin-top: clamp(56px, 8vw, 112px); }
+  .sec { display: grid; gap: clamp(22px, 3vw, 36px); justify-items: center; }
+  .copy { display: grid; gap: 14px; justify-items: center; text-align: center; max-width: 760px; }
+  .copy h2 { font-size: clamp(26px, 3vw, 40px); max-width: 22ch; }
+  .copy p:not(.eyebrow) { color: var(--muted); font-size: clamp(15.5px, 1.25vw, 17px); line-height: 1.7; max-width: 64ch; }
+  .wide { width: 100%; max-width: 1240px; margin: 0 auto; }
 
-  .rules { list-style: none; margin: 4px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-  .rules li { padding: 20px 22px; display: grid; gap: 8px; }
+  .cards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .bd { padding: clamp(20px, 2.4vw, 28px); display: grid; gap: 8px; align-content: start; }
+  .bd .k { font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+  .bd b { font-size: clamp(17px, 1.6vw, 20px); font-weight: 600; letter-spacing: -0.02em; line-height: 1.3; }
+  .bd .s { color: var(--muted); font-size: 13.5px; line-height: 1.5; }
+
+  .rules { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .rules li { padding: 22px 24px; display: grid; gap: 8px; }
   .rules .n { font-size: 11px; color: var(--accent); letter-spacing: 0.1em; }
+  .rules h3 { font-size: 18px; letter-spacing: -0.02em; }
   .rules p { color: var(--muted); font-size: 14.5px; line-height: 1.6; }
   .tiers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-  .tier { padding: 18px 20px; display: grid; gap: 12px; }
+  .tier { padding: 20px 22px; display: grid; gap: 12px; }
   .tier ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 14px; }
   .tier li { display: flex; align-items: center; gap: 10px; }
   .tier li i { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); flex: none; }
@@ -234,20 +272,18 @@ const comps: [string, string][] = [['component/02-system-card', 'System card'], 
   .tier .pl { color: var(--dim); }
   .tier .pl .mono { margin-left: auto; font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; }
 
-  .dec { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
-  .d { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 20px; align-items: start; border-top: 1px solid var(--line-a); padding-top: 22px; }
-  .d.text { grid-template-columns: 1fr; }
-  .dt { display: grid; gap: 10px; }
+  .dec { list-style: none; margin: 0; padding: 0; display: grid; gap: clamp(36px, 5vw, 64px); }
+  .d { display: grid; gap: 22px; justify-items: center; }
+  .dt { display: grid; gap: 10px; justify-items: center; text-align: center; max-width: 720px; }
   .dt .n { font-size: 11px; color: var(--accent); letter-spacing: 0.1em; }
-  .dt p { color: var(--muted); font-size: 14.5px; line-height: 1.65; max-width: 48ch; }
-  .df { margin: 0; border: 1px solid var(--line-a); border-radius: 14px; overflow: hidden; background: #F5F6F5; }
-  .df :global(img) { width: 100%; height: auto; display: block; }
+  .dt h3 { font-size: clamp(20px, 2.2vw, 26px); letter-spacing: -0.02em; }
+  .dt p { color: var(--muted); font-size: 15px; line-height: 1.65; }
+  .shot { margin: 0; width: 100%; border: 1px solid var(--line-a); border-radius: 16px; overflow: hidden; background: #F5F6F5; }
+  .shot :global(img) { width: 100%; height: auto; display: block; }
 
-  .board { margin: 0; padding: 12px; display: grid; gap: 12px; }
-  .art { aspect-ratio: 2400 / 1557; border-radius: 10px; background: #F5F6F5; display: grid; place-items: center; overflow: hidden; }
+  .board { margin: 0; padding: 12px; }
+  .art { aspect-ratio: 2400 / 1557; border-radius: 12px; background: #F5F6F5; display: grid; place-items: center; overflow: hidden; }
   .art :global(svg.lockup) { width: 62%; height: auto; overflow: visible; }
-  figcaption.mono, .board figcaption { display: flex; gap: 10px; align-items: baseline; font-size: 11px; letter-spacing: 0.06em; color: var(--muted); }
-  figcaption .n { color: var(--accent); letter-spacing: 0.1em; }
   .swatches { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
   .swatches li { display: grid; gap: 4px; padding: 12px; border: 1px solid var(--line-a); border-radius: 12px; background: var(--surface); font-size: 13px; }
   .swatches i { height: 44px; border-radius: 8px; margin-bottom: 6px; }
@@ -258,12 +294,8 @@ const comps: [string, string][] = [['component/02-system-card', 'System card'], 
   .comps li:hover { transform: translateY(-4px) rotate(calc((var(--i) - 4) * 0.25deg)); box-shadow: 0 24px 50px rgba(0,0,0,0.45); }
   .comps :global(img) { width: 100%; height: auto; display: block; border-radius: 6px; }
   .comps .mono { font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: #5A605B; }
-  .film { margin: 0; padding: 12px; display: grid; gap: 12px; background: #F5F6F5; }
-  .film video { width: 100%; height: auto; border-radius: 10px; display: block; }
-  .film figcaption { color: #5A605B; }
-  .film figcaption .n { color: #4C9C40; }
-  .scope { padding: clamp(20px, 3vw, 28px); border-left: 3px solid var(--accent); border-radius: 0 12px 12px 0; }
-  .scope p { color: var(--muted); font-size: 15px; line-height: 1.65; }
+  .film { margin: 0; padding: 12px; background: #F5F6F5; }
+  .film video { width: 100%; height: auto; border-radius: 12px; display: block; }
 
   .next { margin-top: clamp(56px, 8vw, 96px); }
   .next a { display: grid; gap: 8px; padding: 28px; transition: border-color 0.2s; }
@@ -272,9 +304,8 @@ const comps: [string, string][] = [['component/02-system-card', 'System card'], 
   .next .o { font-size: 11px; color: var(--dim); letter-spacing: 0.08em; text-transform: uppercase; }
 
   @media (max-width: 860px) {
-    .head, .rules, .tiers, .d, .swatches { grid-template-columns: 1fr; }
-    .comps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .stats { gap: 8px 18px; } .stats b { font-size: 17px; }
+    .head, .rules, .tiers, .swatches { grid-template-columns: 1fr; }
+    .cards, .comps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
-  @media (max-width: 480px) { .comps, .swatches { grid-template-columns: 1fr; } .art :global(svg.lockup) { width: 80%; } }
+  @media (max-width: 480px) { .cards, .comps { grid-template-columns: 1fr; } .art :global(svg.lockup) { width: 80%; } }
 </style>

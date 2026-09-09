@@ -1,31 +1,47 @@
 ---
-/* The seam, mapped: one birth registration as it is (four agencies, the same facts four times)
-   and as Collga treats it (facts entered once, one journey). Sticky notes settle from a scatter. */
-const facts = ["Child's full name", 'Date of birth', 'Place of birth', "Parent's NIN", 'Home address'];
+/* Registering one birth in Odeda, 2020, as it is: four agencies, four forms, four queues,
+   the same facts typed four times. Then the same facts entered once. Notes settle from a scatter. */
 const agencies = [
-  { n: 'Odeda General Hospital', t: 'Birth notification', tier: 'Hospital' },
-  { n: 'Odeda LGA Registry', t: 'Birth certificate', tier: 'Local government' },
-  { n: 'National Identity Commission', t: 'NIN enrolment', tier: 'Federal' },
-  { n: 'Ogun State Health Insurance', t: 'Enrol the child', tier: 'State' },
+  { tier: 'Hospital', n: 'Odeda General Hospital', issues: 'Birth notification', asks: ["Mother's name", "Child's name", 'Date and time of birth', 'Sex'], queue: 'Records desk, same day', c: 'c0' },
+  { tier: 'Local government', n: 'Odeda LGA Registry', issues: 'Birth certificate', asks: ["Child's name", 'Date of birth', 'Place of birth', "Parents' LGA IDs", 'Home address'], queue: 'Registry counter, 2 to 3 visits', c: 'c1' },
+  { tier: 'Federal', n: 'National Identity Commission', issues: 'NIN for the child', asks: ["Child's name", 'Date of birth', "Parent's NIN", 'Birth certificate', 'Home address'], queue: 'Enrolment centre, 1 to 2 weeks', c: 'c2' },
+  { tier: 'State', n: 'Ogun State Health Insurance', issues: 'Cover for the child', asks: ["Child's name", 'Date of birth', 'NIN', 'Home address'], queue: 'Agency office, after the NIN', c: 'c3' },
 ];
+const once = [["Child's name", 4], ['Date of birth', 4], ['Place of birth', 2], ["Parent's NIN", 3], ['Home address', 3]];
+const breaks = ['The name is spelled three ways across four records', 'Each office keeps its own copy, none of them the same', 'Nobody asked the parent what could be shared, or with whom', 'A month of visits for one child'];
 ---
 <div class="wall" id="notewall">
   <div class="board">
-    <p class="eyebrow lbl">The seam, mapped &middot; registering one birth</p>
+    <div class="bh">
+      <span class="eyebrow">The seam, mapped</span>
+      <h3>Registering one birth in Odeda, as it worked</h3>
+      <p class="mono">Four agencies &middot; four forms &middot; four queues &middot; the same facts typed four times</p>
+    </div>
+
     <div class="lanes">
-      {agencies.map((a, i) => (
+      {agencies.map((a) => (
         <div class="lane">
-          <div class={`note agency c${i}`}><span class="mono tier">{a.tier}</span><b>{a.n}</b><span>{a.t}</span></div>
-          {facts.slice(0, 3 + (i % 2)).map((f) => <div class="note fact"><span class="mono">form field</span><b>{f}</b></div>)}
+          <div class={`note agency ${a.c}`}><span class="mono tier">{a.tier}</span><b>{a.n}</b><span class="iss">Issues: {a.issues}</span></div>
+          <div class="note form"><span class="mono">The form asks for</span><ul>{a.asks.map((f) => <li>{f}</li>)}</ul></div>
+          <div class="note queue"><span class="mono">The queue</span><b>{a.queue}</b></div>
         </div>
       ))}
     </div>
-    <div class="once">
-      <span class="eyebrow">Entered once</span>
-      <div class="stack">{facts.map((f, i) => <div class={`note fact pinned`} style={`--i:${i}`}><b>{f}</b><span class="mono re">re-used 4&times;</span></div>)}</div>
+
+    <div class="row2">
+      <div class="once">
+        <span class="eyebrow">Entered once, in Collga</span>
+        <div class="pins">{once.map(([f, n], i) => <div class="note pinned" style={`--i:${i}`}><b>{f}</b><span class="mono re">re-used by {n} agencies</span></div>)}</div>
+        <p class="mono foot">Each re-use is tied to a consent the parent granted and can withdraw. Every read is logged where they can see it.</p>
+      </div>
+      <div class="breaks">
+        <span class="eyebrow">What breaks today</span>
+        <ul>{breaks.map((b) => <li class="note warn">{b}</li>)}</ul>
+      </div>
     </div>
   </div>
 </div>
+
 <script>
   import gsap from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -36,32 +52,41 @@ const agencies = [
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const seeded = (n: number) => { const s = Math.sin(n * 12.9898) * 43758.5453; return s - Math.floor(s); };
     const notes = [...wall.querySelectorAll<HTMLElement>('.lanes .note')];
-    const once = wall.querySelector<HTMLElement>('.once')!;
-    notes.forEach((n, i) => gsap.set(n, { x: (seeded(i + 1) - 0.5) * 420, y: (seeded(i + 9) - 0.5) * 260, rotation: (seeded(i + 3) - 0.5) * 40, opacity: 0 }));
-    gsap.set(once, { opacity: 0, y: 24 });
-    gsap.timeline({ defaults: { ease: 'power3.out' }, scrollTrigger: { trigger: wall, start: 'top 75%', toggleActions: 'play none none reverse' } })
+    const after = [...wall.querySelectorAll<HTMLElement>('.row2 > *')];
+    notes.forEach((n, i) => gsap.set(n, { x: (seeded(i + 1) - 0.5) * 380, y: (seeded(i + 9) - 0.5) * 220, rotation: (seeded(i + 3) - 0.5) * 36, opacity: 0 }));
+    gsap.set(after, { opacity: 0, y: 24 });
+    gsap.timeline({ defaults: { ease: 'power3.out' }, scrollTrigger: { trigger: wall, start: 'top 78%', toggleActions: 'play none none reverse' } })
       .to(notes, { opacity: 1, duration: 0.4, stagger: { each: 0.03, from: 'random' } })
-      .to(notes, { x: 0, y: 0, rotation: (i) => (seeded(i + 21) - 0.5) * 6, duration: 1.3, stagger: { each: 0.05, from: 'random' } }, '<0.1')
-      .to(wall.querySelectorAll('.lanes .fact'), { opacity: 0.28, duration: 0.6 }, '+=0.6')
-      .to(once, { opacity: 1, y: 0, duration: 0.8 }, '<0.2');
+      .to(notes, { x: 0, y: 0, rotation: (i) => (seeded(i + 21) - 0.5) * 4, duration: 1.3, stagger: { each: 0.05, from: 'random' } }, '<0.1')
+      .to(after, { opacity: 1, y: 0, duration: 0.8, stagger: 0.15 }, '+=0.3');
   }
   document.addEventListener('astro:page-load', init);
 </script>
+
 <style>
   .wall { border: 1px solid var(--line-a); border-radius: var(--r); background: var(--surface); overflow: hidden; }
-  .board { position: relative; padding: clamp(18px, 3vw, 32px); background-image: radial-gradient(rgba(235,238,245,0.07) 1px, transparent 1px); background-size: 22px 22px; }
-  .lbl { margin-bottom: 18px; }
+  .board { position: relative; padding: clamp(20px, 3vw, 36px); background-image: radial-gradient(rgba(235,238,245,0.07) 1px, transparent 1px); background-size: 22px 22px; display: grid; gap: clamp(20px, 2.6vw, 30px); }
+  .bh { display: grid; gap: 8px; text-align: center; justify-items: center; }
+  .bh h3 { font-size: clamp(19px, 2.2vw, 26px); letter-spacing: -0.02em; }
+  .bh .mono { font-size: 11px; letter-spacing: 0.08em; color: var(--dim); }
   .lanes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; align-items: start; }
   .lane { display: grid; gap: 10px; }
-  .note { padding: 12px 13px; border-radius: 4px; display: grid; gap: 4px; font-size: 12.5px; line-height: 1.35; color: #1E1F22; box-shadow: 0 10px 24px rgba(0,0,0,0.35), inset 0 -1px 0 rgba(0,0,0,0.08); transform-origin: 50% 20%; }
-  .note b { font-weight: 600; letter-spacing: -0.01em; }
+  .note { padding: 13px 14px; border-radius: 4px; display: grid; gap: 5px; font-size: 12.5px; line-height: 1.4; color: #1E1F22; box-shadow: 0 10px 24px rgba(0,0,0,0.35), inset 0 -1px 0 rgba(0,0,0,0.08); transform-origin: 50% 20%; }
+  .note b { font-weight: 600; letter-spacing: -0.01em; font-size: 13.5px; }
   .note .mono { font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.6; }
-  .agency { background: #F7E36A; }
-  .agency.c1 { background: #A9E0A0; } .agency.c2 { background: #9FD3F5; } .agency.c3 { background: #F5B08C; }
-  .fact { background: #F2EFE6; }
-  .once { margin-top: 22px; padding-top: 18px; border-top: 1px dashed var(--line); display: grid; gap: 12px; }
-  .stack { display: flex; flex-wrap: wrap; gap: 10px; }
+  .note ul { margin: 2px 0 0; padding-left: 16px; display: grid; gap: 2px; }
+  .agency { background: #F7E36A; } .agency.c1 { background: #A9E0A0; } .agency.c2 { background: #9FD3F5; } .agency.c3 { background: #F5B08C; }
+  .agency .iss { font-size: 12px; opacity: 0.85; }
+  .form { background: #F2EFE6; }
+  .queue { background: #FFF6D6; }
+  .row2 { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr); gap: 18px; padding-top: 22px; border-top: 1px dashed var(--line); }
+  .once, .breaks { display: grid; gap: 12px; align-content: start; }
+  .pins { display: flex; flex-wrap: wrap; gap: 10px; }
   .pinned { background: #E9F0FF; border-left: 3px solid var(--accent); transform: rotate(calc((var(--i) - 2) * 1deg)); }
   .pinned .re { color: var(--brand-on-light); opacity: 1; }
-  @media (max-width: 860px) { .lanes { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .foot { font-size: 11px; letter-spacing: 0.04em; color: var(--muted); max-width: 48ch; }
+  .breaks ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .warn { background: #FFE0DC; border-left: 3px solid #E53935; font-size: 12.5px; }
+  @media (max-width: 860px) { .lanes { grid-template-columns: repeat(2, minmax(0, 1fr)); } .row2 { grid-template-columns: 1fr; } }
+  @media (max-width: 480px) { .lanes { grid-template-columns: 1fr; } }
 </style>
