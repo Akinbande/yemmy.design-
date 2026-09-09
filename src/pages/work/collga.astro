@@ -32,13 +32,13 @@ const tiers = [
   ['Local government', ['Citizen and Business Portal', 'Admin Control Panel', 'E-Services Catalogue', 'Land and Property Registry', 'Business Registry']],
   ['Platform', ['Assisted Digital and Inclusion', 'Design System', 'Government Data Exchange']],
 ];
-const rules = [['Enter data once', 'A fact is typed one time and re-used, visibly, by every step that needs it.'], ['Share only with consent', 'An agency must ask first, naming the fields, the duration and the legal basis.'], ['Log every access', 'Every read is written to a log the citizen can open.'], ['Check claims against measurement', 'What an agency reports sits beside what someone measured on site.']];
+const rules = [['Enter data once', 'Typed one time, re-used visibly by every step that needs it.'], ['Share only with consent', 'An agency asks first, naming the fields, the duration and the legal basis.'], ['Log every access', 'Every read is written to a log the citizen can open.'], ['Check claims against measurement', 'What an agency reports sits beside what was measured on site.']];
 const decisions = [
-  { t: 'Enter once, re-use with consent', p: 'A fact is typed one time. Every step that needs it re-uses it in plain sight, and each re-use is tied to a consent the citizen gave and can withdraw. The convenience and the control are the same mechanism.' },
-  { t: 'Privacy you can see working', img: 'id-1', alt: 'Six credentials with their numbers masked, verified at source', p: 'Credential numbers stay masked by default. An officer checking age is told over 18, never a date of birth. What was disclosed and what was withheld both appear on the screen, so privacy is a feature people can watch, not a line in a policy.' },
-  { t: 'One notice, every authority', img: 'consolidated', alt: 'A consolidated demand notice assessing state taxes and local levies together', p: 'State taxes and local levies are assessed on one notice. A business pays once and each authority receives its share automatically. It ends the most common complaint of Nigerian businesses: being assessed twice for the same year.' },
-  { t: 'Fairness built into the flow', img: 'public-evaluation', alt: 'Evaluation room with bidders anonymised A to E and financial scores computed', p: 'Bids stay sealed until the public opening, bidders are anonymised A to E, financial scores are computed rather than typed, and the award button stays disabled until every evaluator has submitted. The integrity lives in the interaction.' },
-  { t: 'Assisted is not second-class', img: 'collections', alt: 'Field collection: agents on duty with a POS app issuing numbered receipts', p: "The channel is the citizen's choice, never the service's. A receipt issued at a market stall by an agent on a POS device is the same receipt, with the same number, as one issued on the web." },
+  { t: 'Enter once, re-use with consent', p: 'A fact is typed once and re-used by every step that needs it, in plain sight. Each re-use is tied to a consent the citizen can withdraw, so convenience and control are the same mechanism.' },
+  { t: 'Privacy you can see working', img: 'id-1', alt: 'Six credentials with their numbers masked, verified at source', p: 'Numbers stay masked. An officer checking age is told over 18, never a birth date. What was disclosed and what was withheld both sit on the screen.' },
+  { t: 'One notice, every authority', img: 'consolidated', alt: 'A consolidated demand notice assessing state taxes and local levies together', p: 'State taxes and local levies on one notice. A business pays once and each authority gets its share automatically, instead of being assessed twice for the same year.' },
+  { t: 'Fairness built into the flow', img: 'public-evaluation', alt: 'Evaluation room with bidders anonymised A to E and financial scores computed', p: 'Bids stay sealed until the public opening, bidders are anonymised, financial scores are computed, and the award button stays off until every evaluator has submitted.' },
+  { t: 'Assisted is not second-class', img: 'collections', alt: 'Field collection: agents on duty with a POS app issuing numbered receipts', p: 'The channel is the citizen\'s choice. A receipt from an agent at a market stall is the same receipt, with the same number, as one from the web.' },
   { t: 'A tile map, not a land map', p: 'Delivery by local government uses equal-area tiles, so no LGA looks more important than another because of its size on a map.' },
 ];
 const swatches = [['#4C9C40', 'Collga Green', 'Primary actions, active nav, brand'], ['#6CB460', 'Leaf', 'Light half of the shield, hover'], ['#1E3F1A', 'Forest', 'Dark buttons, issued badges'], ['#F0913A', 'Civic Orange', 'Landing login, due status'], ['#1E88E5', 'Info Blue', 'Sent, under review'], ['#E53935', 'Danger Red', 'Unpaid, overdue, rejected'], ['#E0E8F0', 'Mist', 'Shield interior, neutral badges'], ['#F5F6F5', 'Ground', 'Page background']];
@@ -69,7 +69,7 @@ const swatches = [['#4C9C40', 'Collga Green', 'Primary actions, active nav, bran
       <section class="sec">
         <div class="copy" data-reveal>
           <h2>Where it started</h2>
-          <p>Collga was designed in 2020 for Nigerian state and local governments, with Odeda Local Government as the pilot. The first screens are the ones a citizen meets first: a public front door, one login for everyone, and registration verified against the LGA register.</p>
+          <p>Designed in 2020 for Nigerian state and local governments, with Odeda Local Government as the pilot. The first screens are the ones a citizen meets first: a public front door, one login, and registration verified against the LGA register.</p>
         </div>
         <div class="wide"><Stack items={shots([['landingpage', 'Landing page with one search box across every government service'], ['aut1', 'Get started: register as a citizen or a business'], ['aut3', 'Citizen account, verified by LGA ID number']])} /></div>
         <div class="wide"><Marquee items={shots([['aut2', 'Business account, verified by RC number'], ['aut5', 'Fetching the applicant record from the LGA database'], ['aut4', 'Error state when the ID or email does not match']])} /></div>
@@ -78,7 +78,7 @@ const swatches = [['#4C9C40', 'Collga Green', 'Primary actions, active nav, bran
       <section class="sec">
         <div class="copy" data-reveal>
           <h2>The problem is the seam, not the screen</h2>
-          <p>Every service a citizen needs is spread across agencies that do not share a record. Register a business and you deal with the local government, the state tax office and a federal registry, each with its own form, its own queue and its own copy of your details. Collga was designed around that seam, and the board below shows how much of government it had to hold.</p>
+          <p>Every service is spread across agencies that do not share a record. Register a business and you meet three of them, each with its own form, its own queue and its own copy of your details. Collga was designed around that seam, and the board shows how much of government it had to hold.</p>
         </div>
         <div class="wide"><SystemBoard /></div>
       </section>
@@ -120,7 +120,7 @@ const swatches = [['#4C9C40', 'Collga Green', 'Primary actions, active nav, bran
       <section class="sec">
         <div class="copy" data-reveal>
           <h2>Citizen and Business Portal</h2>
-          <p>Where residents and businesses apply, pay levies and track what they applied for. Twenty-one services, a five-step wizard, a live status timeline, and a vault for every document issued.</p>
+          <p>Where residents and businesses apply, pay levies and track applications. Twenty-one services, a five-step wizard, a live timeline, and a vault for every document issued.</p>
         </div>
         <div class="wide"><Stack items={shots([['citizen1', 'Dashboard: wallet, invoices due, active applications and quick actions'], ['citizen3', 'Birth certificate, step one: applicant details pre-filled from the profile'], ['citizen5', 'Application tracking with the reviewer note and a live timeline']])} /></div>
         <div class="wide"><Marquee items={shots([['citizen2', 'E-services inside the portal'], ['e-service2', 'The public catalogue with fees and processing times'], ['citizen4', 'Step two: the form generated from the service definition'], ['documen-list', 'Documents issued, each verifiable'], ['payment2', 'The wallet and every transaction']])} speed={70} /></div>
@@ -129,7 +129,7 @@ const swatches = [['#4C9C40', 'Collga Green', 'Primary actions, active nav, bran
       <section class="sec">
         <div class="copy" data-reveal>
           <h2>Admin Control Panel</h2>
-          <p>The other side of the same counter. A review queue with assignment and service-level tracking, registries, revenue reporting, and staff with roles.</p>
+          <p>The other side of the same counter: a review queue with assignment and service levels, registries, revenue reporting, staff and roles.</p>
         </div>
         <div class="wide"><Stack items={shots([['admin1', 'Admin dashboard: collected against invoiced, applications by status'], ['admin2', 'Applications queue with assignees, priority and status'], ['staff-role', 'Staff and roles across departments']])} /></div>
         <div class="wide"><Marquee items={shots([['admin3', 'Business registry with permits and outstanding levies'], ['recvenue1', 'Revenue: collections against invoices'], ['revenue2', 'Revenue by service, channel and ward']])} /></div>
@@ -138,7 +138,7 @@ const swatches = [['#4C9C40', 'Collga Green', 'Primary actions, active nav, bran
       <section class="sec">
         <div class="copy" data-reveal>
           <h2>Internal Revenue Service</h2>
-          <p>The state's view: collected against target by tax type and by local government, and a registry of every taxpayer with a TIN.</p>
+          <p>The state's view. Collected against target by tax type and by local government, and a registry of every taxpayer with a TIN.</p>
         </div>
         <div class="wide"><Stack items={shots([['state-revenue', 'Internal Revenue Service dashboard: collected against target'], ['state-revenue-taxpayer', 'Taxpayers: every individual and business with a TIN']])} /></div>
       </section>
@@ -146,7 +146,7 @@ const swatches = [['#4C9C40', 'Collga Green', 'Primary actions, active nav, bran
       <section class="sec">
         <div class="copy" data-reveal>
           <h2>Identity, land and procurement</h2>
-          <p>Consent requests that name their legal basis. A parcel map, a title record with its ownership chain, and a transfer that each party signs in turn. Tenders published, bids sealed.</p>
+          <p>Consent requests that name their legal basis. A parcel map, a title record with its ownership chain, a transfer each party signs in turn. Tenders published, bids sealed.</p>
         </div>
         <div class="wide"><Stack items={shots([['id-2', 'Consent requests: the fields, the duration and the legal basis'], ['land1', 'Land and property registry: parcel map by registration status'], ['land-title2', 'Title record with its ownership chain and encumbrances']])} /></div>
         <div class="wide"><Marquee items={shots([['id-request', 'Transfer: each party signs in turn through consent, stamp duty and registration'], ['public1', 'Public procurement: every tender published'], ['public-supply2', 'A sealed bid, unreadable until the public opening']])} /></div>
@@ -155,7 +155,7 @@ const swatches = [['#4C9C40', 'Collga Green', 'Primary actions, active nav, bran
       <section class="sec">
         <div class="copy" data-reveal>
           <h2>One identity for sixteen systems</h2>
-          <p>Collga Green sampled from the shield. Montserrat for the interface, Roboto for sign-in and long copy. One shell, themed per system, so sixteen products still feel like one government.</p>
+          <p>Collga Green sampled from the shield. Montserrat for the interface, Roboto for sign-in and long copy. One shell, themed per system, so sixteen products feel like one government.</p>
         </div>
         <figure class="panel board wide" id="logo-board" data-reveal><div class="art" set:html={lockup} /></figure>
         <ul class="swatches wide" data-reveal>
@@ -168,7 +168,7 @@ const swatches = [['#4C9C40', 'Collga Green', 'Primary actions, active nav, bran
           <div class="close-l">
             <span class="eyebrow">Scope</span>
             <h2>A concept, presented in 2020</h2>
-            <p>The data on every screen is invented but realistic, modelled on how Nigerian state and local government actually operate: LGA identification numbers, CAC registration, PAYE and tenement rates, governor's consent on land transfers, open-contracting rules.</p>
+            <p>The data on every screen is invented but realistic, modelled on how Nigerian state and local government operate: LGA identification numbers, CAC registration, PAYE and tenement rates, governor's consent on land transfers, open-contracting rules.</p>
             <a class="btn btn-ghost" href="/#work">All work
               <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </a>
@@ -246,7 +246,7 @@ const swatches = [['#4C9C40', 'Collga Green', 'Primary actions, active nav, bran
   .sec { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(22px, 3vw, 36px); justify-items: center; min-width: 0; }
   .copy { display: grid; gap: 14px; justify-items: center; text-align: center; max-width: 760px; }
   .copy h2 { font-size: clamp(26px, 3vw, 40px); max-width: 22ch; }
-  .copy p { color: var(--muted); font-size: clamp(15.5px, 1.25vw, 17px); line-height: 1.7; max-width: 62ch; }
+  .copy p { color: var(--muted); font-size: clamp(15.5px, 1.25vw, 17px); line-height: 1.7; max-width: 56ch; }
   .wide { width: 100%; max-width: 1240px; margin: 0 auto; min-width: 0; }
 
   .cards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
@@ -269,9 +269,9 @@ const swatches = [['#4C9C40', 'Collga Green', 'Primary actions, active nav, bran
 
   .dec { list-style: none; margin: 0; padding: 0; display: grid; gap: clamp(36px, 5vw, 64px); }
   .d { display: grid; gap: 22px; justify-items: center; }
-  .dt { display: grid; gap: 10px; justify-items: center; text-align: center; max-width: 720px; }
+  .dt { display: grid; gap: 10px; justify-items: center; text-align: center; max-width: 600px; }
   .dt h3 { font-size: clamp(20px, 2.2vw, 26px); letter-spacing: -0.02em; }
-  .dt p { color: var(--muted); font-size: 15px; line-height: 1.65; }
+  .dt p { color: var(--muted); font-size: 15px; line-height: 1.65; max-width: 50ch; }
   .shot { margin: 0; width: 100%; border: 1px solid var(--line-a); border-radius: 16px; overflow: hidden; background: #F5F6F5; }
   .shot :global(img) { width: 100%; height: auto; display: block; }
 
