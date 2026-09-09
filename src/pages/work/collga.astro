@@ -88,7 +88,7 @@ const swatches = [['#4C9C40', 'Collga Green', 'Primary actions, active nav, bran
           <p>Almost everything distinctive in the platform comes from them.</p>
         </div>
         <ul class="rules wide">
-          {rules.map(([t, p], i) => <li class="panel" data-reveal data-reveal-delay={String(i * 0.07)}><span class="mono n">{String(i + 1).padStart(2, '0')}</span><h3>{t}</h3><p>{p}</p></li>)}
+          {rules.map(([t, p], i) => <li class="panel" data-reveal data-reveal-delay={String(i * 0.07)}><h3>{t}</h3><p>{p}</p></li>)}
         </ul>
       </section>
 
@@ -109,7 +109,7 @@ const swatches = [['#4C9C40', 'Collga Green', 'Primary actions, active nav, bran
         <ol class="dec wide">
           {decisions.map((x, i) => (
             <li class="d" data-reveal>
-              <div class="dt"><span class="mono n">{String(i + 1).padStart(2, '0')}</span><h3>{x.t}</h3><p>{x.p}</p></div>
+              <div class="dt"><h3>{x.t}</h3><p>{x.p}</p></div>
               {x.img && <figure class="shot"><Image src={img(x.img)} alt={x.alt!} width={2400} format="webp" quality={82} loading="lazy" /></figure>}
             </li>
           ))}
@@ -246,7 +246,6 @@ const swatches = [['#4C9C40', 'Collga Green', 'Primary actions, active nav, bran
 
   .rules { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .rules li { padding: 22px 24px; display: grid; gap: 8px; }
-  .rules .n { font-size: 11px; color: var(--accent); letter-spacing: 0.1em; }
   .rules h3 { font-size: 18px; letter-spacing: -0.02em; }
   .rules p { color: var(--muted); font-size: 14.5px; line-height: 1.6; }
   .tiers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
@@ -258,7 +257,6 @@ const swatches = [['#4C9C40', 'Collga Green', 'Primary actions, active nav, bran
   .dec { list-style: none; margin: 0; padding: 0; display: grid; gap: clamp(36px, 5vw, 64px); }
   .d { display: grid; gap: 22px; justify-items: center; }
   .dt { display: grid; gap: 10px; justify-items: center; text-align: center; max-width: 720px; }
-  .dt .n { font-size: 11px; color: var(--accent); letter-spacing: 0.1em; }
   .dt h3 { font-size: clamp(20px, 2.2vw, 26px); letter-spacing: -0.02em; }
   .dt p { color: var(--muted); font-size: 15px; line-height: 1.65; }
   .shot { margin: 0; width: 100%; border: 1px solid var(--line-a); border-radius: 16px; overflow: hidden; background: #F5F6F5; }
