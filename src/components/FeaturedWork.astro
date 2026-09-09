@@ -1,6 +1,9 @@
 ---
 import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
 import Glyph from './Glyph.astro';
+const shots = import.meta.glob<{ default: ImageMetadata }>('/src/assets/**/*.png', { eager: true });
+const shot = (name?: string) => { if (!name) return null; const k = Object.keys(shots).find((p) => p.endsWith(`/${name}.png`)); return k ? shots[k].default : null; };
 const items = (await getCollection('work', (e) => e.data.tier === 1)).sort((a, b) => a.data.order - b.data.order);
 const label: Record<string, string> = { live: 'Live', 'early-access': 'Early access', shipped: 'Shipped', concept: 'Concept' };
 ---
@@ -15,7 +18,7 @@ const label: Record<string, string> = { live: 'Live', 'early-access': 'Early acc
 
     <div class="list">
       {items.map((w, i) => (
-        <article class="panel card" data-reveal>
+        <article class={`panel card ${shot(w.data.coverImage) ? 'tinted' : ''}`} data-reveal style={w.data.hoverTint ? `--tint:${w.data.hoverTint}` : undefined}>
           <div class="body">
             <div class="meta mono">
               <span class="idx">{String(i + 1).padStart(2, '0')}</span>
@@ -31,7 +34,9 @@ const label: Record<string, string> = { live: 'Live', 'early-access': 'Early acc
               </a>
             </div>
           </div>
-          <div class="visual"><Glyph kind={w.id} /></div>
+          {shot(w.data.coverImage)
+            ? <div class="visual cover"><Image src={shot(w.data.coverImage)!} alt={`${w.data.org} screen`} width={1400} format="webp" quality={80} loading="lazy" /></div>
+            : <div class="visual"><Glyph kind={w.id} /></div>}
         </article>
       ))}
     </div>
@@ -61,6 +66,16 @@ const label: Record<string, string> = { live: 'Live', 'early-access': 'Early acc
   .tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
   .tags li { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.06em; color: var(--muted); border: 1px solid var(--line-a); border-radius: 5px; padding: 4px 8px; }
   .actions { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-top: auto; padding-top: 8px; }
+  /* the tinted card: a real screen on the right at full strength, a deep-green wash rising under the copy on hover */
+  .body { position: relative; }
+  .body > * { position: relative; z-index: 1; }
+  .card.tinted .body::before { content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: 0; transition: opacity 0.6s var(--ease);
+    background: linear-gradient(160deg, var(--tint, #163012) 0%, rgba(22,48,18,0.45) 50%, transparent 100%); }
+  .card.tinted:hover .body::before, .card.tinted:focus-within .body::before { opacity: 1; }
+  .card.tinted:hover { border-color: rgba(108,180,96,0.28); }
+  .visual.cover { padding: 0; background: #F5F6F5; overflow: hidden; }
+  .visual.cover :global(img) { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; transition: transform 0.9s var(--ease); }
+  .card.tinted:hover .visual.cover :global(img) { transform: scale(1.025); }
   .visual { border-left: 1px solid var(--line-a); background: linear-gradient(160deg, rgba(97,144,255,0.05), transparent 60%); display: grid; place-items: center; padding: clamp(20px, 3vw, 40px); }
   @media (max-width: 860px) { .card { grid-template-columns: 1fr; } .visual { border-left: 0; border-top: 1px solid var(--line-a); } }
 </style>
