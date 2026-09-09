@@ -12,6 +12,8 @@ const work = defineCollection({
     status: z.enum(['live', 'early-access', 'shipped', 'concept']),
     summary: z.string(),
     short: z.string().optional(),   // one line for the home page proof card
+    hoverImage: z.string().optional(),   // a screen shown behind the home proof card on hover, path under src/assets
+    hoverTint: z.string().optional(),    // brand colour washed over that screen
     tags: z.array(z.string()),
     link: z.string().url().optional(),
     thumb: z.string().optional(),
@@ -32,6 +34,8 @@ const writing = defineCollection({
     date: z.coerce.date(),
     summary: z.string(),
     short: z.string().optional(),   // one line for the home page proof card
+    hoverImage: z.string().optional(),   // a screen shown behind the home proof card on hover, path under src/assets
+    hoverTint: z.string().optional(),    // brand colour washed over that screen
     tags: z.array(z.string()).default([]),
     draft: z.boolean().default(false),
   }),
