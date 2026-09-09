@@ -6,7 +6,7 @@ import Facts from '../../components/Facts.astro';
 
 export async function getStaticPaths() {
   const all = (await getCollection('work', (e) => e.data.tier === 1)).sort((a, b) => a.data.order - b.data.order);
-  return all.map((entry, i) => ({ params: { slug: entry.id }, props: { entry, next: all[(i + 1) % all.length] } }));
+  return all.filter((e) => e.id !== 'collga').map((entry) => { const i = all.indexOf(entry); return { params: { slug: entry.id }, props: { entry, next: all[(i + 1) % all.length] } }; });
 }
 const { entry, next } = Astro.props;
 const { Content } = await render(entry);
