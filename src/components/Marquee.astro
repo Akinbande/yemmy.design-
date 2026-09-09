@@ -16,7 +16,7 @@ const loop = [...items, ...items];
   </div>
 </div>
 <style>
-  .mq { overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
+  .mq { overflow: hidden; min-width: 0; max-width: 100%; -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
   .track { display: flex; gap: 16px; width: max-content; animation: mq var(--dur) linear infinite; }
   .mq:hover .track { animation-play-state: paused; }
   @keyframes mq { to { transform: translateX(calc(-50% - 8px)); } }
