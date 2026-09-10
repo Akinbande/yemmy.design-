@@ -53,15 +53,28 @@ const notes = [
     };
     place(1);
     if (reduced) { gsap.set(notes, { opacity: 1, scale: 1 }); return; }
-    let salt = 1;
+    let salt = 1, tl: gsap.core.Timeline | null = null;
     const live = () => notes.filter((n) => n.style.display !== 'none');
-    const tl = gsap.timeline({ repeat: -1, scrollTrigger: { trigger: board, start: 'top 85%', end: 'bottom 15%', toggleActions: 'play pause resume pause' },
-      onRepeat: () => { salt += 7; place(salt); } });
-    tl.set(live(), { opacity: 0, scale: 0.6, y: 40 })
-      .to(live(), { opacity: 1, scale: 1, y: 0, duration: 0.55, ease: 'back.out(1.6)', stagger: { each: 0.16, from: 'random' } })
-      .to({}, { duration: 2.4 })
-      .to(live(), { opacity: 0, scale: 0.9, y: -30, duration: 0.45, ease: 'power2.in', stagger: { each: 0.03, from: 'random' } });
-    window.addEventListener('resize', () => place(salt), { passive: true });
+    // the loop is built from the notes on show; a resize that changes the set rebuilds it
+    const build = () => {
+      if (tl) { tl.scrollTrigger?.kill(); tl.kill(); }
+      const set = live();
+      tl = gsap.timeline({ repeat: -1, scrollTrigger: { trigger: board, start: 'top 85%', end: 'bottom 15%', toggleActions: 'play pause resume pause' },
+        onRepeat: () => { salt += 7; place(salt); } });
+      tl.set(set, { opacity: 0, scale: 0.6, y: 40 })
+        .to(set, { opacity: 1, scale: 1, y: 0, duration: 0.55, ease: 'back.out(1.6)', stagger: { each: 0.16, from: 'random' } })
+        .to({}, { duration: 2.4 })
+        .to(set, { opacity: 0, scale: 0.9, y: -30, duration: 0.45, ease: 'power2.in', stagger: { each: 0.03, from: 'random' } });
+    };
+    build();
+    let timer = 0, lastW = field.clientWidth;
+    window.addEventListener('resize', () => {
+      clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        if (field.clientWidth === lastW) return;
+        lastW = field.clientWidth; place(salt); build();
+      }, 150);
+    }, { passive: true });
   }
   document.addEventListener('astro:page-load', init);
 </script>
