@@ -1,6 +1,10 @@
 ---
 import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
 import Glyph from './Glyph.astro';
+// a real screen for the card when the entry names one (coverImage, path under src/assets)
+const files = import.meta.glob<{ default: ImageMetadata }>('/src/assets/**/*.png', { eager: true });
+const shot = (p?: string) => { if (!p) return null; const k = Object.keys(files).find((f) => f.endsWith(`/${p}.png`)); return k ? files[k].default : null; };
 const items = (await getCollection('work', (e) => e.data.tier >= 2)).sort((a, b) => a.data.order - b.data.order);
 ---
 <section class="section more" id="more" aria-labelledby="more-h">
@@ -19,7 +23,9 @@ const items = (await getCollection('work', (e) => e.data.tier >= 2)).sort((a, b)
     <div class="cards" id="more-cards">
       {items.map((w, i) => (
         <a class="card" href={`/screens/${w.id}/`} data-i={i}>
-          <span class="thumb">{w.data.thumb ? <img src={w.data.thumb} alt="" loading="lazy" decoding="async" /> : <Glyph kind={w.id} />}</span>
+          {shot(w.data.coverImage)
+            ? <span class="thumb cover"><Image src={shot(w.data.coverImage)!} alt="" width={1400} format="webp" quality={80} loading="lazy" /></span>
+            : <span class="thumb">{w.data.thumb ? <img src={w.data.thumb} alt="" loading="lazy" decoding="async" /> : <Glyph kind={w.id} />}</span>}
           <span class="cap">
             <span class="mono n">{String(i + 1).padStart(2, '0')}</span>
             <span class="org">{w.data.org}</span>
@@ -83,6 +89,10 @@ const items = (await getCollection('work', (e) => e.data.tier >= 2)).sort((a, b)
   .thumb { display: grid; place-items: center; aspect-ratio: 16 / 10; padding: 7%; background: linear-gradient(160deg, rgba(97,144,255,0.07), transparent 60%); border-bottom: 1px solid var(--line-a); }
   .thumb img { width: 100%; height: 100%; object-fit: cover; }
   .thumb :global(.glyph) { width: 100%; height: auto; }
+  /* a real screen fills the frame edge to edge; the mockup's own margin does the framing */
+  .thumb.cover { padding: 0; background: var(--surface); overflow: hidden; }
+  .thumb.cover :global(img) { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.9s var(--ease); }
+  .card:hover .thumb.cover :global(img), .card:focus-visible .thumb.cover :global(img) { transform: scale(1.025); }
   .cap { display: grid; grid-template-columns: auto 1fr auto auto; align-items: baseline; gap: 14px; padding: 16px 20px; }
   .cap .n { font-size: 11px; color: var(--accent); letter-spacing: 0.1em; }
   .org { font-weight: 600; font-size: 16px; letter-spacing: -0.01em; }
