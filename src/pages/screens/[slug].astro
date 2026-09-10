@@ -6,7 +6,9 @@ import Facts from '../../components/Facts.astro';
 
 export async function getStaticPaths() {
   const all = (await getCollection('work', (e) => e.data.tier >= 2)).sort((a, b) => a.data.order - b.data.order);
-  return all.map((entry, i) => ({ params: { slug: entry.id }, props: { entry, next: all[(i + 1) % all.length] } }));
+  // Newdawn has its own page (screens/newdawn.astro); it stays in the order so the others can link to it
+  return all.map((entry, i) => ({ entry, next: all[(i + 1) % all.length] })).filter(({ entry }) => entry.id !== 'newdawn')
+    .map(({ entry, next }) => ({ params: { slug: entry.id }, props: { entry, next } }));
 }
 const { entry, next } = Astro.props;
 const d = entry.data;
