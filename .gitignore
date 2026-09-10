@@ -25,3 +25,6 @@ dist/
 .astro/
 .vercel/
 npm-debug.log*
+
+# 4K source recordings stay local; the site serves a 1080p encode from public/
+*-4k.mp4

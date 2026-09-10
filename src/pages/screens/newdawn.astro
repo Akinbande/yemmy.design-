@@ -29,6 +29,9 @@ const shots = (names: [string, string][]) => names.map(([n, alt]) => ({ src: img
 
     <div class="wrap body">
       <section class="sec">
+        <figure class="wide reel" data-reveal>
+          <video src="/newdawn/newdawn-website-preview.mp4" poster="/newdawn/newdawn-website-preview.jpg" autoplay muted loop playsinline preload="auto" aria-label="A recorded walk through the Newdawn website, playing on a loop"></video>
+        </figure>
         <div class="wide"><Stack items={shots([
           ['h1', 'Home page: the headline, a free call button and a grid of participant photos'],
           ['h6', 'Contact band with a referral button and the three offices in Victoria, Queensland and Western Australia'],
@@ -79,12 +82,16 @@ const shots = (names: [string, string][]) => names.map(([n, alt]) => ({ src: img
 </Base>
 
 <script>
-  function film() {
-    const v = document.querySelector<HTMLVideoElement>('.film video');
-    if (!v || v.dataset.init) return; v.dataset.init = '1';
-    new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) v.play().catch(() => {}); else v.pause(); }), { threshold: 0.2 }).observe(v);
+  // every video on the page loops while it is on screen and rests when it is not; reduced motion gets the poster and controls instead
+  function videos() {
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    document.querySelectorAll<HTMLVideoElement>('.screens video').forEach((v) => {
+      if (v.dataset.init) return; v.dataset.init = '1';
+      if (reduced) { v.removeAttribute('autoplay'); v.pause(); v.controls = true; return; }
+      new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) v.play().catch(() => {}); else v.pause(); }), { threshold: 0.2 }).observe(v);
+    });
   }
-  document.addEventListener('astro:page-load', film);
+  document.addEventListener('astro:page-load', videos);
 </script>
 
 <style>
@@ -112,6 +119,9 @@ const shots = (names: [string, string][]) => names.map(([n, alt]) => ({ src: img
   .body { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(72px, 10vw, 140px); margin-top: clamp(56px, 8vw, 112px); }
   .sec { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(22px, 3vw, 36px); justify-items: center; min-width: 0; }
   .wide { width: 100%; max-width: 1240px; margin: 0 auto; min-width: 0; }
+  /* the site walkthrough, first and widest, in the same frame as the screens below it */
+  .reel { margin: 0; aspect-ratio: 16 / 9; border: 1px solid var(--line-a); border-radius: 16px; overflow: hidden; background: #F8F7EE; }
+  .reel video { width: 100%; height: 100%; object-fit: cover; display: block; }
 
   /* the illustration set and the icon film side by side, same frame, same height (as on Collga) */
   .sysgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
