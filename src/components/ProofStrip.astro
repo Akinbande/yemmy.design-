@@ -41,11 +41,13 @@ const label: Record<string, string> = { live: 'Live', 'early-access': 'Early acc
   .peek { position: absolute; inset: 0; display: grid; place-items: center; padding: 6%; opacity: 0; transform: translateY(8px) scale(0.96); transition: opacity 0.45s var(--ease), transform 0.6s var(--ease); pointer-events: none; }
   .cell:hover .peek, .cell:focus-within .peek { opacity: 0.55; transform: none; }
   /* a screen from the project, washed in its brand colour, sitting behind the copy on hover */
-  .cell.tinted:hover, .cell.tinted:focus-within { background: linear-gradient(160deg, var(--tint, #163012) 0%, rgba(22,48,18,0.35) 45%, var(--surface) 100%); }
+  /* every stop comes from the project's tint, so each card washes in its own colour (Collga green, Newdawn orange) */
+  .cell.tinted { --tint: #163012; }
+  .cell.tinted:hover, .cell.tinted:focus-within { background: linear-gradient(160deg, var(--tint) 0%, color-mix(in srgb, var(--tint) 35%, transparent) 45%, var(--surface) 100%); }
   .peek.img { padding: 0; place-items: stretch; transform: translateY(10px) scale(1.03); }
   .cell:hover .peek.img, .cell:focus-within .peek.img { opacity: 1; transform: none; }
   .peek.img :global(img) { width: 100%; height: 100%; object-fit: cover; object-position: top left; opacity: 0.32; filter: saturate(0.9); }
-  .peek.img .tint { position: absolute; inset: 0; background: linear-gradient(180deg, var(--tint, #163012) 0%, rgba(22,48,18,0.55) 40%, rgba(12,13,15,0.92) 100%); mix-blend-mode: multiply; }
+  .peek.img .tint { position: absolute; inset: 0; background: linear-gradient(180deg, var(--tint) 0%, color-mix(in srgb, var(--tint) 55%, transparent) 40%, rgba(12,13,15,0.92) 100%); mix-blend-mode: multiply; }
   .peek :global(.glyph) { width: 100%; height: 100%; }
   .peek :global(.glyph .s), .peek :global(.glyph .f), .peek :global(.glyph .n) { fill: transparent; }
   .peek :global(.glyph .t), .peek :global(.glyph .ta) { fill: var(--line); }
