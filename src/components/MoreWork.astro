@@ -63,6 +63,8 @@ const items = (await getCollection('work', (e) => e.data.tier >= 2)).sort((a, b)
 </script>
 
 <style>
+  /* rotated cards in the fly-up must not widen the page; clip keeps the sticky column working */
+  .more { overflow-x: clip; }
   /* stretch, not start: the left cell must span the whole row for its sticky child to have room to stick */
   .grid { display: grid; grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr); gap: clamp(32px, 5vw, 88px); align-items: stretch; }
   .side { align-self: stretch; }
