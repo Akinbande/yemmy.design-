@@ -224,7 +224,7 @@ const swatches = [['#4C9C40', 'Collga Green', 'Primary actions, active nav, bran
   .study { position: relative; padding-top: calc(var(--nav-h) + clamp(40px, 8vw, 96px)); padding-bottom: clamp(72px, 10vw, 140px); }
   /* Collga's deep green as atmosphere behind the header: two soft lights that drift, fading into the ink before the first section */
   .atmos { position: absolute; left: 0; right: 0; top: 0; height: min(92vh, 900px); pointer-events: none; z-index: 0; overflow: hidden;
-    background: linear-gradient(180deg, rgba(22,48,18,0.58) 0%, rgba(22,48,18,0.2) 48%, transparent 78%);
+    background: linear-gradient(180deg, rgba(22,48,18,0.42) 0%, rgba(22,48,18,0.12) 45%, transparent 75%);
     -webkit-mask-image: linear-gradient(180deg, #000 55%, transparent 100%); mask-image: linear-gradient(180deg, #000 55%, transparent 100%); }
   .atmos::before, .atmos::after { content: ''; position: absolute; border-radius: 50%; filter: blur(36px); will-change: transform; }
   .atmos::before { width: 72vw; height: 72vw; max-width: 1000px; max-height: 1000px; left: -16vw; top: -34vw; background: radial-gradient(circle, rgba(36,80,30,1) 0%, rgba(30,63,26,0.72) 38%, rgba(30,63,26,0.22) 60%, transparent 72%); animation: driftA 22s ease-in-out infinite alternate; }
