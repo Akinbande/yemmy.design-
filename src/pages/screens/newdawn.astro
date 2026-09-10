@@ -30,7 +30,11 @@ const shots = (names: [string, string][]) => names.map(([n, alt]) => ({ src: img
     <div class="wrap body">
       <section class="sec">
         <figure class="wide reel" data-reveal>
-          <video src="/newdawn/newdawn-website-preview.mp4" poster="/newdawn/newdawn-website-preview.jpg" autoplay muted loop playsinline preload="auto" aria-label="A recorded walk through the Newdawn website, playing on a loop"></video>
+          <video poster="/newdawn/newdawn-website-preview.jpg" autoplay muted loop playsinline preload="auto" aria-label="A recorded walk through the Newdawn website, playing on a loop">
+            <!-- his original 4K export, untouched, for wide screens; 1080p for phones, which cannot show more -->
+            <source src="/newdawn/newdawn-website-preview-uhd.mp4" type="video/mp4" media="(min-width: 861px)" />
+            <source src="/newdawn/newdawn-website-preview.mp4" type="video/mp4" />
+          </video>
         </figure>
         <div class="wide"><Stack items={shots([
           ['h1', 'Home page: the headline, a free call button and a grid of participant photos'],
