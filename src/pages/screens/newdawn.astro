@@ -1,5 +1,6 @@
 ---
 import { getCollection, getEntry } from 'astro:content';
+import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import Facts from '../../components/Facts.astro';
 import Stack from '../../components/Stack.astro';
@@ -42,12 +43,12 @@ const shots = (names: [string, string][]) => names.map(([n, alt]) => ({ src: img
       </section>
 
       <section class="sec">
-        <div class="wide"><Stack items={shots([
-          ['illustration', 'The illustration set: people, homes and moments of support, drawn in the brand orange, green, yellow and blue'],
-        ])} /></div>
-        <figure class="panel film wide" data-reveal>
-          <video src="/newdawn/newdawn-icon-set.mp4" autoplay muted loop playsinline preload="metadata" aria-label="The icon set: twenty-eight line icons for services and property features, drawing on in a loop"></video>
-        </figure>
+        <div class="sysgrid wide">
+          <figure class="panel art" data-reveal><Image src={img('illustration')} alt="The illustration set: people, homes and moments of support, drawn in the brand orange, green, yellow and blue" width={2400} format="webp" quality={82} loading="lazy" /></figure>
+          <figure class="panel film" data-reveal data-reveal-delay="0.1">
+            <video src="/newdawn/newdawn-icon-set.mp4" autoplay muted loop playsinline preload="metadata" aria-label="The icon set: twenty-eight line icons for services and property features, drawing on in a loop"></video>
+          </figure>
+        </div>
       </section>
 
       <section class="sec">
@@ -112,8 +113,12 @@ const shots = (names: [string, string][]) => names.map(([n, alt]) => ({ src: img
   .sec { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(22px, 3vw, 36px); justify-items: center; min-width: 0; }
   .wide { width: 100%; max-width: 1240px; margin: 0 auto; min-width: 0; }
 
-  .film { margin: 0; padding: 12px; background: var(--surface); }
-  .film video { aspect-ratio: 1920 / 1356; width: 100%; border-radius: 12px; background: #FAF6F0; display: block; object-fit: cover; }
+  /* the illustration set and the icon film side by side, same frame, same height (as on Collga) */
+  .sysgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .art, .film { margin: 0; padding: 12px; background: var(--surface); }
+  .art :global(img), .film video { aspect-ratio: 2400 / 1557; width: 100%; height: auto; border-radius: 12px; display: block; object-fit: cover; }
+  .art :global(img) { background: #FFEDE4; }
+  .film video { object-position: top; background: #FAF6F0; }
 
   .close { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); border: 1px solid rgba(255,81,1,0.2); border-radius: var(--r); overflow: hidden; background: linear-gradient(160deg, #2A1005 0%, var(--surface) 55%); }
   .close-l { padding: clamp(28px, 4vw, 48px); display: grid; gap: 14px; align-content: start; justify-items: start; }
@@ -127,5 +132,5 @@ const shots = (names: [string, string][]) => names.map(([n, alt]) => ({ src: img
   .close-r .go { position: absolute; right: clamp(20px, 3vw, 32px); bottom: clamp(20px, 3vw, 32px); width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line-a); display: grid; place-items: center; color: var(--fg); transition: transform 0.3s var(--ease), border-color 0.2s; }
   .close-r:hover .go { transform: translateX(4px); border-color: var(--accent); color: var(--accent); }
 
-  @media (max-width: 860px) { .head, .close { grid-template-columns: 1fr; } .close-r { border-left: 0; border-top: 1px solid var(--line-a); } }
+  @media (max-width: 860px) { .head, .sysgrid, .close { grid-template-columns: 1fr; } .close-r { border-left: 0; border-top: 1px solid var(--line-a); } }
 </style>
