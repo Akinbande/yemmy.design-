@@ -224,10 +224,11 @@ const swatches = [['#4C9C40', 'Collga Green', 'Primary actions, active nav, bran
   .study { position: relative; padding-top: calc(var(--nav-h) + clamp(40px, 8vw, 96px)); padding-bottom: clamp(72px, 10vw, 140px); }
   /* Collga's deep green as atmosphere behind the header: two soft lights that drift, fading into the ink before the first section */
   .atmos { position: absolute; left: 0; right: 0; top: 0; height: min(92vh, 900px); pointer-events: none; z-index: 0; overflow: hidden;
+    background: linear-gradient(180deg, rgba(22,48,18,0.42) 0%, rgba(22,48,18,0.12) 45%, transparent 75%);
     -webkit-mask-image: linear-gradient(180deg, #000 55%, transparent 100%); mask-image: linear-gradient(180deg, #000 55%, transparent 100%); }
-  .atmos::before, .atmos::after { content: ''; position: absolute; border-radius: 50%; filter: blur(60px); will-change: transform; }
-  .atmos::before { width: 70vw; height: 70vw; max-width: 980px; max-height: 980px; left: -18vw; top: -34vw; background: radial-gradient(circle, rgba(30,63,26,0.85) 0%, rgba(30,63,26,0.35) 40%, transparent 70%); animation: driftA 22s ease-in-out infinite alternate; }
-  .atmos::after { width: 46vw; height: 46vw; max-width: 640px; max-height: 640px; right: -12vw; top: -8vw; background: radial-gradient(circle, rgba(108,180,96,0.22) 0%, rgba(76,156,64,0.10) 45%, transparent 70%); animation: driftB 26s ease-in-out infinite alternate; }
+  .atmos::before, .atmos::after { content: ''; position: absolute; border-radius: 50%; filter: blur(36px); will-change: transform; }
+  .atmos::before { width: 72vw; height: 72vw; max-width: 1000px; max-height: 1000px; left: -16vw; top: -34vw; background: radial-gradient(circle, rgba(36,80,30,1) 0%, rgba(30,63,26,0.72) 38%, rgba(30,63,26,0.22) 60%, transparent 72%); animation: driftA 22s ease-in-out infinite alternate; }
+  .atmos::after { width: 48vw; height: 48vw; max-width: 660px; max-height: 660px; right: -10vw; top: -6vw; background: radial-gradient(circle, rgba(108,180,96,0.38) 0%, rgba(76,156,64,0.18) 45%, transparent 70%); animation: driftB 26s ease-in-out infinite alternate; }
   @keyframes driftA { from { transform: translate(0, 0); } to { transform: translate(6vw, 4vw); } }
   @keyframes driftB { from { transform: translate(0, 0); } to { transform: translate(-5vw, 5vw); } }
   .head, .body { position: relative; z-index: 1; }
