@@ -35,6 +35,7 @@ const shots = (names: [string, string][]) => names.map(([n, alt]) => ({ src: img
         </figure>
         <div class="wide"><Stack items={shots([
           ['g1', 'Home page: a warm welcome, a family photo and a booking confirmed card'],
+          ['g3', 'Smile finder: find the right care in three taps, with no details stored'],
           ['g2', 'Treatments: everything a smile needs, in one place'],
           ['g8', 'Mobile: a treatment page, the treatments list and the booking confirmation'],
         ])} /></div>
@@ -48,7 +49,9 @@ const shots = (names: [string, string][]) => names.map(([n, alt]) => ({ src: img
       <section class="sec">
         <div class="sysgrid wide">
           <figure class="panel art" data-reveal><Image src={img('g5')} alt="From every corner of Lagos: an illustration of a yellow bus crossing a cable bridge" width={2400} format="webp" quality={82} loading="lazy" /></figure>
-          <figure class="panel art" data-reveal data-reveal-delay="0.1"><Image src={img('g3')} alt="Smile finder: find the right care in three taps, with no details stored" width={2400} format="webp" quality={82} loading="lazy" /></figure>
+          <figure class="panel film" data-reveal data-reveal-delay="0.1">
+            <video src="/glaze/glaze-icons.mp4" autoplay muted loop playsinline preload="metadata" aria-label="The Glaze icon set, animating on a loop"></video>
+          </figure>
         </div>
       </section>
 
@@ -80,7 +83,7 @@ const shots = (names: [string, string][]) => names.map(([n, alt]) => ({ src: img
 </Base>
 
 <script>
-  // the film loops while it is on screen and rests when it is not; reduced motion gets the poster and controls instead
+  // every film loops while it is on screen and rests when it is not; reduced motion gets the poster and controls instead
   function videos() {
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
     document.querySelectorAll<HTMLVideoElement>('.screens video').forEach((v) => {
@@ -121,10 +124,13 @@ const shots = (names: [string, string][]) => names.map(([n, alt]) => ({ src: img
   .reel { margin: 0; aspect-ratio: 16 / 9; border: 1px solid var(--line-a); border-radius: 16px; overflow: hidden; background: #FFFFFF; }
   .reel video { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-  /* the Lagos illustration and the smile finder side by side, same frame, same height (as on Newdawn and Collga) */
+  /* the Lagos illustration and the icon film side by side, same frame, same height (as on Newdawn and Collga);
+     16:9 so the film shows whole and only the illustration's empty margin is trimmed */
   .sysgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-  .art { margin: 0; padding: 12px; background: var(--surface); }
-  .art :global(img) { aspect-ratio: 2400 / 1557; width: 100%; height: auto; border-radius: 12px; display: block; object-fit: cover; background: #EEF3FB; }
+  .art, .film { margin: 0; padding: 12px; background: var(--surface); }
+  .art :global(img), .film video { aspect-ratio: 16 / 9; width: 100%; height: auto; border-radius: 12px; display: block; object-fit: cover; }
+  .art :global(img) { background: #EEF3FB; }
+  .film video { background: #F1F5FA; }
 
   .close { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); border: 1px solid rgba(64,112,192,0.24); border-radius: var(--r); overflow: hidden; background: linear-gradient(160deg, #0A1A3D 0%, var(--surface) 55%); }
   .close-l { padding: clamp(28px, 4vw, 48px); display: grid; gap: 14px; align-content: start; justify-items: start; }
