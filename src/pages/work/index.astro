@@ -1,0 +1,202 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import WorkTile from '../../components/WorkTile.astro';
+
+// case studies first, then the smaller projects, each group in its own order
+const all = (await getCollection('work')).sort((a, b) => (a.data.tier === 1 ? 0 : 1) - (b.data.tier === 1 ? 0 : 1) || a.data.order - b.data.order);
+const by = (id: string) => all.find((e) => e.id === id)!;
+const files = import.meta.glob<{ default: ImageMetadata }>('/src/assets/**/*.png', { eager: true });
+const shot = (p: string) => files[Object.keys(files).find((f) => f.endsWith(`/${p}.png`))!].default;
+
+// one plain line per project, shared by the cards and the index
+const line: Record<string, string> = {
+  orbitform: 'Compliant intake, incident and feedback forms for NDIS providers',
+  nexorbit: 'One operations platform for a government-funded care provider',
+  collga: 'An e-government platform for state and local governments in Nigeria',
+  luca: 'Bookkeeping for small business owners who are not accountants',
+  newdawn: 'A design system and website for a disability support provider',
+  'glaze-dental': 'A website and booking journey for a Lagos dental clinic',
+  fintech: 'A fintech app. Screens are being added',
+};
+// the colour each index row picks up on hover
+const mark: Record<string, string> = { collga: '#6CB460', newdawn: '#FF5101', 'glaze-dental': '#4070C0' };
+const studies = all.filter((e) => e.data.tier === 1).length;
+const screens = all.length - studies;
+const years = all.flatMap((e) => String(e.data.year).match(/\d{4}/g) ?? []).map(Number);
+const span = `${Math.min(...years)} to ${Math.max(...years)}`;
+const words = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+const intro = `${words[studies]} case studies and ${words[screens].toLowerCase()} smaller projects, across government, care, health and finance.`;
+---
+<Base title="Work · Oluwayemi Akinbande" ogTitle="Work, Oluwayemi Akinbande" description={`${intro} ${span}.`}>
+  <article class="work" id="work-page">
+    <div class="glow" aria-hidden="true"></div>
+    <header class="wrap head">
+      <div class="lead">
+        <p class="eyebrow accent" data-reveal>Work</p>
+        <h1 class="display hero-title">Designing services people rely on.</h1>
+        <p class="sub" data-reveal data-reveal-delay="0.3">{intro}</p>
+        <a class="jump mono" href="#index" data-reveal data-reveal-delay="0.4">See every project in a list
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 3v9M4.5 8.5 8 12l3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+      <dl class="stats" data-reveal data-reveal-delay="0.45">
+        <div><dt>Case studies</dt><dd class="mono" data-count={studies}>{studies}</dd></div>
+        <div><dt>Screens</dt><dd class="mono" data-count={screens}>{screens}</dd></div>
+        <div><dt>Years</dt><dd class="mono yr">{span}</dd></div>
+      </dl>
+    </header>
+
+    <!-- the films start at 4 s on these cards, past their blank opening frames; the files themselves are untouched -->
+    <section class="wrap bento" aria-label="Projects">
+      <div class="r">
+        <WorkTile e={by('orbitform')} line={line.orbitform} />
+        <WorkTile e={by('nexorbit')} line={line.nexorbit} />
+      </div>
+      <div class="r full">
+        <WorkTile e={by('collga')} line={by('collga').data.summary} variant="feature" image={shot('collga/admin1')} />
+      </div>
+      <div class="r flip">
+        <WorkTile e={by('luca')} line={line.luca} />
+        <WorkTile e={by('newdawn')} line={line.newdawn} variant="video"
+          video={{ wide: '/newdawn/newdawn-website-preview-uhd.mp4#t=4', src: '/newdawn/newdawn-website-preview.mp4#t=4', poster: '/newdawn/newdawn-website-preview.jpg' }} />
+      </div>
+      <div class="r">
+        <WorkTile e={by('glaze-dental')} line={line['glaze-dental']} variant="video"
+          video={{ src: '/glaze/glaze-product-film.mp4#t=4', poster: '/glaze/glaze-product-film-tile.jpg' }} />
+        <WorkTile e={by('fintech')} line={line.fintech} />
+      </div>
+    </section>
+
+    <section class="wrap index" id="index" aria-labelledby="index-h">
+      <div class="ihead" data-reveal>
+        <p class="eyebrow accent">Index</p>
+        <h2 id="index-h">Every project, in one list.</h2>
+      </div>
+      <div class="cols mono" aria-hidden="true"><span></span><span>Project</span><span>Sector</span><span>Year</span><span>Format</span><span></span></div>
+      <ol class="rows">
+        {all.map((e, i) => {
+          const study = e.data.tier === 1;
+          return (
+            <li>
+              <a class="irow" href={study ? `/work/${e.id}/` : `/screens/${e.id}/`} style={`--mark:${mark[e.id] ?? '#6190FF'}`}>
+                <span class="n mono">{String(i + 1).padStart(2, '0')}</span>
+                <span class="p"><b>{e.data.org}</b><span>{line[e.id] ?? e.data.title}</span><em class="mob mono">{study ? 'Case study' : 'Screens'} &middot; {e.data.year}</em></span>
+                <span class="sec">{e.data.industry?.[0] ?? ''}</span>
+                <span class="y mono">{e.data.year}</span>
+                <span class="f mono">{study ? 'Case study' : 'Screens'}</span>
+                <span class="ar" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              </a>
+            </li>
+          );
+        })}
+      </ol>
+    </section>
+  </article>
+</Base>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  gsap.registerPlugin(ScrollTrigger);
+
+  function init() {
+    const root = document.getElementById('work-page');
+    if (!root || root.dataset.init) return; root.dataset.init = '1';
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // films load when first seen, play while on screen, rest when not; reduced motion keeps the poster
+    if (!reduced) root.querySelectorAll<HTMLVideoElement>('video').forEach((v) => {
+      new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) v.play().catch(() => {}); else v.pause(); }), { threshold: 0.35 }).observe(v);
+    });
+    if (reduced) return;
+
+    // the counts tick up once
+    root.querySelectorAll<HTMLElement>('[data-count]').forEach((el) => {
+      // the real number stays in place until the count actually starts, so a paused tab never shows 0
+      const n = Number(el.dataset.count); const o = { v: 0 };
+      gsap.to(o, { v: n, duration: 1.1, ease: 'power2.out', delay: 0.3, onUpdate: () => { el.textContent = String(Math.round(o.v)); } });
+    });
+
+    // each card opens from its centre and rises as it arrives; its media drifts a little slower than the page
+    root.querySelectorAll<HTMLElement>('.bento .tile').forEach((t) => {
+      gsap.fromTo(t, { clipPath: 'inset(9% 5% 0% 5% round 28px)', y: 70 }, {
+        clipPath: 'inset(0% 0% 0% 0% round 18px)', y: 0, ease: 'none',
+        scrollTrigger: { trigger: t, start: 'top 98%', end: 'top 56%', scrub: 0.6 },
+      });
+      const m = t.querySelector('.media-in');
+      if (m) gsap.fromTo(m, { yPercent: -5 }, { yPercent: 5, ease: 'none', scrollTrigger: { trigger: t, start: 'top bottom', end: 'bottom top', scrub: true } });
+    });
+
+    // the index rows arrive one after another
+    const list = root.querySelector('.rows');
+    if (list) gsap.fromTo(list.children, { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out', stagger: 0.07,
+      scrollTrigger: { trigger: list, start: 'top 88%', once: true } });
+  }
+  document.addEventListener('astro:page-load', init);
+</script>
+
+<style>
+  .work { position: relative; padding-top: calc(var(--nav-h) + clamp(48px, 9vw, 120px)); padding-bottom: clamp(72px, 10vw, 140px); }
+  .glow { position: absolute; left: 0; right: 0; top: 0; height: min(90vh, 820px); pointer-events: none; z-index: 0;
+    background: radial-gradient(60% 55% at 18% 0%, rgba(59,111,235,0.20), transparent 70%), radial-gradient(40% 40% at 90% 10%, rgba(97,144,255,0.08), transparent 70%); }
+
+  .head { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.6fr); gap: clamp(28px, 5vw, 72px); align-items: end; }
+  .lead { display: grid; gap: 18px; justify-items: start; }
+  .hero-title { max-width: 13ch; visibility: hidden; }
+  .hero-title :global(.line) { overflow: hidden; }
+  .sub { color: rgba(235,238,245,0.86); font-size: clamp(16px, 1.4vw, 19px); line-height: 1.6; max-width: 46ch; }
+  .jump { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+    border-bottom: 1px solid var(--line-a); padding-bottom: 4px; transition: color 0.2s, border-color 0.2s; }
+  .jump:hover { color: var(--fg); border-color: var(--accent); }
+  .stats { margin: 0; display: grid; grid-template-columns: auto auto minmax(0, 1fr); border: 1px solid var(--line-a); border-radius: 14px; background: rgba(12,13,15,0.6);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); overflow: hidden; }
+  .stats div { padding: 16px 18px; border-right: 1px solid var(--line-a); }
+  .stats div:last-child { border-right: 0; }
+  .stats dt { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); white-space: nowrap; }
+  .stats dd { margin: 6px 0 0; font-size: clamp(24px, 2.4vw, 32px); letter-spacing: -0.02em; line-height: 1.1; color: var(--fg); }
+  .stats dd.yr { font-size: 15px; padding-top: 10px; white-space: nowrap; }
+
+  .bento { --g: clamp(12px, 1.4vw, 18px); position: relative; z-index: 1; display: grid; gap: var(--g); margin-top: clamp(48px, 7vw, 96px); }
+  .r { display: grid; gap: var(--g); grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+  .r.flip { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+  .r.full { grid-template-columns: minmax(0, 1fr); }
+  .r > :global(.tile) { min-height: clamp(420px, 40vw, 560px); }
+  .r.full > :global(.tile) { min-height: clamp(480px, 46vw, 640px); }
+
+  .index { --cols: 44px minmax(0, 2.4fr) minmax(0, 1.3fr) 132px 104px 34px; position: relative; z-index: 1; margin-top: clamp(88px, 11vw, 160px); }
+  .ihead { display: grid; gap: 12px; margin-bottom: clamp(24px, 3vw, 40px); }
+  .ihead h2 { font-size: clamp(28px, 3.6vw, 44px); }
+  .cols { display: grid; grid-template-columns: var(--cols); gap: 20px; padding: 0 12px 12px; font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); }
+  .rows { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line-a); }
+  .irow { position: relative; display: grid; grid-template-columns: var(--cols); gap: 20px; align-items: center; padding: 22px 12px; border-bottom: 1px solid var(--line-a); transition: background 0.35s var(--ease); }
+  .irow::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--mark); transform: scaleY(0); transform-origin: top; transition: transform 0.4s var(--ease); }
+  .irow:hover, .irow:focus-visible { background: linear-gradient(90deg, color-mix(in srgb, var(--mark) 13%, transparent), transparent 70%); }
+  .irow:hover::before, .irow:focus-visible::before { transform: scaleY(1); }
+  .n { font-size: 12px; color: var(--dim); letter-spacing: 0.08em; transition: color 0.25s; }
+  .irow:hover .n { color: var(--mark); }
+  .p { display: grid; gap: 4px; min-width: 0; }
+  .p b { font-size: clamp(17px, 1.6vw, 20px); font-weight: 600; letter-spacing: -0.015em; }
+  .p > span { color: var(--muted); font-size: 14.5px; line-height: 1.45; }
+  .mob { display: none; font-style: normal; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); margin-top: 2px; }
+  .sec { color: var(--muted); font-size: 14.5px; }
+  .y, .f { font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); }
+  .ar { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line-a); display: grid; place-items: center; transition: transform 0.35s var(--ease), background 0.25s, color 0.25s, border-color 0.25s; }
+  .irow:hover .ar, .irow:focus-visible .ar { background: var(--fg); color: #09090A; border-color: var(--fg); transform: translateX(4px); }
+
+  @media (max-width: 860px) {
+    .head { grid-template-columns: 1fr; align-items: start; }
+    .r, .r.flip { grid-template-columns: minmax(0, 1fr); }
+    .r > :global(.tile) { min-height: 440px; }
+    .r.full > :global(.tile) { min-height: 580px; }
+    .index { --cols: 30px minmax(0, 1fr) 34px; }
+    .cols, .sec, .y, .f { display: none; }
+    .mob { display: block; }
+    .irow { gap: 14px; padding: 18px 6px; }
+  }
+  @media (max-width: 480px) {
+    .stats { grid-template-columns: 1fr 1fr; }
+    .stats div:nth-child(2) { border-right: 0; }
+    .stats div:nth-child(3) { grid-column: 1 / -1; border-top: 1px solid var(--line-a); }
+  }
+</style>

@@ -4,7 +4,7 @@ const all = (await getCollection('work')).sort((a, b) => a.data.order - b.data.o
 const work = all.filter((e) => e.data.tier === 1);
 const screens = all.filter((e) => e.data.tier >= 2);
 const links = [
-  { href: '/#work', label: 'Work' },
+  { href: '/work/', label: 'Work' },
   { href: '/writing/', label: 'Writing' },
   { href: '/travel/', label: 'Travel' },
   { href: '/about/', label: 'About' },
@@ -39,7 +39,7 @@ const links = [
   </div>
   <ul class="layers-list">
     <li class="layer group">
-      <a class="row" href="/#work">
+      <a class="row" href="/work/">
         <svg class="ic" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><rect x="1.5" y="1.5" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="0" y="0" width="3" height="3" fill="currentColor"/><rect x="11" y="0" width="3" height="3" fill="currentColor"/><rect x="0" y="11" width="3" height="3" fill="currentColor"/><rect x="11" y="11" width="3" height="3" fill="currentColor"/></svg>
         <span>Work</span><span class="mono count">{work.length}</span>
       </a>
@@ -56,7 +56,7 @@ const links = [
       </ul>
     </li>
     <li class="layer group">
-      <a class="row" href="/#more">
+      <a class="row" href="/work/#index">
         <svg class="ic" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><rect x="1.5" y="2.5" width="11" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M1.5 5.5h11" stroke="currentColor" stroke-width="1.3"/></svg>
         <span>Screens</span><span class="mono count">{screens.length}</span>
       </a>
