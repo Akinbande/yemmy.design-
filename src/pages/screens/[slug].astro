@@ -6,8 +6,8 @@ import Facts from '../../components/Facts.astro';
 
 export async function getStaticPaths() {
   const all = (await getCollection('work', (e) => e.data.tier >= 2)).sort((a, b) => a.data.order - b.data.order);
-  // Newdawn has its own page (screens/newdawn.astro); it stays in the order so the others can link to it
-  return all.map((entry, i) => ({ entry, next: all[(i + 1) % all.length] })).filter(({ entry }) => entry.id !== 'newdawn')
+  // Newdawn and Glaze Dental have their own pages; they stay in the order so the others can link to them
+  return all.map((entry, i) => ({ entry, next: all[(i + 1) % all.length] })).filter(({ entry }) => !['newdawn', 'glaze-dental'].includes(entry.id))
     .map(({ entry, next }) => ({ params: { slug: entry.id }, props: { entry, next } }));
 }
 const { entry, next } = Astro.props;

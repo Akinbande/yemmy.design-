@@ -1,0 +1,142 @@
+---
+import { getCollection, getEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import Facts from '../../components/Facts.astro';
+import Stack from '../../components/Stack.astro';
+import Marquee from '../../components/Marquee.astro';
+
+const entry = (await getEntry('work', 'glaze-dental'))!;
+const d = entry.data;
+const all = (await getCollection('work', (e) => e.data.tier >= 2)).sort((a, b) => a.data.order - b.data.order);
+const next = all[(all.findIndex((e) => e.id === 'glaze-dental') + 1) % all.length];
+
+const files = import.meta.glob<{ default: ImageMetadata }>('/src/assets/glaze/*.png', { eager: true });
+const img = (name: string) => { const k = Object.keys(files).find((p) => p.endsWith(`/${name}.png`)); if (!k) throw new Error('missing ' + name); return files[k].default; };
+const shots = (names: [string, string][]) => names.map(([n, alt]) => ({ src: img(n), alt }));
+---
+<Base title={`${d.org} · Oluwayemi Akinbande`} ogTitle={`${d.org}, in screens`} description={d.summary}>
+  <article class="screens">
+    <div class="atmos" aria-hidden="true"></div>
+    <header class="wrap head">
+      <div class="lead">
+        <p class="mono crumbs" data-reveal><a href="/#more">Work</a><span class="sep">/</span><span>Screens</span></p>
+        <h1 data-reveal data-reveal-delay="0.1">{d.org}</h1>
+        <p class="sum" data-reveal data-reveal-delay="0.2">{d.summary}</p>
+      </div>
+      <div data-reveal data-reveal-delay="0.25"><Facts d={d} /></div>
+    </header>
+
+    <div class="wrap body">
+      <section class="sec">
+        <figure class="wide reel" data-reveal>
+          <!-- his 1080p product film, served exactly as supplied -->
+          <video src="/glaze/glaze-product-film.mp4" poster="/glaze/glaze-product-film.jpg" autoplay muted loop playsinline preload="auto" aria-label="The Glaze Dental product film: the brand, the home page, treatments, reviews and booking, playing on a loop"></video>
+        </figure>
+        <div class="wide"><Stack items={shots([
+          ['g1', 'Home page: a warm welcome, a family photo and a booking confirmed card'],
+          ['g2', 'Treatments: everything a smile needs, in one place'],
+          ['g8', 'Mobile: a treatment page, the treatments list and the booking confirmation'],
+        ])} /></div>
+        <div class="wide"><Marquee items={shots([
+          ['g4', 'Booking, step four: one last look before the request is sent'],
+          ['g6', 'Teeth whitening: the treatment page with booking and a phone number'],
+          ['g7', 'Patient reviews from Google'],
+        ])} /></div>
+      </section>
+
+      <section class="sec">
+        <div class="sysgrid wide">
+          <figure class="panel art" data-reveal><Image src={img('g5')} alt="From every corner of Lagos: an illustration of a yellow bus crossing a cable bridge" width={2400} format="webp" quality={82} loading="lazy" /></figure>
+          <figure class="panel art" data-reveal data-reveal-delay="0.1"><Image src={img('g3')} alt="Smile finder: find the right care in three taps, with no details stored" width={2400} format="webp" quality={82} loading="lazy" /></figure>
+        </div>
+      </section>
+
+      <section class="sec">
+        <div class="close wide" data-reveal>
+          <div class="close-l">
+            <span class="eyebrow">Status</span>
+            <h2>Live in Lagos</h2>
+            <p>Built for patients across Lagos: a smile finder for anyone unsure what they need, a phone number on every step for anyone who would rather talk, and nine partner health plans billed at the front desk.</p>
+            <div class="acts">
+              {d.link && <a class="btn btn-ghost" href={d.link} target="_blank" rel="noopener noreferrer">Visit the site<span class="sr-only"> (opens in a new tab)</span>
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M5 11 11 5M11 5H6.2M11 5v4.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </a>}
+              <a class="btn btn-ghost" href="/#more">All work
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </a>
+            </div>
+          </div>
+          <a class="close-r" href={`/screens/${next.id}/`}>
+            <span class="eyebrow">Next</span>
+            <span class="t">{next.data.org}</span>
+            <span class="mono o">{next.data.year} &middot; {next.data.tags[0]}</span>
+            <span class="go"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </a>
+        </div>
+      </section>
+    </div>
+  </article>
+</Base>
+
+<script>
+  // the film loops while it is on screen and rests when it is not; reduced motion gets the poster and controls instead
+  function videos() {
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    document.querySelectorAll<HTMLVideoElement>('.screens video').forEach((v) => {
+      if (v.dataset.init) return; v.dataset.init = '1';
+      if (reduced) { v.removeAttribute('autoplay'); v.pause(); v.controls = true; return; }
+      new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) v.play().catch(() => {}); else v.pause(); }), { threshold: 0.2 }).observe(v);
+    });
+  }
+  document.addEventListener('astro:page-load', videos);
+</script>
+
+<style>
+  .screens { position: relative; padding-top: calc(var(--nav-h) + clamp(40px, 8vw, 96px)); padding-bottom: clamp(72px, 10vw, 140px); }
+  /* Glaze blue (#4070C0) taken deep, with the logo's yellow swoosh (#F8C000) as a second, warmer light */
+  .atmos { position: absolute; left: 0; right: 0; top: 0; height: min(92vh, 900px); pointer-events: none; z-index: 0; overflow: hidden;
+    background: linear-gradient(180deg, rgba(16,40,92,0.46) 0%, rgba(16,40,92,0.14) 45%, transparent 75%);
+    -webkit-mask-image: linear-gradient(180deg, #000 55%, transparent 100%); mask-image: linear-gradient(180deg, #000 55%, transparent 100%); }
+  .atmos::before, .atmos::after { content: ''; position: absolute; border-radius: 50%; filter: blur(36px); will-change: transform; }
+  .atmos::before { width: 72vw; height: 72vw; max-width: 1000px; max-height: 1000px; left: -16vw; top: -34vw; background: radial-gradient(circle, rgba(30,66,140,1) 0%, rgba(16,40,92,0.74) 38%, rgba(16,40,92,0.22) 60%, transparent 72%); animation: driftA 22s ease-in-out infinite alternate; }
+  .atmos::after { width: 48vw; height: 48vw; max-width: 660px; max-height: 660px; right: -10vw; top: -6vw; background: radial-gradient(circle, rgba(248,192,0,0.22) 0%, rgba(248,192,0,0.09) 45%, transparent 70%); animation: driftB 26s ease-in-out infinite alternate; }
+  @keyframes driftA { from { transform: translate(0, 0); } to { transform: translate(6vw, 4vw); } }
+  @keyframes driftB { from { transform: translate(0, 0); } to { transform: translate(-5vw, 5vw); } }
+  @media (prefers-reduced-motion: reduce) { .atmos::before, .atmos::after { animation: none; } }
+  .head, .body { position: relative; z-index: 1; }
+  .head :global(.facts) { border-color: rgba(64,112,192,0.28); background: linear-gradient(180deg, rgba(16,40,92,0.32), var(--surface) 60%); }
+
+  .head { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr); gap: clamp(28px, 5vw, 72px); align-items: start; }
+  .lead { display: grid; gap: 18px; }
+  .crumbs { display: flex; gap: 10px; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); }
+  .crumbs a:hover { color: var(--fg); } .sep { opacity: 0.5; }
+  h1 { font-size: clamp(32px, 4.6vw, 60px); letter-spacing: -0.04em; max-width: 18ch; }
+  .sum { color: var(--fg); font-size: clamp(16px, 1.4vw, 19px); line-height: 1.6; max-width: 52ch; }
+
+  .body { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(72px, 10vw, 140px); margin-top: clamp(56px, 8vw, 112px); }
+  .sec { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(22px, 3vw, 36px); justify-items: center; min-width: 0; }
+  .wide { width: 100%; max-width: 1240px; margin: 0 auto; min-width: 0; }
+  /* the product film, first and widest, in the same frame as the screens below it */
+  .reel { margin: 0; aspect-ratio: 16 / 9; border: 1px solid var(--line-a); border-radius: 16px; overflow: hidden; background: #FFFFFF; }
+  .reel video { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  /* the Lagos illustration and the smile finder side by side, same frame, same height (as on Newdawn and Collga) */
+  .sysgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .art { margin: 0; padding: 12px; background: var(--surface); }
+  .art :global(img) { aspect-ratio: 2400 / 1557; width: 100%; height: auto; border-radius: 12px; display: block; object-fit: cover; background: #EEF3FB; }
+
+  .close { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); border: 1px solid rgba(64,112,192,0.24); border-radius: var(--r); overflow: hidden; background: linear-gradient(160deg, #0A1A3D 0%, var(--surface) 55%); }
+  .close-l { padding: clamp(28px, 4vw, 48px); display: grid; gap: 14px; align-content: start; justify-items: start; }
+  .close-l h2 { font-size: clamp(24px, 2.8vw, 34px); letter-spacing: -0.03em; }
+  .close-l p { color: var(--muted); font-size: 15px; line-height: 1.65; max-width: 56ch; }
+  .acts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+  .close-r { position: relative; padding: clamp(28px, 4vw, 48px); border-left: 1px solid var(--line-a); display: grid; gap: 10px; align-content: center; transition: background 0.25s; }
+  .close-r:hover { background: rgba(235,238,245,0.03); }
+  .close-r .t { font-size: clamp(20px, 2.4vw, 30px); font-weight: 600; letter-spacing: -0.03em; max-width: 16ch; }
+  .close-r .o { font-size: 11px; color: var(--dim); letter-spacing: 0.08em; text-transform: uppercase; }
+  .close-r .go { position: absolute; right: clamp(20px, 3vw, 32px); bottom: clamp(20px, 3vw, 32px); width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line-a); display: grid; place-items: center; color: var(--fg); transition: transform 0.3s var(--ease), border-color 0.2s; }
+  .close-r:hover .go { transform: translateX(4px); border-color: var(--accent); color: var(--accent); }
+
+  @media (max-width: 860px) { .head, .sysgrid, .close { grid-template-columns: 1fr; } .close-r { border-left: 0; border-top: 1px solid var(--line-a); } }
+</style>
