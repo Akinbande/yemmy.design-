@@ -30,8 +30,12 @@ const shots = (names: [string, string][]) => names.map(([n, alt]) => ({ src: img
     <div class="wrap body">
       <section class="sec">
         <figure class="wide reel" data-reveal>
-          <!-- his 1080p product film, served exactly as supplied -->
-          <video src="/glaze/glaze-product-film.mp4" poster="/glaze/glaze-product-film.jpg" autoplay muted loop playsinline preload="auto" aria-label="The Glaze Dental product film: the brand, the home page, treatments, reviews and booking, playing on a loop"></video>
+          <!-- wide screens: his 1080p film upscaled to 2560 with Lanczos and light sharpening, so the browser never stretches it soft;
+               phones: his original 1080p file, which they show without any stretching -->
+          <video poster="/glaze/glaze-product-film.jpg" autoplay muted loop playsinline preload="auto" aria-label="The Glaze Dental product film: the brand, the home page, treatments, reviews and booking, playing on a loop">
+            <source src="/glaze/glaze-product-film-sharp.mp4" type="video/mp4" media="(min-width: 861px)" />
+            <source src="/glaze/glaze-product-film.mp4" type="video/mp4" />
+          </video>
         </figure>
         <div class="wide"><Stack items={shots([
           ['g1', 'Home page: a warm welcome, a family photo and a booking confirmed card'],
