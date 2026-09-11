@@ -1,6 +1,5 @@
 ---
 import { getCollection, getEntry } from 'astro:content';
-import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import Facts from '../../components/Facts.astro';
 import Stack from '../../components/Stack.astro';
@@ -43,12 +42,16 @@ const shots = (names: [string, string][]) => names.map(([n, alt]) => ({ src: img
           ['g4', 'Booking, step four: one last look before the request is sent'],
           ['g6', 'Teeth whitening: the treatment page with booking and a phone number'],
           ['g7', 'Patient reviews from Google'],
+          ['g5', 'From every corner of Lagos: an illustration of a yellow bus crossing a cable bridge'],
         ])} /></div>
       </section>
 
       <section class="sec">
         <div class="sysgrid wide">
-          <figure class="panel art" data-reveal><Image src={img('g5')} alt="From every corner of Lagos: an illustration of a yellow bus crossing a cable bridge" width={2400} format="webp" quality={82} loading="lazy" /></figure>
+          <figure class="panel film" data-reveal>
+            <!-- his 4K team film, served exactly as supplied -->
+            <video src="/glaze/glaze-team.mp4" autoplay muted loop playsinline preload="metadata" aria-label="Meet our Dental Experts: the Glaze team section, moving through each team member on a loop"></video>
+          </figure>
           <figure class="panel film" data-reveal data-reveal-delay="0.1">
             <video src="/glaze/glaze-icons.mp4" autoplay muted loop playsinline preload="metadata" aria-label="The Glaze icon set, animating on a loop"></video>
           </figure>
@@ -124,13 +127,12 @@ const shots = (names: [string, string][]) => names.map(([n, alt]) => ({ src: img
   .reel { margin: 0; aspect-ratio: 16 / 9; border: 1px solid var(--line-a); border-radius: 16px; overflow: hidden; background: #FFFFFF; }
   .reel video { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-  /* the Lagos illustration and the icon film side by side, same frame, same height (as on Newdawn and Collga);
-     16:9 so the film shows whole and only the illustration's empty margin is trimmed */
+  /* the team film and the icon film side by side, same frame, same height (as on Newdawn and Collga); 16:9 so both show whole */
   .sysgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .art, .film { margin: 0; padding: 12px; background: var(--surface); }
   .art :global(img), .film video { aspect-ratio: 16 / 9; width: 100%; height: auto; border-radius: 12px; display: block; object-fit: cover; }
   .art :global(img) { background: #EEF3FB; }
-  .film video { background: #F1F5FA; }
+  .film video { background: #F1F5FA; object-fit: cover; }
 
   .close { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); border: 1px solid rgba(64,112,192,0.24); border-radius: var(--r); overflow: hidden; background: linear-gradient(160deg, #0A1A3D 0%, var(--surface) 55%); }
   .close-l { padding: clamp(28px, 4vw, 48px); display: grid; gap: 14px; align-content: start; justify-items: start; }
