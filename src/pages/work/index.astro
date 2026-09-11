@@ -1,7 +1,10 @@
 ---
 import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import WorkTile from '../../components/WorkTile.astro';
+import Glyph from '../../components/Glyph.astro';
+import workstation from '../../assets/workstation.png';
 
 // case studies first, then the smaller projects, each group in its own order
 const all = (await getCollection('work')).sort((a, b) => (a.data.tier === 1 ? 0 : 1) - (b.data.tier === 1 ? 0 : 1) || a.data.order - b.data.order);
@@ -19,32 +22,39 @@ const line: Record<string, string> = {
   'glaze-dental': 'A website and booking journey for a Lagos dental clinic',
   fintech: 'A fintech app. Screens are being added',
 };
-// the colour each index row picks up on hover
-const mark: Record<string, string> = { collga: '#6CB460', newdawn: '#FF5101', 'glaze-dental': '#4070C0' };
+// each project's own colour: the card stroke and glow, the index row on hover
+const mark: Record<string, string> = { collga: '#6CB460', newdawn: '#FF5101', 'glaze-dental': '#5B86D6' };
+// the screen that follows the cursor over the index; projects without one show their drawing
+const peek: Record<string, string> = { collga: 'collga/admin1', newdawn: 'newdawn/h1', 'glaze-dental': 'glaze/g1' };
+
 const studies = all.filter((e) => e.data.tier === 1).length;
-const screens = all.length - studies;
+const smaller = all.length - studies;
+const live = all.filter((e) => e.data.status === 'live').length;
 const years = all.flatMap((e) => String(e.data.year).match(/\d{4}/g) ?? []).map(Number);
 const span = `${Math.min(...years)} to ${Math.max(...years)}`;
 const words = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
-const intro = `${words[studies]} case studies and ${words[screens].toLowerCase()} smaller projects, across government, care, health and finance.`;
+const intro = `${words[studies]} case studies and ${words[smaller].toLowerCase()} smaller projects, across government, care, health and finance.`;
 ---
 <Base title="Work · Oluwayemi Akinbande" ogTitle="Work, Oluwayemi Akinbande" description={`${intro} ${span}.`}>
   <article class="work" id="work-page">
     <div class="glow" aria-hidden="true"></div>
+
     <header class="wrap head">
-      <div class="lead">
-        <p class="eyebrow accent" data-reveal>Work</p>
-        <h1 class="display hero-title">Designing services people rely on.</h1>
-        <p class="sub" data-reveal data-reveal-delay="0.3">{intro}</p>
-        <a class="jump mono" href="#index" data-reveal data-reveal-delay="0.4">See every project in a list
-          <svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 3v9M4.5 8.5 8 12l3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </a>
+      <p class="eyebrow accent" data-reveal>Work <span class="yrs">&middot; {span}</span></p>
+      <h1 class="display hero-title">Designing services people rely on.</h1>
+      <div class="band" data-reveal data-reveal-delay="0.3">
+        <div class="intro">
+          <p class="sub">{intro}</p>
+          <a class="jump mono" href="#index">See every project in a list
+            <svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 3v9M4.5 8.5 8 12l3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+        <dl class="stats">
+          <div><dt>Case studies</dt><dd data-count={studies}>{studies}</dd></div>
+          <div><dt>Smaller projects</dt><dd data-count={smaller}>{smaller}</dd></div>
+          <div><dt>Live today</dt><dd data-count={live}>{live}</dd></div>
+        </dl>
       </div>
-      <dl class="stats" data-reveal data-reveal-delay="0.45">
-        <div><dt>Case studies</dt><dd class="mono" data-count={studies}>{studies}</dd></div>
-        <div><dt>Screens</dt><dd class="mono" data-count={screens}>{screens}</dd></div>
-        <div><dt>Years</dt><dd class="mono yr">{span}</dd></div>
-      </dl>
     </header>
 
     <!-- the films start at 4 s on these cards, past their blank opening frames; the files themselves are untouched -->
@@ -54,15 +64,15 @@ const intro = `${words[studies]} case studies and ${words[screens].toLowerCase()
         <WorkTile e={by('nexorbit')} line={line.nexorbit} />
       </div>
       <div class="r full">
-        <WorkTile e={by('collga')} line={by('collga').data.summary} variant="feature" image={shot('collga/admin1')} />
+        <WorkTile e={by('collga')} line={by('collga').data.summary} variant="feature" image={shot('collga/admin1')} accent={mark.collga} />
       </div>
       <div class="r flip">
         <WorkTile e={by('luca')} line={line.luca} />
-        <WorkTile e={by('newdawn')} line={line.newdawn} variant="video"
+        <WorkTile e={by('newdawn')} line={line.newdawn} variant="video" accent={mark.newdawn}
           video={{ wide: '/newdawn/newdawn-website-preview-uhd.mp4#t=4', src: '/newdawn/newdawn-website-preview.mp4#t=4', poster: '/newdawn/newdawn-website-preview.jpg' }} />
       </div>
       <div class="r">
-        <WorkTile e={by('glaze-dental')} line={line['glaze-dental']} variant="video"
+        <WorkTile e={by('glaze-dental')} line={line['glaze-dental']} variant="video" accent={mark['glaze-dental']}
           video={{ src: '/glaze/glaze-product-film.mp4#t=4', poster: '/glaze/glaze-product-film-tile.jpg' }} />
         <WorkTile e={by('fintech')} line={line.fintech} />
       </div>
@@ -70,27 +80,58 @@ const intro = `${words[studies]} case studies and ${words[screens].toLowerCase()
 
     <section class="wrap index" id="index" aria-labelledby="index-h">
       <div class="ihead" data-reveal>
-        <p class="eyebrow accent">Index</p>
-        <h2 id="index-h">Every project, in one list.</h2>
+        <div><p class="eyebrow accent">Index</p><h2 id="index-h">Every project, in one list.</h2></div>
+        <p class="count mono">{all.length} projects &middot; {span}</p>
       </div>
-      <div class="cols mono" aria-hidden="true"><span></span><span>Project</span><span>Sector</span><span>Year</span><span>Format</span><span></span></div>
+      <div class="cols mono" aria-hidden="true"><span>No.</span><span>Project</span><span>Sector</span><span>Year</span><span>Format</span><span></span><i class="rule"></i></div>
       <ol class="rows">
         {all.map((e, i) => {
           const study = e.data.tier === 1;
           return (
-            <li>
+            <li class="ri" data-peek={e.id}>
               <a class="irow" href={study ? `/work/${e.id}/` : `/screens/${e.id}/`} style={`--mark:${mark[e.id] ?? '#6190FF'}`}>
                 <span class="n mono">{String(i + 1).padStart(2, '0')}</span>
-                <span class="p"><b>{e.data.org}</b><span>{line[e.id] ?? e.data.title}</span><em class="mob mono">{study ? 'Case study' : 'Screens'} &middot; {e.data.year}</em></span>
+                <span class="p"><b>{e.data.org}</b><span class="l">{line[e.id] ?? e.data.title}</span><em class="mob mono">{study ? 'Case study' : 'Screens'} &middot; {e.data.year}</em></span>
                 <span class="sec">{e.data.industry?.[0] ?? ''}</span>
                 <span class="y mono">{e.data.year}</span>
-                <span class="f mono">{study ? 'Case study' : 'Screens'}</span>
-                <span class="ar" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                <span class="f"><i class={`chip mono ${study ? 'study' : ''}`}>{study ? 'Case study' : 'Screens'}</i></span>
+                <span class="arw" aria-hidden="true"><span class="ar"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
               </a>
+              <i class="rule" aria-hidden="true"></i>
             </li>
           );
         })}
       </ol>
+      <div class="peek" aria-hidden="true">
+        {all.map((e) => (
+          <div class="pv" data-id={e.id}>
+            {peek[e.id]
+              ? <Image src={shot(peek[e.id])} alt="" width={720} format="webp" quality={78} loading="lazy" />
+              : <div class="pg"><Glyph kind={e.id} /></div>}
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section class="wrap hire" aria-labelledby="hire-h">
+      <div class="hcard" data-reveal>
+        <figure class="hphoto">
+          <Image src={workstation} alt="My workstation: a curved monitor, a laptop and headphones at a desk by arched windows at dusk" width={1800} format="webp" quality={82} loading="lazy" />
+          <i class="hfade" aria-hidden="true"></i>
+        </figure>
+        <div class="hcopy">
+          <p class="eyebrow accent">Working together</p>
+          <h2 id="hire-h">I build products people can rely on.</h2>
+          <p>For seven years I have designed services for governments, care providers, clinics and small businesses. I work from the first research session through to production, and I stay with a product until it works for the people using it.</p>
+          <p class="avail mono"><i aria-hidden="true"></i>Open to senior roles and contract work, in Canada or remote</p>
+          <div class="acts">
+            <a class="btn btn-primary" href="mailto:hello@yemmy.design">Write to me
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="2" y="3.5" width="12" height="9" rx="1.6" stroke="currentColor" stroke-width="1.4"/><path d="m2.6 4.4 5.4 4.2 5.4-4.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a class="btn btn-ghost" href="/about/">More about me</a>
+          </div>
+        </div>
+      </div>
     </section>
   </article>
 </Base>
@@ -111,11 +152,10 @@ const intro = `${words[studies]} case studies and ${words[screens].toLowerCase()
     });
     if (reduced) return;
 
-    // the counts tick up once
+    // the counts tick up once; the real number stays in place until the count starts, so a paused tab never shows 0
     root.querySelectorAll<HTMLElement>('[data-count]').forEach((el) => {
-      // the real number stays in place until the count actually starts, so a paused tab never shows 0
       const n = Number(el.dataset.count); const o = { v: 0 };
-      gsap.to(o, { v: n, duration: 1.1, ease: 'power2.out', delay: 0.3, onUpdate: () => { el.textContent = String(Math.round(o.v)); } });
+      gsap.to(o, { v: n, duration: 1.1, ease: 'power2.out', delay: 0.35, onUpdate: () => { el.textContent = String(Math.round(o.v)); } });
     });
 
     // each card opens from its centre and rises as it arrives; its media drifts a little slower than the page
@@ -128,10 +168,41 @@ const intro = `${words[studies]} case studies and ${words[screens].toLowerCase()
       if (m) gsap.fromTo(m, { yPercent: -5 }, { yPercent: 5, ease: 'none', scrollTrigger: { trigger: t, start: 'top bottom', end: 'bottom top', scrub: true } });
     });
 
-    // the index rows arrive one after another
-    const list = root.querySelector('.rows');
-    if (list) gsap.fromTo(list.children, { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out', stagger: 0.07,
-      scrollTrigger: { trigger: list, start: 'top 88%', once: true } });
+    // the index: each rule draws across, then that row's content follows
+    const head = root.querySelector('.cols');
+    if (head) gsap.timeline({ scrollTrigger: { trigger: head, start: 'top 92%', once: true } })
+      .fromTo(head.querySelector('.rule'), { scaleX: 0 }, { scaleX: 1, duration: 1, ease: 'power3.inOut' })
+      .fromTo(head.querySelectorAll('span'), { opacity: 0 }, { opacity: 1, duration: 0.5, stagger: 0.05 }, '-=0.6');
+    root.querySelectorAll<HTMLElement>('.rows .ri').forEach((li) => {
+      gsap.timeline({ scrollTrigger: { trigger: li, start: 'top 94%', once: true } })
+        .fromTo(li.querySelector('.rule'), { scaleX: 0 }, { scaleX: 1, duration: 0.9, ease: 'power3.inOut' })
+        .fromTo(li.querySelectorAll('.n, .p, .sec, .y, .f, .arw'), { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out', stagger: 0.05 }, '-=0.65');
+    });
+
+    // a preview of the project follows the cursor over the index (pointer devices only)
+    const list = root.querySelector<HTMLElement>('.rows');
+    const peek = root.querySelector<HTMLElement>('.peek');
+    if (list && peek && matchMedia('(hover: hover) and (min-width: 861px)').matches) {
+      gsap.set(peek, { xPercent: -50, yPercent: -50, scale: 0.86, opacity: 0 });
+      const xTo = gsap.quickTo(peek, 'x', { duration: 0.5, ease: 'power3' });
+      const yTo = gsap.quickTo(peek, 'y', { duration: 0.5, ease: 'power3' });
+      let shown = false;
+      const place = (e: MouseEvent) => {
+        const x = Math.min(e.clientX + 190, innerWidth - 170), y = e.clientY - 10;
+        if (!shown) { gsap.set(peek, { x, y }); } xTo(x); yTo(y);
+      };
+      list.addEventListener('mousemove', place);
+      list.querySelectorAll<HTMLElement>('.ri').forEach((li) => li.addEventListener('mouseenter', (e) => {
+        peek.querySelectorAll('.pv').forEach((p) => p.classList.toggle('on', (p as HTMLElement).dataset.id === li.dataset.peek));
+        place(e as MouseEvent); shown = true;
+        gsap.to(peek, { opacity: 1, scale: 1, duration: 0.35, ease: 'power3.out', overwrite: 'auto' });
+      }));
+      list.addEventListener('mouseleave', () => { shown = false; gsap.to(peek, { opacity: 0, scale: 0.86, duration: 0.3, ease: 'power2.in', overwrite: 'auto' }); });
+    }
+
+    // the workstation settles into place as the card arrives
+    const photo = root.querySelector('.hphoto img');
+    if (photo) gsap.fromTo(photo, { scale: 1.12 }, { scale: 1, ease: 'none', scrollTrigger: { trigger: '.hcard', start: 'top bottom', end: 'bottom 60%', scrub: true } });
   }
   document.addEventListener('astro:page-load', init);
 </script>
@@ -141,62 +212,107 @@ const intro = `${words[studies]} case studies and ${words[screens].toLowerCase()
   .glow { position: absolute; left: 0; right: 0; top: 0; height: min(90vh, 820px); pointer-events: none; z-index: 0;
     background: radial-gradient(60% 55% at 18% 0%, rgba(59,111,235,0.20), transparent 70%), radial-gradient(40% 40% at 90% 10%, rgba(97,144,255,0.08), transparent 70%); }
 
-  .head { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.6fr); gap: clamp(28px, 5vw, 72px); align-items: end; }
-  .lead { display: grid; gap: 18px; justify-items: start; }
-  .hero-title { max-width: 13ch; visibility: hidden; }
+  /* header: the title gets the full width; one hairline band below pairs the intro with the counts */
+  .head { position: relative; z-index: 1; display: grid; gap: 20px; }
+  .yrs { color: var(--dim); }
+  .hero-title { max-width: 15ch; visibility: hidden; }
   .hero-title :global(.line) { overflow: hidden; }
-  .sub { color: rgba(235,238,245,0.86); font-size: clamp(16px, 1.4vw, 19px); line-height: 1.6; max-width: 46ch; }
+  .band { margin-top: clamp(16px, 2.6vw, 32px); padding-top: clamp(22px, 2.6vw, 30px); border-top: 1px solid var(--line-a);
+    display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: clamp(28px, 5vw, 72px); align-items: start; }
+  .intro { display: grid; gap: 16px; justify-items: start; }
+  .sub { color: rgba(235,238,245,0.86); font-size: clamp(16px, 1.4vw, 19px); line-height: 1.6; max-width: 44ch; }
   .jump { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
     border-bottom: 1px solid var(--line-a); padding-bottom: 4px; transition: color 0.2s, border-color 0.2s; }
   .jump:hover { color: var(--fg); border-color: var(--accent); }
-  .stats { margin: 0; display: grid; grid-template-columns: auto auto minmax(0, 1fr); border: 1px solid var(--line-a); border-radius: 14px; background: rgba(12,13,15,0.6);
-    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); overflow: hidden; }
-  .stats div { padding: 16px 18px; border-right: 1px solid var(--line-a); }
-  .stats div:last-child { border-right: 0; }
-  .stats dt { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); white-space: nowrap; }
-  .stats dd { margin: 6px 0 0; font-size: clamp(24px, 2.4vw, 32px); letter-spacing: -0.02em; line-height: 1.1; color: var(--fg); }
-  .stats dd.yr { font-size: 15px; padding-top: 10px; white-space: nowrap; }
+  .stats { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .stats div { padding-left: clamp(16px, 2vw, 24px); border-left: 1px solid var(--line-a); }
+  .stats dt { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); }
+  .stats dd { margin: 12px 0 0; font-size: clamp(38px, 4vw, 58px); font-weight: 600; letter-spacing: -0.04em; line-height: 1; color: var(--fg); font-variant-numeric: tabular-nums; }
 
-  .bento { --g: clamp(12px, 1.4vw, 18px); position: relative; z-index: 1; display: grid; gap: var(--g); margin-top: clamp(48px, 7vw, 96px); }
+  .bento { --g: clamp(12px, 1.4vw, 18px); position: relative; z-index: 1; display: grid; gap: var(--g); margin-top: clamp(56px, 7vw, 104px); }
   .r { display: grid; gap: var(--g); grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
   .r.flip { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
   .r.full { grid-template-columns: minmax(0, 1fr); }
   .r > :global(.tile) { min-height: clamp(420px, 40vw, 560px); }
-  .r.full > :global(.tile) { min-height: clamp(480px, 46vw, 640px); }
+  .r.full > :global(.tile) { min-height: clamp(460px, 44vw, 600px); }
 
-  .index { --cols: 44px minmax(0, 2.4fr) minmax(0, 1.3fr) 132px 104px 34px; position: relative; z-index: 1; margin-top: clamp(88px, 11vw, 160px); }
-  .ihead { display: grid; gap: 12px; margin-bottom: clamp(24px, 3vw, 40px); }
-  .ihead h2 { font-size: clamp(28px, 3.6vw, 44px); }
-  .cols { display: grid; grid-template-columns: var(--cols); gap: 20px; padding: 0 12px 12px; font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); }
-  .rows { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line-a); }
-  .irow { position: relative; display: grid; grid-template-columns: var(--cols); gap: 20px; align-items: center; padding: 22px 12px; border-bottom: 1px solid var(--line-a); transition: background 0.35s var(--ease); }
-  .irow::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--mark); transform: scaleY(0); transform-origin: top; transition: transform 0.4s var(--ease); }
-  .irow:hover, .irow:focus-visible { background: linear-gradient(90deg, color-mix(in srgb, var(--mark) 13%, transparent), transparent 70%); }
+  /* index */
+  .index { --cols: 56px minmax(0, 2.4fr) minmax(0, 1.25fr) minmax(0, 0.8fr) minmax(0, 0.75fr) 40px; position: relative; z-index: 1; margin-top: clamp(96px, 12vw, 168px); }
+  .ihead { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 24px; margin-bottom: clamp(28px, 3.4vw, 44px); }
+  .ihead h2 { font-size: clamp(28px, 3.6vw, 44px); margin-top: 12px; }
+  .count { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); padding-bottom: 6px; }
+  .cols { position: relative; display: grid; grid-template-columns: var(--cols); gap: 24px; padding: 0 16px 14px; font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); }
+  .rows { list-style: none; margin: 0; padding: 0; }
+  .ri { position: relative; }
+  .rule { position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--line-a); transform-origin: left; }
+  .irow { position: relative; isolation: isolate; display: grid; grid-template-columns: var(--cols); gap: 24px; align-items: center; min-height: 104px; padding: 18px 16px; }
+  .irow::before { content: ''; position: absolute; left: 0; top: 14px; bottom: 14px; width: 2px; border-radius: 2px; background: var(--mark); transform: scaleY(0); transition: transform 0.45s var(--ease); }
+  .irow::after { content: ''; position: absolute; inset: 0; z-index: -1; transform: scaleX(0); transform-origin: left; transition: transform 0.6s var(--ease);
+    background: linear-gradient(90deg, color-mix(in srgb, var(--mark) 15%, transparent), color-mix(in srgb, var(--mark) 4%, transparent) 55%, transparent 90%); }
   .irow:hover::before, .irow:focus-visible::before { transform: scaleY(1); }
-  .n { font-size: 12px; color: var(--dim); letter-spacing: 0.08em; transition: color 0.25s; }
-  .irow:hover .n { color: var(--mark); }
+  .irow:hover::after, .irow:focus-visible::after { transform: scaleX(1); }
+  .n { font-size: 12px; color: var(--dim); letter-spacing: 0.08em; transition: color 0.3s; }
+  .irow:hover .n, .irow:focus-visible .n { color: var(--mark); }
   .p { display: grid; gap: 4px; min-width: 0; }
-  .p b { font-size: clamp(17px, 1.6vw, 20px); font-weight: 600; letter-spacing: -0.015em; }
-  .p > span { color: var(--muted); font-size: 14.5px; line-height: 1.45; }
+  .p b, .p .l { transition: transform 0.5s var(--ease); }
+  .p b { font-size: clamp(18px, 1.7vw, 21px); font-weight: 600; letter-spacing: -0.02em; }
+  .p .l { color: var(--muted); font-size: 14.5px; line-height: 1.45; }
+  .irow:hover .p b, .irow:hover .p .l, .irow:focus-visible .p b, .irow:focus-visible .p .l { transform: translateX(6px); }
   .mob { display: none; font-style: normal; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); margin-top: 2px; }
   .sec { color: var(--muted); font-size: 14.5px; }
-  .y, .f { font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); }
-  .ar { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line-a); display: grid; place-items: center; transition: transform 0.35s var(--ease), background 0.25s, color 0.25s, border-color 0.25s; }
+  .y { font-size: 12px; letter-spacing: 0.06em; color: var(--muted); }
+  .chip { font-style: normal; display: inline-flex; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line-a); color: var(--muted); white-space: nowrap; }
+  .chip.study { color: var(--accent); border-color: var(--accent-line); background: var(--accent-soft); }
+  .arw { justify-self: end; }
+  .ar { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line-a); display: grid; place-items: center; transition: transform 0.4s var(--ease), background 0.25s, color 0.25s, border-color 0.25s; }
   .irow:hover .ar, .irow:focus-visible .ar { background: var(--fg); color: #09090A; border-color: var(--fg); transform: translateX(4px); }
 
+  .peek { position: fixed; left: 0; top: 0; z-index: 30; width: clamp(260px, 22vw, 320px); aspect-ratio: 2400 / 1557; pointer-events: none; opacity: 0;
+    border-radius: 12px; overflow: hidden; background: var(--surface); box-shadow: 0 30px 70px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.08); }
+  .pv { position: absolute; inset: 0; opacity: 0; transition: opacity 0.3s var(--ease); }
+  .pv.on { opacity: 1; }
+  .pv :global(img) { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .pg { position: absolute; inset: 0; display: grid; place-items: center; padding: 14px;
+    background: radial-gradient(90% 80% at 50% 0%, rgba(97,144,255,0.12), transparent 70%), radial-gradient(rgba(235,238,245,0.05) 1px, transparent 1px) 0 0 / 18px 18px, var(--surface); }
+  .pg :global(.glyph) { width: 100%; height: auto; }
+
+  /* the closing card: the workstation fades into the dark on the left, the invitation on the right */
+  .hire { position: relative; z-index: 1; margin-top: clamp(96px, 12vw, 168px); }
+  .hcard { position: relative; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); min-height: clamp(420px, 40vw, 540px);
+    border: 1px solid var(--line-a); border-radius: var(--r); overflow: hidden;
+    background: radial-gradient(70% 90% at 100% 0%, rgba(59,111,235,0.10), transparent 70%), var(--surface); }
+  /* clip-path, not just overflow: the drifting photo is its own layer and must not bleed a pixel past this edge */
+  .hphoto { position: relative; margin: 0; overflow: hidden; clip-path: inset(0); }
+  .hphoto { background: var(--surface); }
+  /* the photo stops short of the edge it shares with the copy; the last few pixels are the card's own dark, so no seam can show */
+  .hphoto :global(img) { position: absolute; top: 0; left: 0; width: calc(100% - 8px); height: 100%; object-fit: cover; object-position: 36% 58%; will-change: transform;
+    transform-origin: 100% 50%; /* the settle-in scale grows away from the copy, never across the dark margin */ }
+  /* reaches solid dark before the edge and runs just past it, so no bright seam shows beside the copy */
+  .hfade { position: absolute; top: 0; bottom: 0; left: 0; right: -2px;
+    background: linear-gradient(90deg, rgba(12,13,15,0.14) 0%, rgba(12,13,15,0.14) 34%, rgba(12,13,15,0.66) 68%, var(--surface) 92%, var(--surface) 100%),
+                linear-gradient(0deg, rgba(12,13,15,0.6) 0%, transparent 34%), linear-gradient(180deg, rgba(12,13,15,0.35) 0%, transparent 26%); }
+  .hcopy { position: relative; display: grid; gap: 16px; align-content: center; justify-items: start; padding: clamp(32px, 4.4vw, 64px); padding-left: clamp(20px, 2.4vw, 36px); }
+  .hcopy h2 { font-size: clamp(28px, 3.2vw, 42px); letter-spacing: -0.035em; max-width: 16ch; }
+  .hcopy > p:not(.eyebrow):not(.avail) { color: rgba(235,238,245,0.84); font-size: clamp(15.5px, 1.25vw, 17px); line-height: 1.65; max-width: 46ch; }
+  .avail { display: inline-flex; align-items: center; gap: 10px; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .avail i { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 4px rgba(61,214,140,0.14); flex: none; }
+  .acts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+
   @media (max-width: 860px) {
-    .head { grid-template-columns: 1fr; align-items: start; }
+    .band { grid-template-columns: minmax(0, 1fr); }
     .r, .r.flip { grid-template-columns: minmax(0, 1fr); }
-    .r > :global(.tile) { min-height: 440px; }
-    .r.full > :global(.tile) { min-height: 580px; }
-    .index { --cols: 30px minmax(0, 1fr) 34px; }
-    .cols, .sec, .y, .f { display: none; }
+    .r > :global(.tile), .r.full > :global(.tile) { min-height: 0; }
+    .index { --cols: 30px minmax(0, 1fr) 40px; }
+    .ihead { grid-template-columns: minmax(0, 1fr); }
+    .cols span, .sec, .y, .f { display: none; }
+    .cols { padding-bottom: 0; }
     .mob { display: block; }
-    .irow { gap: 14px; padding: 18px 6px; }
+    .irow { gap: 14px; padding: 18px 6px; min-height: 0; }
+    .hcard { grid-template-columns: minmax(0, 1fr); }
+    .hphoto { height: 260px; }
+    .hphoto :global(img) { width: 100%; height: calc(100% - 8px); transform-origin: 50% 100%; }
+    .hfade { top: 0; bottom: -2px; right: 0; background: linear-gradient(180deg, rgba(12,13,15,0.2) 0%, rgba(12,13,15,0) 36%, var(--surface) 90%, var(--surface) 100%); }
+    .hcopy { padding: 8px 24px 32px; }
   }
-  @media (max-width: 480px) {
-    .stats { grid-template-columns: 1fr 1fr; }
-    .stats div:nth-child(2) { border-right: 0; }
-    .stats div:nth-child(3) { grid-column: 1 / -1; border-top: 1px solid var(--line-a); }
-  }
+  @media (max-width: 480px) { .stats dd { font-size: 34px; } }
 </style>
