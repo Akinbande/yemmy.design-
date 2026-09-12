@@ -1,0 +1,102 @@
+---
+/* The Luca landing page as a short film on #DFF4FF. It starts on his cover mockup; the brand mission and the
+   contact screens slide in from the right into the very same card; the page steps back and three phones rise
+   softly from the centre; each spins quickly to preview the next mobile screen; the logo closes the loop. */
+import { Image } from 'astro:assets';
+import cover from '../assets/luca/cover1.png';
+import mission from '../assets/luca/web-mission.png';
+import contact from '../assets/luca/web-contact.png';
+import mHero from '../assets/luca/m-hero.png';
+import mMenu from '../assets/luca/m-menu.png';
+import mFooter from '../assets/luca/m-footer.png';
+import logoSvg from '../../public/luca/luca-logo.svg?raw';
+
+const mobile = [mHero, mMenu, mFooter];
+---
+<figure class="land" id="luca-land" role="img" aria-label="The Luca landing page: the desktop hero, the brand mission and contact sections, then the mobile hero, menu and footer, playing on a loop">
+  <div class="stage">
+    <div class="cover"><Image src={cover} alt="" width={2400} format="webp" quality={84} /></div>
+    <div class="card mission"><Image src={mission} alt="" width={2400} format="webp" quality={84} /></div>
+    <div class="card contact"><Image src={contact} alt="" width={2400} format="webp" quality={84} /></div>
+    <div class="phones" aria-hidden="true">
+      {[0, 1, 2].map((p) => (
+        <div class="ph">
+          {[0, 1, 2].map((k) => <div class="ly"><Image src={mobile[(p + k) % 3]} alt="" width={640} format="webp" quality={84} /></div>)}
+        </div>
+      ))}
+    </div>
+    <div class="logo" aria-hidden="true" set:html={logoSvg} />
+  </div>
+</figure>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  gsap.registerPlugin(ScrollTrigger);
+  function init() {
+    const root = document.getElementById('luca-land');
+    if (!root || root.dataset.init) return; root.dataset.init = '1';
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; // the cover stays, still
+    const q = (s: string) => root.querySelector<HTMLElement>(s)!;
+    const cover = q('.cover'), mission = q('.mission'), contact = q('.contact'), logo = q('.logo');
+    const phones = [...root.querySelectorAll<HTMLElement>('.ph')];
+    const layers = phones.map((p) => [...p.querySelectorAll<HTMLElement>('.ly')]);
+    const show = (k: number) => layers.map((ls) => ls.map((l, j) => (j === k ? 1 : 0)));
+    const tl = gsap.timeline({ repeat: -1, paused: true, defaults: { ease: 'power3.inOut' } });
+    // the next screens wait fully off stage to the right (130% of the card's width), so no sliver peeks in
+    tl.set(cover, { xPercent: 0, opacity: 1, scale: 1 }).set([mission, contact], { xPercent: 130, opacity: 1, scale: 1 })
+      .set(phones, { xPercent: 0, scale: 0.8, opacity: 0, rotationY: 0 }).set(logo, { opacity: 0, scale: 0.92 });
+    layers.forEach((ls) => tl.set(ls, { opacity: (j: number) => (j === 0 ? 1 : 0) }, 0));
+    tl.to({}, { duration: 1.3 })
+      // the brand mission slides in from the right, into the same card
+      .to(mission, { xPercent: 0, duration: 0.8 }).to(cover, { xPercent: -34, opacity: 0, duration: 0.8 }, '<')
+      .to({}, { duration: 1.1 })
+      // then the contact section
+      .to(contact, { xPercent: 0, duration: 0.8 }).to(mission, { xPercent: -34, opacity: 0, duration: 0.8 }, '<')
+      .to({}, { duration: 1.1 })
+      // the page steps back and three phones rise softly out of the centre
+      .to(contact, { scale: 0.84, opacity: 0, duration: 0.6, ease: 'power2.inOut' })
+      .to(phones, { opacity: 1, scale: 1, xPercent: (i: number) => [-118, 0, 118][i], duration: 0.8, ease: 'power3.out', stagger: 0.05 }, '-=0.35')
+      .to({}, { duration: 0.9 });
+    // a quick spin on each phone previews its next screen
+    [1, 2].forEach((k) => {
+      const at = tl.duration();
+      phones.forEach((p, i) => {
+        const t0 = at + i * 0.07;
+        tl.to(p, { rotationY: 90, duration: 0.22, ease: 'power2.in' }, t0)
+          .set(layers[i], { opacity: (j: number) => (j === k ? 1 : 0) }, t0 + 0.22)
+          .fromTo(p, { rotationY: -90 }, { rotationY: 0, duration: 0.26, ease: 'power2.out' }, t0 + 0.22);
+      });
+      tl.to({}, { duration: 0.9 });
+    });
+    // the phones gather and the logo closes the loop
+    tl.to(phones, { xPercent: 0, scale: 0.8, opacity: 0, duration: 0.5, ease: 'power2.in' })
+      .to(logo, { opacity: 1, scale: 1, duration: 0.6, ease: 'power3.out' })
+      .to({}, { duration: 1 })
+      .to(logo, { opacity: 0, duration: 0.4, ease: 'power2.in' })
+      .fromTo(cover, { xPercent: 0, opacity: 0, scale: 0.98 }, { opacity: 1, scale: 1, duration: 0.6, ease: 'power2.out' });
+    (root as any).__tl = tl; // lets a reviewer seek to any frame
+    void show;
+    ScrollTrigger.create({ trigger: root, start: 'top 90%', end: 'bottom 10%', onToggle: (s) => (s.isActive ? tl.play() : tl.pause()) });
+  }
+  document.addEventListener('astro:page-load', init);
+</script>
+
+<style>
+  .land { margin: 0; }
+  /* the same proportions as his cover mockup, so the cover fits exactly */
+  .stage { position: relative; aspect-ratio: 2400 / 1557; background: #DFF4FF; border-radius: 16px; overflow: hidden; container-type: size; }
+  .cover { position: absolute; inset: 0; will-change: transform, opacity; }
+  .cover :global(img) { width: 100%; height: 100%; object-fit: cover; display: block; }
+  /* exactly where the browser card sits inside the cover mockup, measured from his file */
+  .card { position: absolute; left: 11.938%; top: 13.969%; width: 76.125%; height: 72.126%; opacity: 0; will-change: transform, opacity; }
+  .card :global(img) { width: 100%; height: 100%; object-fit: fill; display: block; }
+  .phones { position: absolute; inset: 0; display: grid; place-items: center; perspective: 1400px; }
+  .ph { position: relative; grid-area: 1 / 1; height: 74cqh; aspect-ratio: 1125 / 2436; border: 0.5px solid #0B0B0C; border-radius: 13% / 6%;
+    background: #fff; overflow: hidden; opacity: 0; will-change: transform, opacity; box-shadow: 0 1.6cqh 4cqh -1.6cqh rgba(16, 52, 84, 0.16); }
+  .ly { position: absolute; inset: 0; opacity: 0; }
+  .ly:first-child { opacity: 1; }
+  .ly :global(img) { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
+  .logo { position: absolute; inset: 0; display: grid; place-items: center; opacity: 0; pointer-events: none; }
+  .logo :global(svg) { width: 26%; height: auto; }
+</style>

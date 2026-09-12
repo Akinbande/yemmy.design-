@@ -1,0 +1,88 @@
+---
+/* A reusable sticky-note board (the Collga board, generalised): notes keep landing on the field, overlapping
+   and reshuffling on a loop. Pass the notes, the colour for each group and a legend. Nothing is selectable. */
+interface Props {
+  id: string;
+  label: string;
+  eyebrow: string;
+  sub: string;
+  notes: [string, string, string][];
+  legend: [string, string][];
+  colors: Record<string, string>;
+}
+const { id, label, eyebrow, sub, notes, legend, colors } = Astro.props;
+---
+<div class="board" data-board id={id} aria-label={label}>
+  <div class="head">
+    <span class="eyebrow">{eyebrow}</span>
+    <p class="mono">{sub}</p>
+  </div>
+  <div class="field" aria-hidden="true">
+    {notes.map(([t, w, c], i) => <div class="note" style={`--n:${colors[c]}`} data-i={i}><b>{t}</b><span class="mono">{w}</span></div>)}
+  </div>
+  <div class="legend mono" aria-hidden="true">{legend.map(([c, l]) => <span><i style={`background:${colors[c]}`}></i>{l}</span>)}</div>
+</div>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  gsap.registerPlugin(ScrollTrigger);
+  function initBoard(board: HTMLElement) {
+    if (board.dataset.init) return; board.dataset.init = '1';
+    const field = board.querySelector<HTMLElement>('.field')!;
+    const notes = [...field.querySelectorAll<HTMLElement>('.note')];
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const seeded = (n: number) => { const s = Math.sin(n * 12.9898) * 43758.5453; return s - Math.floor(s); };
+    // an even grid that fills the field: 7 columns on desktop, 4 on tablets, 3 on phones (first 18 notes)
+    const place = (salt: number) => {
+      const W = field.clientWidth;
+      const phone = W < 480, cols = phone ? 3 : W < 900 ? 4 : 7;
+      const shown = phone ? notes.slice(0, 18) : notes;
+      notes.forEach((n, i) => { n.style.display = i < shown.length ? '' : 'none'; });
+      const rows = Math.ceil(shown.length / cols);
+      const cw = W / cols, nw = Math.min(cw * 0.88, 200);
+      gsap.set(shown[0], { width: nw });
+      const rh = shown[0].offsetHeight + 24;
+      field.style.height = rows * rh + 16 + 'px';
+      shown.forEach((n, i) => {
+        const col = i % cols, row = Math.floor(i / cols);
+        const jx = (seeded(i + salt) - 0.5) * (cw - nw) * 0.9, jy = (seeded(i * 3 + salt) - 0.5) * rh * 0.22;
+        gsap.set(n, { width: nw, left: col * cw + (cw - nw) / 2 + jx, top: row * rh + 8 + jy, rotation: (seeded(i * 7 + salt) - 0.5) * 10 });
+      });
+    };
+    place(1);
+    if (reduced) { gsap.set(notes, { opacity: 1, scale: 1 }); return; }
+    let salt = 1, tl: gsap.core.Timeline | null = null;
+    const live = () => notes.filter((n) => n.style.display !== 'none');
+    const build = () => {
+      if (tl) { tl.scrollTrigger?.kill(); tl.kill(); }
+      const set = live();
+      tl = gsap.timeline({ repeat: -1, scrollTrigger: { trigger: board, start: 'top 85%', end: 'bottom 15%', toggleActions: 'play pause resume pause' },
+        onRepeat: () => { salt += 7; place(salt); } });
+      tl.set(set, { opacity: 0, scale: 0.6, y: 40 })
+        .to(set, { opacity: 1, scale: 1, y: 0, duration: 0.55, ease: 'back.out(1.6)', stagger: { each: 0.16, from: 'random' } })
+        .to({}, { duration: 2.4 })
+        .to(set, { opacity: 0, scale: 0.9, y: -30, duration: 0.45, ease: 'power2.in', stagger: { each: 0.03, from: 'random' } });
+    };
+    build();
+    let timer = 0, lastW = field.clientWidth;
+    window.addEventListener('resize', () => {
+      clearTimeout(timer);
+      timer = window.setTimeout(() => { if (field.clientWidth === lastW) return; lastW = field.clientWidth; place(salt); build(); }, 150);
+    }, { passive: true });
+  }
+  document.addEventListener('astro:page-load', () => document.querySelectorAll<HTMLElement>('[data-board]').forEach(initBoard));
+</script>
+
+<style>
+  .board { border: 1px solid var(--line-a); border-radius: var(--r); background: var(--surface); overflow: hidden; padding: clamp(20px, 3vw, 32px); display: grid; gap: 18px; user-select: none; -webkit-user-select: none; }
+  .head { display: grid; gap: 8px; text-align: center; justify-items: center; }
+  .head .mono { font-size: 11px; letter-spacing: 0.06em; color: var(--muted); max-width: 60ch; }
+  .field { position: relative; min-height: 0; pointer-events: none; background-image: radial-gradient(rgba(235,238,245,0.06) 1px, transparent 1px); background-size: 22px 22px; border-radius: 12px; }
+  .note { position: absolute; padding: 14px 15px; border-radius: 4px; display: grid; gap: 6px; color: #1E1F22; background: var(--n); opacity: 0;
+    box-shadow: 0 14px 30px rgba(0,0,0,0.4), inset 0 -1px 0 rgba(0,0,0,0.08); transform-origin: 50% 30%; will-change: transform, opacity; }
+  .note b { font-weight: 600; font-size: clamp(12px, 1.1vw, 14px); letter-spacing: -0.01em; line-height: 1.3; }
+  .note .mono { font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.65; }
+  .legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 18px; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 8px; vertical-align: -1px; }
+</style>

@@ -28,3 +28,6 @@ npm-debug.log*
 
 # 4K source recordings stay local; the site serves a 1080p encode from public/
 *-4k.mp4
+
+# unused 22 MB full-page export from the Luca landing design; the site uses the PNG screens
+case studies/luca/video-stream/Home.svg
