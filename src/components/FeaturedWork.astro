@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import { Image } from 'astro:assets';
 import Glyph from './Glyph.astro';
+import { coverSrc, coverSrcset, coverSizes } from '../scripts/cover';
 const shots = import.meta.glob<{ default: ImageMetadata }>('/src/assets/**/*.png', { eager: true });
 const shot = (name?: string) => { if (!name) return null; const k = Object.keys(shots).find((p) => p.endsWith(`/${name}.png`)); return k ? shots[k].default : null; };
 const items = (await getCollection('work', (e) => e.data.tier === 1)).sort((a, b) => a.data.order - b.data.order);
@@ -12,7 +13,7 @@ const ground: Record<string, string> = { collga: '#F2F8F0', luca: '#DFF4FF' };
 // Luca's phone runs off the bottom of its artboard, so its cover sits on the card's bottom edge
 const pos: Record<string, string> = { luca: '50% 100%' };
 const vars = (id: string, tint?: string) => [tint && `--tint:${tint}`, edge[id] && `--edge:${edge[id]}`, ground[id] && `--ground:${ground[id]}`, pos[id] && `--pos:${pos[id]}`].filter(Boolean).join(';') || undefined;
-// a cover under /public (his cover SVGs) is served exactly as supplied, never re-encoded
+// a cover under /public is one of his cover artboards, served as lossless PNG at the width the screen needs
 const cover = (p?: string) => (p?.startsWith('/') ? p : null);
 ---
 <section class="section featured" id="work" aria-labelledby="work-h">
@@ -43,7 +44,7 @@ const cover = (p?: string) => (p?.startsWith('/') ? p : null);
             </div>
           </div>
           {cover(w.data.coverImage)
-            ? <div class="visual cover"><img src={cover(w.data.coverImage)!} alt={`${w.data.org} cover`} width="2400" height="1557" loading="lazy" decoding="async" /></div>
+            ? <div class="visual cover"><img src={coverSrc(cover(w.data.coverImage)!)} srcset={coverSrcset(cover(w.data.coverImage)!)} sizes={coverSizes} alt={`${w.data.org} cover`} width="2400" height="1557" loading="lazy" decoding="async" /></div>
             : shot(w.data.coverImage)
               ? <div class="visual cover"><Image src={shot(w.data.coverImage)!} alt={`${w.data.org} screen`} width={1400} format="webp" quality={80} loading="lazy" /></div>
               : <div class="visual"><Glyph kind={w.id} /></div>}
@@ -85,9 +86,9 @@ const cover = (p?: string) => (p?.startsWith('/') ? p : null);
   .card.tinted:hover .body::before, .card.tinted:focus-within .body::before { opacity: 1; }
   .card.tinted:hover { border-color: var(--edge, rgba(108,180,96,0.28)); }
   .visual.cover { position: relative; padding: 0; background: var(--ground, #F5F6F5); overflow: hidden; }
-  /* the cover fills the panel edge to edge (only the artboard's plain margin is trimmed) and never sets the card's height */
-  .visual.cover :global(img) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: var(--pos, 50% 50%); display: block; transition: transform 0.9s var(--ease); }
-  .card.tinted:hover .visual.cover :global(img) { transform: scale(1.025); }
+  /* the cover fills the panel edge to edge (only the artboard's plain margin is trimmed) and never sets the card's height.
+     No zoom on hover: a scaled picture is resampled and goes soft, and the cover must stay crisp */
+  .visual.cover :global(img) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: var(--pos, 50% 50%); display: block; }
   .visual { border-left: 1px solid var(--line-a); background: linear-gradient(160deg, rgba(97,144,255,0.05), transparent 60%); display: grid; place-items: center; padding: clamp(20px, 3vw, 40px); }
   @media (max-width: 860px) { .card { grid-template-columns: 1fr; } .visual { border-left: 0; border-top: 1px solid var(--line-a); } .visual.cover { aspect-ratio: 2400 / 1557; } }
 </style>
