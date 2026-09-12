@@ -1,9 +1,11 @@
 ---
 /* One project on the Work page. Three shapes, one link each:
    glyph   the drawn artefact on a blueprint grid (projects without media yet)
-   video   the project film covers the top of the card; a dark gradient melts it into the card's own background
-   feature full width: copy on a deep wash of the project's colour, the screen whole and framed beside it
-   Projects with an accent get a see-through stroke and a faint glow in their own colour. */
+   video   the film covers the top of the card; a gradient in the project's own colour carries it into the text
+   feature full width: copy on a deep wash of the project's colour; its screens stream past in three tilted
+           columns, like paper coming off a roll, and spill out past the card's right edge
+           (one framed screen instead when no set of screens is given)
+   Projects with an accent get a see-through stroke in their own colour. */
 import type { CollectionEntry } from 'astro:content';
 import { Image } from 'astro:assets';
 import Glyph from './Glyph.astro';
@@ -14,17 +16,20 @@ interface Props {
   variant?: 'glyph' | 'video' | 'feature';
   video?: { src: string; poster: string; wide?: string };
   image?: ImageMetadata;
+  flow?: ImageMetadata[];
   accent?: string;
 }
-const { e, line, variant = 'glyph', video, image, accent } = Astro.props;
+const { e, line, variant = 'glyph', video, image, flow, accent } = Astro.props;
 const d = e.data;
 const label: Record<string, string> = { live: 'Live', 'early-access': 'Early access', shipped: 'Shipped', concept: 'Concept' };
 const isStudy = d.tier === 1;
 const href = isStudy ? `/work/${e.id}/` : `/screens/${e.id}/`;
 const kind = isStudy ? 'Case study' : 'Screens';
 const style = `--tint:${d.hoverTint ?? '#16233F'};--acc:${accent ?? '#6190FF'}`;
+const cols = flow ? [0, 1, 2].map((c) => flow.filter((_, i) => i % 3 === c)) : [];
+const speeds = [54, 66, 60];
 ---
-<a class={`tile ${variant} ${accent ? 'tinted' : ''}`} href={href} style={style}>
+<a class={`tile ${variant} ${accent ? 'tinted' : ''} ${flow ? 'has-flow' : ''}`} href={href} style={style}>
   <div class="media" aria-hidden="true">
     <div class="media-in">
       {variant === 'glyph' && <div class="art"><Glyph kind={e.id} /></div>}
@@ -34,7 +39,18 @@ const style = `--tint:${d.hoverTint ?? '#16233F'};--acc:${accent ?? '#6190FF'}`;
           <source src={video.src} type="video/mp4" />
         </video>
       )}
-      {variant === 'feature' && image && (
+      {variant === 'feature' && flow && (
+        <div class="flow" data-flow>
+          {cols.map((list, c) => (
+            <div class="col">
+              <div class="track" style={`--d:${speeds[c]}s`}>
+                {[...list, ...list].map((src) => <div class="sh"><Image src={src} alt="" width={720} format="webp" quality={76} loading="lazy" /></div>)}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      {variant === 'feature' && !flow && image && (
         <div class="frame shot"><Image src={image} alt="" width={2400} format="webp" quality={82} loading="lazy" /></div>
       )}
     </div>
@@ -72,22 +88,29 @@ const style = `--tint:${d.hoverTint ?? '#16233F'};--acc:${accent ?? '#6190FF'}`;
   .art :global(.glyph) { width: min(100%, 520px); height: auto; transition: transform 0.9s var(--ease); }
   .tile:hover .art :global(.glyph) { transform: scale(1.035); }
 
-  /* films and screens sit whole in a frame: never cropped, never blown up */
   .frame { position: relative; border-radius: 12px; overflow: hidden; box-shadow: 0 26px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.07);
     transition: transform 0.8s var(--ease), box-shadow 0.8s var(--ease); }
   .tile:hover .frame { transform: translateY(-4px) scale(1.012); box-shadow: 0 34px 80px rgba(0,0,0,0.55), 0 0 0 1px color-mix(in srgb, var(--acc) 45%, transparent); }
-  /* video: the film covers the media row (close to 16:9, so almost no crop), no drift, no hairline;
-     a darker gradient carries a hint of the project's colour and ends in the card's own background */
+  .shot { aspect-ratio: 2400 / 1557; width: min(calc(100cqw - 2 * var(--p)), calc((100cqh - 2 * var(--p)) * 2400 / 1557)); background: #F5F6F5; }
+  .shot :global(img) { width: 100%; height: 100%; object-fit: contain; display: block; }
+
+  /* video: the film covers the media row (close to 16:9, so almost no crop), no drift, no hairline.
+     --mix is the project's colour made rich: its deep tint lifted with its bright accent. The gradient ends in it,
+     the text area carries on in it and fades toward the card's dark, so the project's colour is what you see. */
+  .video { --mix: color-mix(in srgb, var(--tint) 62%, var(--acc)); }
   .video .media { border-bottom: 0; container-type: normal; background: var(--surface); }
   .video .media-in { inset: 0; }
-  /* stops 2px short of the text area; the card's own dark shows there, so no bright line can appear at the join */
+  /* stops 2px short of the text area; the opaque end of the gradient covers the join */
   .video .media-in video { position: absolute; top: 0; left: 0; width: 100%; height: calc(100% - 2px); object-fit: cover; object-position: 50% 0%; display: block; transition: transform 1.1s var(--ease); }
   .video:hover .media-in video { transform: scale(1.025); }
   .veil { position: absolute; inset: 0; pointer-events: none;
-    background: linear-gradient(180deg, rgba(12,13,15,0.12) 0%, rgba(12,13,15,0) 26%,
-      color-mix(in srgb, var(--tint) 26%, rgba(12,13,15,0.62)) 66%, color-mix(in srgb, var(--tint) 10%, rgba(12,13,15,0.94)) 84%, var(--surface) 94%, var(--surface) 100%); }
-  .shot { aspect-ratio: 2400 / 1557; width: min(calc(100cqw - 2 * var(--p)), calc((100cqh - 2 * var(--p)) * 2400 / 1557)); background: #F5F6F5; }
-  .shot :global(img) { width: 100%; height: 100%; object-fit: contain; display: block; }
+    background: linear-gradient(180deg, rgba(12,13,15,0.10) 0%, rgba(12,13,15,0) 28%,
+      color-mix(in srgb, var(--mix) 42%, transparent) 60%, color-mix(in srgb, var(--mix) 78%, var(--surface)) 95%, color-mix(in srgb, var(--mix) 78%, var(--surface)) 100%); }
+  .video .cap { background: linear-gradient(180deg, color-mix(in srgb, var(--mix) 78%, var(--surface)) 0%, color-mix(in srgb, var(--mix) 30%, var(--surface)) 100%); }
+  .video .meta { color: rgba(242,244,248,0.74); }
+  .video .meta .k { color: #fff; }
+  .video .line { color: rgba(242,244,248,0.86); }
+  .video .pill { border-color: rgba(255,255,255,0.24); color: rgba(242,244,248,0.9); background: rgba(9,9,10,0.2); }
 
   .cap { position: relative; z-index: 1; display: grid; gap: 8px; padding: clamp(20px, 2.2vw, 26px) clamp(20px, 2.4vw, 28px) clamp(22px, 2.4vw, 28px); }
   .meta { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); }
@@ -99,20 +122,43 @@ const style = `--tint:${d.hoverTint ?? '#16233F'};--acc:${accent ?? '#6190FF'}`;
   h3 { font-size: clamp(22px, 2.2vw, 30px); letter-spacing: -0.03em; }
   .line { color: var(--muted); font-size: 15px; line-height: 1.5; max-width: 46ch; }
 
-  /* feature: a deep wash of the project's colour that fades into the card, copy left, the screen whole on the right */
+  /* feature: a deep wash of the project's colour that fades into the card, copy left, screens right */
   .feature { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); grid-template-rows: minmax(0, 1fr); grid-template-areas: 'cap media';
     background:
       radial-gradient(75% 110% at 0% 100%, color-mix(in srgb, var(--tint) 88%, transparent), transparent 72%),
       linear-gradient(115deg, color-mix(in srgb, var(--tint) 62%, var(--surface)) 0%, color-mix(in srgb, var(--tint) 22%, var(--surface)) 48%, var(--surface) 78%); }
   .feature .media { grid-area: media; --p: clamp(24px, 3vw, 44px); border-bottom: 0;
     background: radial-gradient(60% 70% at 55% 50%, color-mix(in srgb, var(--acc) 13%, transparent), transparent 75%); }
-  .feature .cap { grid-area: cap; align-self: center; gap: 12px; padding: clamp(32px, 4.4vw, 64px); padding-right: clamp(8px, 1.5vw, 20px); }
+  .feature .cap { grid-area: cap; align-self: center; gap: 12px; padding: clamp(32px, 4.4vw, 64px); padding-right: clamp(8px, 1.5vw, 20px); position: relative; z-index: 2; }
   .feature h3 { font-size: clamp(32px, 4vw, 54px); letter-spacing: -0.04em; }
   .feature .line { color: rgba(235,238,245,0.82); font-size: clamp(15.5px, 1.25vw, 17px); line-height: 1.6; }
   .cta { justify-self: start; margin-top: 12px; }
   .feature:hover .cta { background: rgba(235,238,245,0.1); border-color: color-mix(in srgb, var(--acc) 50%, transparent); }
 
-  .go { position: absolute; top: clamp(16px, 2vw, 22px); right: clamp(16px, 2vw, 22px); z-index: 2; width: 40px; height: 40px; border-radius: 50%;
+  /* the flow: the card clips top and bottom only, so the screens can run out past its right edge into the page */
+  .feature.has-flow { overflow: visible; clip-path: inset(0 -100vw 0 0 round var(--r)); }
+  .feature.has-flow .media, .feature.has-flow .media-in { overflow: visible; }
+  .feature.has-flow .media { container-type: normal; }
+  /* starts far enough in that the tilt's nearest column never reaches past the copy's edge; the soft fade dissolves it */
+  .flow { position: absolute; top: -12%; bottom: -12%; left: 8%; right: -30%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px;
+    transform: perspective(1400px) rotateX(16deg) rotateY(-20deg) rotateZ(7deg); transform-origin: 20% 50%;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.35) 12%, #000 30%, #000 72%, transparent 100%); mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.35) 12%, #000 30%, #000 72%, transparent 100%); }
+  /* the screens emerge out of the card's green rather than starting at a hard white edge beside the copy */
+  .feature.has-flow .media::after { content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 38%; z-index: 1; pointer-events: none;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--tint) 42%, var(--surface)) 0%, color-mix(in srgb, var(--tint) 30%, transparent) 45%, transparent 100%); }
+  .col { position: relative; min-height: 0; }
+  /* the list is doubled and padded by one gap, so moving by half its height lands exactly where it started */
+  .track { display: grid; gap: 16px; padding-bottom: 16px; animation: roll var(--d) linear infinite; animation-play-state: paused; will-change: transform; }
+  .col:nth-child(2) .track { animation-direction: reverse; }
+  .flow:global(.on) .track { animation-play-state: running; }
+  .feature.has-flow .media:hover .track { animation-play-state: paused; }
+  @keyframes roll { from { transform: translateY(0); } to { transform: translateY(-50%); } }
+  .sh { border-radius: 10px; overflow: hidden; aspect-ratio: 2400 / 1557; background: #F5F6F5; box-shadow: 0 20px 44px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06); }
+  .sh :global(img) { width: 100%; height: 100%; object-fit: cover; display: block; }
+  @media (prefers-reduced-motion: reduce) { .track { animation: none; } }
+
+  /* sits well inside the corner, so the card's opening clip never cuts through it */
+  .go { position: absolute; top: clamp(20px, 2.2vw, 28px); right: clamp(20px, 2.2vw, 28px); z-index: 3; width: 40px; height: 40px; border-radius: 50%;
     border: 1px solid var(--line-a); display: grid; place-items: center; color: var(--fg); background: rgba(9,9,10,0.45); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
     transition: transform 0.35s var(--ease), background 0.25s, color 0.25s, border-color 0.25s; }
   .tile:hover .go, .tile:focus-visible .go { background: var(--fg); color: #09090A; border-color: var(--fg); transform: rotate(45deg) scale(1.04); }
@@ -126,5 +172,11 @@ const style = `--tint:${d.hoverTint ?? '#16233F'};--acc:${accent ?? '#6190FF'}`;
       background: radial-gradient(110% 70% at 50% 100%, color-mix(in srgb, var(--tint) 88%, transparent), transparent 75%), linear-gradient(180deg, var(--surface) 0%, color-mix(in srgb, var(--tint) 40%, var(--surface)) 100%); }
     .feature .media { --p: 22px; }
     .feature .cap { padding: 24px 24px 28px; }
+    /* on a phone the screens stay inside the card */
+    .feature.has-flow { clip-path: none; overflow: hidden; }
+    .feature.has-flow .media { overflow: hidden; }
+    .feature.has-flow .media::after { display: none; }
+    .flow { top: -34%; bottom: -34%; left: -10%; right: -16%;
+      -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 12%, #000 88%, transparent 100%); mask-image: linear-gradient(90deg, transparent 0%, #000 12%, #000 88%, transparent 100%); }
   }
 </style>
