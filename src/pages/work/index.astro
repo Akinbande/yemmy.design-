@@ -8,8 +8,6 @@ import workstation from '../../assets/workstation.png';
 // case studies first, then the smaller projects, each group in its own order
 const all = (await getCollection('work')).sort((a, b) => (a.data.tier === 1 ? 0 : 1) - (b.data.tier === 1 ? 0 : 1) || a.data.order - b.data.order);
 const by = (id: string) => all.find((e) => e.id === id)!;
-const files = import.meta.glob<{ default: ImageMetadata }>('/src/assets/**/*.png', { eager: true });
-const shot = (p: string) => files[Object.keys(files).find((f) => f.endsWith(`/${p}.png`))!].default;
 
 // one plain line per project, shared by the cards and the index
 const line: Record<string, string> = {
@@ -61,10 +59,10 @@ const intro = `${words[studies]} case studies and ${words[smaller].toLowerCase()
         <WorkTile e={by('nexorbit')} line={line.nexorbit} />
       </div>
       <div class="r full">
-        <WorkTile e={by('collga')} line={by('collga').data.summary} variant="feature" image={shot('collga/admin1')} accent={mark.collga} />
+        <WorkTile e={by('collga')} line={by('collga').data.summary} variant="feature" image="/covers/collga.svg" accent={mark.collga} />
       </div>
       <div class="r flip">
-        <WorkTile e={by('luca')} line={line.luca} variant="image" image={shot('luca/l1')} accent={mark.luca} />
+        <WorkTile e={by('luca')} line={line.luca} variant="image" image="/covers/luca.svg" accent={mark.luca} />
         <WorkTile e={by('newdawn')} line={line.newdawn} variant="video" accent={mark.newdawn}
           video={{ wide: '/newdawn/newdawn-website-preview-uhd.mp4#t=4', src: '/newdawn/newdawn-website-preview.mp4#t=4', poster: '/newdawn/newdawn-website-preview.jpg' }} />
       </div>

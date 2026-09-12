@@ -14,7 +14,7 @@ const work = defineCollection({
     short: z.string().optional(),   // one line for the home page proof card
     hoverImage: z.string().optional(),   // a screen shown behind the home proof card on hover, path under src/assets
     hoverTint: z.string().optional(),    // brand colour washed over that screen
-    coverImage: z.string().optional(),   // a screen shown at full strength in the featured card's visual panel
+    coverImage: z.string().optional(),   // the featured card's cover: a path under src/assets, or a /public file served as supplied (e.g. /covers/luca.svg)
     tags: z.array(z.string()),
     link: z.string().url().optional(),
     thumb: z.string().optional(),
