@@ -21,9 +21,6 @@ const line: Record<string, string> = {
   'glaze-dental': 'A website and booking journey for a Lagos dental clinic',
   fintech: 'A fintech app. Screens are being added',
 };
-// the Collga screens that stream past on its card, three columns of four (read across: column 1, 2, 3)
-const collgaFlow = ['collga/admin1', 'collga/citizen1', 'collga/admin2', 'collga/citizen3', 'collga/state-revenue', 'collga/consolidated',
-  'collga/land1', 'collga/id-1', 'collga/land-title2', 'collga/public-evaluation', 'collga/collections', 'collga/revenue2'].map(shot);
 // each project's own colour: the card stroke and glow, the index row on hover
 const mark: Record<string, string> = { collga: '#6CB460', newdawn: '#FF5101', 'glaze-dental': '#5B86D6' };
 
@@ -64,7 +61,7 @@ const intro = `${words[studies]} case studies and ${words[smaller].toLowerCase()
         <WorkTile e={by('nexorbit')} line={line.nexorbit} />
       </div>
       <div class="r full">
-        <WorkTile e={by('collga')} line={by('collga').data.summary} variant="feature" flow={collgaFlow} accent={mark.collga} />
+        <WorkTile e={by('collga')} line={by('collga').data.summary} variant="feature" image={shot('collga/admin1')} accent={mark.collga} />
       </div>
       <div class="r flip">
         <WorkTile e={by('luca')} line={line.luca} />
@@ -143,9 +140,6 @@ const intro = `${words[studies]} case studies and ${words[smaller].toLowerCase()
     });
     if (reduced) return;
 
-    // the Collga screens only stream while the card is on screen
-    root.querySelectorAll<HTMLElement>('[data-flow]').forEach((f) => new IntersectionObserver((es) => es.forEach((e) => f.classList.toggle('on', e.isIntersecting)), { threshold: 0.05 }).observe(f));
-
     // the counts tick up once; the real number stays in place until the count starts, so a paused tab never shows 0
     root.querySelectorAll<HTMLElement>('[data-count]').forEach((el) => {
       const n = Number(el.dataset.count); const o = { v: 0 };
@@ -155,12 +149,11 @@ const intro = `${words[studies]} case studies and ${words[smaller].toLowerCase()
     // each card opens from its centre and rises as it arrives; its media drifts a little slower than the page
     root.querySelectorAll<HTMLElement>('.bento .tile').forEach((t) => {
       const st = { trigger: t, start: 'top 98%', end: 'top 56%', scrub: 0.6 };
-      // the Collga card spills its screens past its edge, so it rises without a clip; the others open gently,
-      // with a clip small enough never to cut through the corner arrow
-      if (t.classList.contains('has-flow')) gsap.fromTo(t, { y: 70, opacity: 0.35 }, { y: 0, opacity: 1, ease: 'none', scrollTrigger: st });
-      else gsap.fromTo(t, { clipPath: 'inset(4% 3% 0% 3% round 24px)', y: 70 }, { clipPath: 'inset(0% 0% 0% 0% round 18px)', y: 0, ease: 'none', scrollTrigger: st });
+      // each card opens gently, with a clip small enough never to cut through the corner arrow
+      gsap.fromTo(t, { clipPath: 'inset(4% 3% 0% 3% round 24px)', y: 70 }, { clipPath: 'inset(0% 0% 0% 0% round 18px)', y: 0, ease: 'none', scrollTrigger: st });
       const m = t.querySelector('.media-in');
-      if (m && !t.classList.contains('video')) gsap.fromTo(m, { yPercent: -5 }, { yPercent: 5, ease: 'none', scrollTrigger: { trigger: t, start: 'top bottom', end: 'bottom top', scrub: true } });
+      // only the drawings drift; films and framed screens stay put, centred in their cards
+      if (m && t.classList.contains('glyph')) gsap.fromTo(m, { yPercent: -5 }, { yPercent: 5, ease: 'none', scrollTrigger: { trigger: t, start: 'top bottom', end: 'bottom top', scrub: true } });
     });
 
     // the index: each rule draws across, then that row's content follows
@@ -182,7 +175,7 @@ const intro = `${words[studies]} case studies and ${words[smaller].toLowerCase()
 </script>
 
 <style>
-  /* clip, not hidden: the Collga screens may run past the page edge without making it scroll sideways */
+  /* clip, not hidden: nothing on this page may make it scroll sideways, and sticky/scroll effects keep working */
   .work { position: relative; overflow-x: clip; padding-top: calc(var(--nav-h) + clamp(48px, 9vw, 120px)); padding-bottom: clamp(72px, 10vw, 140px); }
   .glow { position: absolute; left: 0; right: 0; top: 0; height: min(90vh, 820px); pointer-events: none; z-index: 0;
     background: radial-gradient(60% 55% at 18% 0%, rgba(59,111,235,0.20), transparent 70%), radial-gradient(40% 40% at 90% 10%, rgba(97,144,255,0.08), transparent 70%); }
