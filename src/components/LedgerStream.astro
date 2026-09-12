@@ -1,39 +1,56 @@
 ---
-/* Six jobs of a small shop's books. A column of the six jobs tracks progress on the left; on the right the
-   job cards scroll up one at a time like a feed, each with what it was like before and what Luca does.
-   Sits on a dark, see-through panel in Luca navy. Figures come from his Luca screens. */
+/* Six jobs of a small shop's books, as real, dark, classic cards. A column of the six jobs tracks progress on
+   the left; on the right the cards scroll up one at a time. Each card: an icon tile, the job and its ledger line
+   with the amount, then what it was like before and what Luca does. Figures come from his Luca screens. */
+const path: Record<string, string> = {
+  sell: 'M12 4v11M7.5 10.5 12 15l4.5-4.5M5 20h14',
+  chart: 'M4 20h16M7 16v-4M12 16V8M17 16V5',
+  people: 'M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3.5 20c0-3.2 2.5-5.2 5.5-5.2s5.5 2 5.5 5.2M16 11.2a2.6 2.6 0 1 0 0-5.2M17.5 14.9c1.9.6 3 2.3 3 5.1',
+  receipt: 'M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6M9 16h3',
+  invoice: 'M7 3h7l4 4v14H7zM14 3v4h4M10 12h5M10 16h5',
+  stock: 'M3 7.5 12 3l9 4.5-9 4.5-9-4.5zM3 7.5v9L12 21l9-4.5v-9M12 12v9',
+};
+const svg = (d: string) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`;
 const jobs = [
-  { k: 'Sell', chip: 'School bag ×2', amt: '+₦10,000', dir: 'in',
+  { k: 'Sell', icon: 'sell', chip: 'School bag ×2, to Mrs Adebayo', amt: '+₦10,000', dir: 'in',
     before: 'Sales written in a notebook were slow to add up and easy to lose.',
     luca: 'Tap Sell, pick the product, set the quantity and add the customer.' },
-  { k: 'Profit', chip: 'Vintage bag, per sale', amt: '+₦1,000', dir: 'in',
+  { k: 'Profit', icon: 'chart', chip: 'Vintage bag, bought ₦5,000, sold ₦6,000', amt: '+₦1,000', dir: 'in',
     before: 'Owners only found out if they had made a profit at the end of the month.',
     luca: 'Each product has a market price and a selling price, so the profit on every sale is worked out for you.' },
-  { k: 'Debt', chip: 'Mrs Adebayo owes you', amt: '₦20,000', dir: 'due',
+  { k: 'Debt', icon: 'people', chip: 'Mrs Adebayo owes you', amt: '₦20,000', dir: 'due',
     before: "Who owed what, and since when, lived only in the owner's memory.",
     luca: 'The customer list shows who owes you, who you owe, and the total due to you.' },
-  { k: 'Record', chip: 'Fuel refill, paid by POS', amt: '−₦7,000', dir: 'out',
+  { k: 'Record', icon: 'receipt', chip: 'Fuel refill, 5:10 PM, POS', amt: '−₦7,000', dir: 'out',
     before: 'Small expenses went unrecorded, and money slipped away.',
     luca: 'Money in and money out sit on one list, each with its time and payment method.' },
-  { k: 'Track', chip: 'Invoice #020921, paid', amt: '₦25,000', dir: 'in',
+  { k: 'Track', icon: 'invoice', chip: 'Invoice #020921, fully paid', amt: '₦25,000', dir: 'in',
     before: 'Receipts got lost, and reports took days to put together.',
     luca: 'Create invoices in the app, and share reports as PDF or Excel in a few taps.' },
-  { k: 'Inventory', chip: 'All products', amt: '85', dir: 'stock',
+  { k: 'Inventory', icon: 'stock', chip: 'All products', amt: '85', dir: 'stock',
     before: "Stock was counted by eye, and prices were kept in the owner's head.",
     luca: 'See every product with its photo, price and count, and edit it in one step.' },
 ];
+const cross = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7"/></svg>';
+const tick = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-7"/></svg>';
 ---
 <div class="jf" id="jobfeed">
   <ol class="rail" aria-hidden="true">
-    {jobs.map((j, i) => <li><span class="mono">{String(i + 1).padStart(2, '0')}</span>{j.k}</li>)}
+    {jobs.map((j, i) => <li><span class="n mono">{String(i + 1).padStart(2, '0')}</span><span class="v">{j.k}</span></li>)}
   </ol>
   <div class="win">
     <ol class="track">
       {[...jobs, ...jobs].map((j, i) => (
         <li class={`card ${j.dir}`} aria-hidden={i >= jobs.length ? 'true' : undefined}>
-          <div class="top"><span class="k mono">{j.k}</span><span class="chip mono"><span>{j.chip}</span><b>{j.amt}</b></span></div>
-          <p class="bf"><span class="mono">Before</span>{j.before}</p>
-          <p class="wl"><span class="mono">With Luca</span>{j.luca}</p>
+          <div class="head">
+            <span class="ic" set:html={svg(path[j.icon])} />
+            <span class="ttl"><span class="k mono">{j.k}</span><b>{j.chip}</b></span>
+            <span class="amt mono">{j.amt}</span>
+          </div>
+          <div class="rows">
+            <p class="bf"><span class="lab mono"><i set:html={cross} />Before</span><span class="txt">{j.before}</span></p>
+            <p class="wl"><span class="lab mono"><i set:html={tick} />With Luca</span><span class="txt">{j.luca}</span></p>
+          </div>
         </li>
       ))}
     </ol>
@@ -57,44 +74,62 @@ const jobs = [
     setOn(0);
     // one card at a time scrolls up into focus; the doubled list lets the loop land exactly where it began
     const tl = gsap.timeline({ repeat: -1, paused: true });
-    for (let s = 1; s <= n; s++) tl.to(track, { y: () => -offset(s), duration: 0.85, ease: 'power3.inOut', onStart: () => setOn(s) }, '+=2.2');
+    for (let s = 1; s <= n; s++) tl.to(track, { y: () => -offset(s), duration: 0.9, ease: 'power3.inOut', onStart: () => setOn(s) }, '+=2.4');
     tl.set(track, { y: 0 }).call(() => setOn(0));
     let t = 0;
     window.addEventListener('resize', () => { clearTimeout(t); t = window.setTimeout(() => tl.invalidate(), 150); }, { passive: true });
-    ScrollTrigger.create({ trigger: root, start: 'top 80%', end: 'bottom 15%', onToggle: (s) => (s.isActive ? tl.play() : tl.pause()) });
+    const st = ScrollTrigger.create({ trigger: root, start: 'top 80%', end: 'bottom 15%', onToggle: (self) => (self.isActive ? tl.play() : tl.pause()) });
+    if (st.isActive) tl.play();
   }
   document.addEventListener('astro:page-load', init);
 </script>
 
 <style>
-  /* a dark, see-through panel in Luca navy */
+  /* dark and classic: a deep panel, quiet hairlines, Luca navy and blue used sparingly */
   .jf { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 2.2fr); gap: clamp(24px, 4vw, 56px); align-items: center;
-    padding: clamp(24px, 4vw, 52px); border-radius: var(--r); background: rgba(30, 31, 75, 0.36); border: 1px solid rgba(1, 181, 236, 0.2); }
-  .rail { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
-  .rail li { display: flex; align-items: baseline; gap: 12px; font-size: clamp(20px, 2.2vw, 30px); font-weight: 600; letter-spacing: -0.02em;
-    color: rgba(235, 238, 245, 0.26); transition: color 0.5s var(--ease), transform 0.5s var(--ease); }
-  .rail li span { font-size: 11px; font-weight: 400; letter-spacing: 0.1em; color: var(--dim); }
-  .rail li:global(.on) { color: #fff; transform: translateX(8px); }
-  .rail li:global(.on) span { color: #5ED0F3; }
-  .win { position: relative; height: clamp(300px, 29vw, 350px); overflow: hidden;
-    -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 70%, transparent 100%); mask-image: linear-gradient(180deg, #000 0%, #000 70%, transparent 100%); }
+    padding: clamp(24px, 4vw, 52px); border-radius: var(--r); background: #090A14; border: 1px solid rgba(1, 181, 236, 0.14);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03); }
+  .rail { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+  .rail li { position: relative; display: flex; align-items: baseline; gap: 14px; padding: 6px 0 6px 16px; transition: color 0.5s var(--ease); color: rgba(235, 238, 245, 0.26); }
+  .rail li::before { content: ''; position: absolute; left: 0; top: 10px; bottom: 10px; width: 2px; border-radius: 2px; background: #01B5EC; transform: scaleY(0); transition: transform 0.5s var(--ease); }
+  .rail .n { font-size: 11px; letter-spacing: 0.1em; color: var(--dim); }
+  .rail .v { font-size: clamp(20px, 2.2vw, 30px); font-weight: 600; letter-spacing: -0.02em; }
+  .rail li:global(.on) { color: #fff; }
+  .rail li:global(.on)::before { transform: scaleY(1); }
+  .rail li:global(.on) .n { color: #5ED0F3; }
+  .win { position: relative; height: clamp(380px, 33vw, 430px); overflow: hidden;
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 74%, transparent 100%); mask-image: linear-gradient(180deg, #000 0%, #000 74%, transparent 100%); }
   .track { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; will-change: transform; }
-  .card { display: grid; gap: 10px; padding: 22px 24px; border-radius: 16px; background: rgba(10, 11, 24, 0.5); border: 1px solid rgba(255, 255, 255, 0.07); opacity: 0.45;
-    transition: opacity 0.5s var(--ease), border-color 0.5s var(--ease), background 0.5s var(--ease); }
-  .card:global(.on) { opacity: 1; border-color: rgba(1, 181, 236, 0.34); background: rgba(30, 31, 75, 0.62); }
-  .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-  .k { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #5ED0F3; }
-  .chip { display: inline-flex; align-items: center; gap: 12px; padding: 6px 12px; border-radius: 999px; background: rgba(255, 255, 255, 0.06); font-size: 11.5px; color: rgba(235, 238, 245, 0.82); }
-  .chip b { font-weight: 600; }
-  .in .chip b { color: #3DD68C; } .out .chip b { color: #FF7A7F; } .due .chip b { color: #F5C451; } .stock .chip b { color: #fff; }
-  .bf, .wl { font-size: 15.5px; line-height: 1.55; }
-  .bf { color: var(--muted); }
-  .wl { color: var(--fg); }
-  .bf span, .wl span { display: inline-block; min-width: 88px; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); }
-  .wl span { color: #5ED0F3; }
+  .card { border-radius: 18px; background: #10112A; border: 1px solid rgba(255, 255, 255, 0.06); overflow: hidden; opacity: 0.42;
+    transition: opacity 0.55s var(--ease), border-color 0.55s var(--ease), box-shadow 0.55s var(--ease), background 0.55s var(--ease); }
+  .card:global(.on) { opacity: 1; background: #13153A; border-color: rgba(1, 181, 236, 0.4); box-shadow: 0 26px 60px -30px rgba(1, 181, 236, 0.45); }
+  .head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 18px 22px; }
+  .ic { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; background: #1E1F4B; color: #7FD9F5; border: 1px solid rgba(1, 181, 236, 0.22); }
+  .ic :global(svg) { width: 22px; height: 22px; }
+  .ttl { display: grid; gap: 3px; min-width: 0; }
+  .ttl .k { font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: #7FD9F5; }
+  .ttl b { font-size: 15.5px; font-weight: 600; letter-spacing: -0.01em; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .amt { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
+  .in .amt { color: #3DD68C; } .out .amt { color: #FF7A7F; } .due .amt { color: #F5C451; } .stock .amt { color: #fff; }
+  .rows { display: grid; gap: 12px; padding: 16px 22px 20px; border-top: 1px solid rgba(255, 255, 255, 0.06); }
+  .rows p { display: grid; grid-template-columns: 116px minmax(0, 1fr); gap: 14px; font-size: 15px; line-height: 1.55; }
+  .lab { display: inline-flex; align-items: center; gap: 8px; height: 23px; font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); }
+  .lab i { display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; }
+  .lab i :global(svg) { width: 12px; height: 12px; }
+  .bf .lab i { color: #FF7A7F; background: rgba(255, 122, 127, 0.12); }
+  .wl .lab i { color: #3DD68C; background: rgba(61, 214, 140, 0.12); }
+  .wl .lab { color: #7FD9F5; }
+  .bf .txt { color: var(--muted); }
+  .wl .txt { color: var(--fg); }
   /* without script, or with reduced motion: a plain list of the six */
   :global(.no-js) .win, :global(.reduced-motion) .win { height: auto; -webkit-mask-image: none; mask-image: none; }
   :global(.no-js) .card, :global(.reduced-motion) .card { opacity: 1; }
   :global(.no-js) .card[aria-hidden], :global(.reduced-motion) .card[aria-hidden] { display: none; }
-  @media (max-width: 860px) { .jf { grid-template-columns: minmax(0, 1fr); } .rail { display: none; } .win { height: 380px; } }
+  @media (max-width: 860px) {
+    .jf { grid-template-columns: minmax(0, 1fr); }
+    .rail { display: none; }
+    .win { height: 460px; }
+    .rows p { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+    .ttl b { white-space: normal; }
+  }
 </style>
