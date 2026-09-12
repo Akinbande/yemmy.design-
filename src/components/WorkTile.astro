@@ -2,7 +2,7 @@
 /* One project on the Work page. Three shapes, one link each:
    glyph   the drawn artefact on a blueprint grid (projects without media yet)
    video   the film fills the top of the card, clean and uncovered; the project's colour lives in the text area below
-   image   a project screen fills the image area (not the whole card); text below a hairline, as on the glyph cards
+   image   a project screen fills the image area (not the whole card); the text area below carries the same dark touch of colour as a film card
    feature full width: copy on a deep wash of the project's colour, one screen whole and framed beside it
    Projects with an accent get a see-through stroke in their own colour. */
 import type { CollectionEntry } from 'astro:content';
@@ -81,12 +81,12 @@ const style = `--tint:${d.hoverTint ?? '#16233F'};--acc:${accent ?? '#6190FF'}`;
 
   /* video: the film fills the media row (close to 16:9, so almost no crop), clean, with nothing over it.
      A hairline in the project's colour marks where the film ends; the text area below carries a dark touch of that colour. */
-  .video { --mix: color-mix(in srgb, var(--tint) 62%, var(--acc)); }
+  .video, .image { --mix: color-mix(in srgb, var(--tint) 62%, var(--acc)); }
   .video .media { container-type: normal; background: var(--surface); border-bottom: 1px solid color-mix(in srgb, var(--acc) 26%, transparent); }
   .video .media-in { inset: 0; }
   .video .media-in video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0%; display: block; transition: transform 1.1s var(--ease); }
   .video:hover .media-in video { transform: scale(1.025); }
-  .video .cap { background: linear-gradient(180deg, color-mix(in srgb, var(--mix) 26%, var(--surface)) 0%, color-mix(in srgb, var(--mix) 8%, var(--surface)) 70%, var(--surface) 100%); }
+  .video .cap, .image .cap { background: linear-gradient(180deg, color-mix(in srgb, var(--mix) 26%, var(--surface)) 0%, color-mix(in srgb, var(--mix) 8%, var(--surface)) 70%, var(--surface) 100%); }
 
   /* image: the screen covers the image area only, centred on the phone; no drift, a gentle zoom on hover */
   .image .media { container-type: normal; background: #DFF4FF; }
