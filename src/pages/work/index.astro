@@ -3,7 +3,6 @@ import { getCollection } from 'astro:content';
 import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import WorkTile from '../../components/WorkTile.astro';
-import Glyph from '../../components/Glyph.astro';
 import workstation from '../../assets/workstation.png';
 
 // case studies first, then the smaller projects, each group in its own order
@@ -24,8 +23,6 @@ const line: Record<string, string> = {
 };
 // each project's own colour: the card stroke and glow, the index row on hover
 const mark: Record<string, string> = { collga: '#6CB460', newdawn: '#FF5101', 'glaze-dental': '#5B86D6' };
-// the screen that follows the cursor over the index; projects without one show their drawing
-const peek: Record<string, string> = { collga: 'collga/admin1', newdawn: 'newdawn/h1', 'glaze-dental': 'glaze/g1' };
 
 const studies = all.filter((e) => e.data.tier === 1).length;
 const smaller = all.length - studies;
@@ -88,7 +85,7 @@ const intro = `${words[studies]} case studies and ${words[smaller].toLowerCase()
         {all.map((e, i) => {
           const study = e.data.tier === 1;
           return (
-            <li class="ri" data-peek={e.id}>
+            <li class="ri">
               <a class="irow" href={study ? `/work/${e.id}/` : `/screens/${e.id}/`} style={`--mark:${mark[e.id] ?? '#6190FF'}`}>
                 <span class="n mono">{String(i + 1).padStart(2, '0')}</span>
                 <span class="p"><b>{e.data.org}</b><span class="l">{line[e.id] ?? e.data.title}</span><em class="mob mono">{study ? 'Case study' : 'Screens'} &middot; {e.data.year}</em></span>
@@ -102,15 +99,6 @@ const intro = `${words[studies]} case studies and ${words[smaller].toLowerCase()
           );
         })}
       </ol>
-      <div class="peek" aria-hidden="true">
-        {all.map((e) => (
-          <div class="pv" data-id={e.id}>
-            {peek[e.id]
-              ? <Image src={shot(peek[e.id])} alt="" width={720} format="webp" quality={78} loading="lazy" />
-              : <div class="pg"><Glyph kind={e.id} /></div>}
-          </div>
-        ))}
-      </div>
     </section>
 
     <section class="wrap hire" aria-labelledby="hire-h">
@@ -165,7 +153,7 @@ const intro = `${words[studies]} case studies and ${words[smaller].toLowerCase()
         scrollTrigger: { trigger: t, start: 'top 98%', end: 'top 56%', scrub: 0.6 },
       });
       const m = t.querySelector('.media-in');
-      if (m) gsap.fromTo(m, { yPercent: -5 }, { yPercent: 5, ease: 'none', scrollTrigger: { trigger: t, start: 'top bottom', end: 'bottom top', scrub: true } });
+      if (m && !t.classList.contains('video')) gsap.fromTo(m, { yPercent: -5 }, { yPercent: 5, ease: 'none', scrollTrigger: { trigger: t, start: 'top bottom', end: 'bottom top', scrub: true } });
     });
 
     // the index: each rule draws across, then that row's content follows
@@ -178,27 +166,6 @@ const intro = `${words[studies]} case studies and ${words[smaller].toLowerCase()
         .fromTo(li.querySelector('.rule'), { scaleX: 0 }, { scaleX: 1, duration: 0.9, ease: 'power3.inOut' })
         .fromTo(li.querySelectorAll('.n, .p, .sec, .y, .f, .arw'), { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out', stagger: 0.05 }, '-=0.65');
     });
-
-    // a preview of the project follows the cursor over the index (pointer devices only)
-    const list = root.querySelector<HTMLElement>('.rows');
-    const peek = root.querySelector<HTMLElement>('.peek');
-    if (list && peek && matchMedia('(hover: hover) and (min-width: 861px)').matches) {
-      gsap.set(peek, { xPercent: -50, yPercent: -50, scale: 0.86, opacity: 0 });
-      const xTo = gsap.quickTo(peek, 'x', { duration: 0.5, ease: 'power3' });
-      const yTo = gsap.quickTo(peek, 'y', { duration: 0.5, ease: 'power3' });
-      let shown = false;
-      const place = (e: MouseEvent) => {
-        const x = Math.min(e.clientX + 190, innerWidth - 170), y = e.clientY - 10;
-        if (!shown) { gsap.set(peek, { x, y }); } xTo(x); yTo(y);
-      };
-      list.addEventListener('mousemove', place);
-      list.querySelectorAll<HTMLElement>('.ri').forEach((li) => li.addEventListener('mouseenter', (e) => {
-        peek.querySelectorAll('.pv').forEach((p) => p.classList.toggle('on', (p as HTMLElement).dataset.id === li.dataset.peek));
-        place(e as MouseEvent); shown = true;
-        gsap.to(peek, { opacity: 1, scale: 1, duration: 0.35, ease: 'power3.out', overwrite: 'auto' });
-      }));
-      list.addEventListener('mouseleave', () => { shown = false; gsap.to(peek, { opacity: 0, scale: 0.86, duration: 0.3, ease: 'power2.in', overwrite: 'auto' }); });
-    }
 
     // the workstation settles into place as the card arrives
     const photo = root.querySelector('.hphoto img');
@@ -234,7 +201,7 @@ const intro = `${words[studies]} case studies and ${words[smaller].toLowerCase()
   .r.flip { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
   .r.full { grid-template-columns: minmax(0, 1fr); }
   .r > :global(.tile) { min-height: clamp(420px, 40vw, 560px); }
-  .r.full > :global(.tile) { min-height: clamp(460px, 44vw, 600px); }
+  .r.full > :global(.tile) { min-height: clamp(440px, 42vw, 560px); }
 
   /* index */
   .index { --cols: 56px minmax(0, 2.4fr) minmax(0, 1.25fr) minmax(0, 0.8fr) minmax(0, 0.75fr) 40px; position: relative; z-index: 1; margin-top: clamp(96px, 12vw, 168px); }
@@ -267,14 +234,6 @@ const intro = `${words[studies]} case studies and ${words[smaller].toLowerCase()
   .ar { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line-a); display: grid; place-items: center; transition: transform 0.4s var(--ease), background 0.25s, color 0.25s, border-color 0.25s; }
   .irow:hover .ar, .irow:focus-visible .ar { background: var(--fg); color: #09090A; border-color: var(--fg); transform: translateX(4px); }
 
-  .peek { position: fixed; left: 0; top: 0; z-index: 30; width: clamp(260px, 22vw, 320px); aspect-ratio: 2400 / 1557; pointer-events: none; opacity: 0;
-    border-radius: 12px; overflow: hidden; background: var(--surface); box-shadow: 0 30px 70px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.08); }
-  .pv { position: absolute; inset: 0; opacity: 0; transition: opacity 0.3s var(--ease); }
-  .pv.on { opacity: 1; }
-  .pv :global(img) { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .pg { position: absolute; inset: 0; display: grid; place-items: center; padding: 14px;
-    background: radial-gradient(90% 80% at 50% 0%, rgba(97,144,255,0.12), transparent 70%), radial-gradient(rgba(235,238,245,0.05) 1px, transparent 1px) 0 0 / 18px 18px, var(--surface); }
-  .pg :global(.glyph) { width: 100%; height: auto; }
 
   /* the closing card: the workstation fades into the dark on the left, the invitation on the right */
   .hire { position: relative; z-index: 1; margin-top: clamp(96px, 12vw, 168px); }
