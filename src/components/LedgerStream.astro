@@ -1,52 +1,43 @@
 ---
-/* Six jobs of a small shop's books, streamed into a clean app ledger one line at a time: Sell, Profit, Debt,
-   Record, Track, Inventory. Beside it, each job's problem and what was designed for it lights up in step.
-   Figures come from his Luca screens. */
+/* Six jobs of a small shop's books. A column of the six jobs tracks progress on the left; on the right the
+   job cards scroll up one at a time like a feed, each with what it was like before and what Luca does.
+   Sits on a dark, see-through panel in Luca navy. Figures come from his Luca screens. */
 const jobs = [
-  { k: 'Sell', label: 'School bag ×2', meta: 'Sold to Mrs Adebayo', amt: '+₦10,000', dir: 'in',
-    problem: 'Sales written in a notebook are slow to add up and easy to lose.',
-    design: 'A Sell button on the home screen: pick the product, set the quantity, name the customer, done.' },
-  { k: 'Profit', label: 'Vintage bag', meta: 'Cost ₦5,000 · Sold ₦6,000', amt: '+₦1,000', dir: 'in',
-    problem: 'Owners found out whether they made money only at month end, if at all.',
-    design: 'Every product carries its market and sell price, so profit is worked out as they sell.' },
-  { k: 'Debt', label: 'Mrs Adebayo owes you', meta: 'Customers · Owing you', amt: '₦20,000', dir: 'due',
-    problem: 'Credit lived in memory: who owes, how much, and since when.',
-    design: 'A customer list that shows who owes you, who you owe, and the total due to you.' },
-  { k: 'Record', label: 'Fuel refill', meta: '5:10 PM · POS', amt: '−₦7,000', dir: 'out',
-    problem: 'Small expenses leaked away because nobody wrote them down.',
-    design: 'Pay in and pay out on one list, every entry with its time and how it was paid.' },
-  { k: 'Track', label: 'Invoice #020921', meta: 'Fully paid · Transfer', amt: '₦25,000', dir: 'in',
-    problem: 'Receipts went missing and a report took days to put together.',
-    design: 'Invoices made in the app, and reports shared as PDF or Excel in a few taps.' },
-  { k: 'Inventory', label: 'All products', meta: 'Vintage bag · School bag', amt: '85', dir: 'stock',
-    problem: "Stock was counted by eye and prices were kept in the owner's head.",
-    design: 'A product list with photos, prices and a count, edited or removed in one step.' },
+  { k: 'Sell', chip: 'School bag ×2', amt: '+₦10,000', dir: 'in',
+    before: 'Sales written in a notebook were slow to add up and easy to lose.',
+    luca: 'Tap Sell, pick the product, set the quantity and add the customer.' },
+  { k: 'Profit', chip: 'Vintage bag, per sale', amt: '+₦1,000', dir: 'in',
+    before: 'Owners only found out if they had made a profit at the end of the month.',
+    luca: 'Each product has a market price and a selling price, so the profit on every sale is worked out for you.' },
+  { k: 'Debt', chip: 'Mrs Adebayo owes you', amt: '₦20,000', dir: 'due',
+    before: "Who owed what, and since when, lived only in the owner's memory.",
+    luca: 'The customer list shows who owes you, who you owe, and the total due to you.' },
+  { k: 'Record', chip: 'Fuel refill, paid by POS', amt: '−₦7,000', dir: 'out',
+    before: 'Small expenses went unrecorded, and money slipped away.',
+    luca: 'Money in and money out sit on one list, each with its time and payment method.' },
+  { k: 'Track', chip: 'Invoice #020921, paid', amt: '₦25,000', dir: 'in',
+    before: 'Receipts got lost, and reports took days to put together.',
+    luca: 'Create invoices in the app, and share reports as PDF or Excel in a few taps.' },
+  { k: 'Inventory', chip: 'All products', amt: '85', dir: 'stock',
+    before: "Stock was counted by eye, and prices were kept in the owner's head.",
+    luca: 'See every product with its photo, price and count, and edit it in one step.' },
 ];
 ---
-<div class="ls" id="ledger">
-  <div class="screen" aria-hidden="true">
-    <div class="bar mono"><span>Today</span><span>Luca</span></div>
-    <div class="total"><span class="mono lbl">Total sales</span><b>₦150,000.00</b></div>
-    <p class="mono feedh"><span>Transactions</span><span>Amount</span></p>
-    <ol class="feed">
-      {jobs.map((j) => (
-        <li class={`row ${j.dir}`}><div class="rin"><div class="rc">
-          <span class="tag mono">{j.k}</span>
-          <span class="txt"><b>{j.label}</b><em class="mono">{j.meta}</em></span>
-          <span class="amt mono">{j.amt}</span>
-        </div></div></li>
+<div class="jf" id="jobfeed">
+  <ol class="rail" aria-hidden="true">
+    {jobs.map((j, i) => <li><span class="mono">{String(i + 1).padStart(2, '0')}</span>{j.k}</li>)}
+  </ol>
+  <div class="win">
+    <ol class="track">
+      {[...jobs, ...jobs].map((j, i) => (
+        <li class={`card ${j.dir}`} aria-hidden={i >= jobs.length ? 'true' : undefined}>
+          <div class="top"><span class="k mono">{j.k}</span><span class="chip mono"><span>{j.chip}</span><b>{j.amt}</b></span></div>
+          <p class="bf"><span class="mono">Before</span>{j.before}</p>
+          <p class="wl"><span class="mono">With Luca</span>{j.luca}</p>
+        </li>
       ))}
     </ol>
   </div>
-  <ol class="jobs">
-    {jobs.map((j, i) => (
-      <li class="job">
-        <span class="kk mono"><i>{String(i + 1).padStart(2, '0')}</i>{j.k}</span>
-        <p class="pb"><span class="mono">Problem</span>{j.problem}</p>
-        <p class="dn"><span class="mono">Designed</span>{j.design}</p>
-      </li>
-    ))}
-  </ol>
 </div>
 
 <script>
@@ -54,68 +45,56 @@ const jobs = [
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
   gsap.registerPlugin(ScrollTrigger);
   function init() {
-    const root = document.getElementById('ledger');
+    const root = document.getElementById('jobfeed');
     if (!root || root.dataset.init) return; root.dataset.init = '1';
-    const rows = [...root.querySelectorAll<HTMLElement>('.row')];
-    const jobs = [...root.querySelectorAll<HTMLElement>('.job')];
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      rows.forEach((r) => r.classList.add('shown')); jobs.forEach((j) => j.classList.add('on')); return;
-    }
-    // one line at a time, newest on top; the matching job lights up beside it
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; // a plain list of the six cards
+    const cards = [...root.querySelectorAll<HTMLElement>('.card')];
+    const rail = [...root.querySelectorAll<HTMLElement>('.rail li')];
+    const track = root.querySelector<HTMLElement>('.track')!;
+    const n = rail.length;
+    const setOn = (i: number) => { cards.forEach((c, k) => c.classList.toggle('on', k === i)); rail.forEach((r, k) => r.classList.toggle('on', k === i % n)); };
+    const offset = (i: number) => cards[i].offsetTop - cards[0].offsetTop;
+    setOn(0);
+    // one card at a time scrolls up into focus; the doubled list lets the loop land exactly where it began
     const tl = gsap.timeline({ repeat: -1, paused: true });
-    tl.call(() => { rows.forEach((r) => r.classList.remove('shown', 'live')); jobs.forEach((j) => j.classList.remove('on')); });
-    rows.forEach((r, i) => {
-      tl.call(() => {
-        rows.forEach((x) => x.classList.remove('live'));
-        r.classList.add('shown', 'live');
-        jobs.forEach((j, k) => j.classList.toggle('on', k === i));
-      }, [], `+=${i ? 1.8 : 0.4}`);
-    });
-    tl.to({}, { duration: 2.4 });
+    for (let s = 1; s <= n; s++) tl.to(track, { y: () => -offset(s), duration: 0.85, ease: 'power3.inOut', onStart: () => setOn(s) }, '+=2.2');
+    tl.set(track, { y: 0 }).call(() => setOn(0));
+    let t = 0;
+    window.addEventListener('resize', () => { clearTimeout(t); t = window.setTimeout(() => tl.invalidate(), 150); }, { passive: true });
     ScrollTrigger.create({ trigger: root, start: 'top 80%', end: 'bottom 15%', onToggle: (s) => (s.isActive ? tl.play() : tl.pause()) });
   }
   document.addEventListener('astro:page-load', init);
 </script>
 
 <style>
-  .ls { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(28px, 4.5vw, 64px); align-items: center; }
-  /* a clean app screen: white, a 0.5px outline, Luca navy and blue, no gradients */
-  .screen { justify-self: center; width: 100%; max-width: 400px; min-height: 540px; display: flex; flex-direction: column; gap: 14px;
-    padding: 20px 16px 18px; background: #FFFFFF; color: #1E1F4B; border: 0.5px solid #0B0B0C; border-radius: 30px; }
-  .bar { display: flex; justify-content: space-between; padding: 0 6px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #8A8FA3; }
-  .total { display: grid; gap: 6px; justify-items: center; padding: 22px 16px; border-radius: 18px; background: #1E1F4B; color: #fff; }
-  .total .lbl { font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.7); }
-  .total b { font-size: 28px; font-weight: 600; letter-spacing: -0.02em; }
-  .feedh { display: flex; justify-content: space-between; padding: 4px 8px 0; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: #8A8FA3; }
-  /* column-reverse: the newest line lands on top and pushes the rest down */
-  .feed { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column-reverse; }
-  .row { display: grid; grid-template-rows: 0fr; opacity: 0; border-radius: 12px; transition: grid-template-rows 0.5s var(--ease), opacity 0.5s var(--ease), background 0.4s; }
-  .row.shown { grid-template-rows: 1fr; opacity: 1; }
-  .row.live { background: #E6F7FD; }
-  .rin { min-height: 0; overflow: hidden; }
-  .rc { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 8px; border-bottom: 1px solid #EEF0F4; }
-  .tag { font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; padding: 5px 8px; border-radius: 999px; background: #EEF0F4; color: #1E1F4B; min-width: 64px; text-align: center; }
-  .row.live .tag { background: #01B5EC; color: #fff; }
-  .txt { display: grid; gap: 2px; min-width: 0; }
-  .txt b { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .txt em { font-style: normal; font-size: 10.5px; color: #8A8FA3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .amt { font-size: 13px; font-weight: 600; }
-  .in .amt { color: #12A150; } .out .amt { color: #E5484D; } .due .amt { color: #B7791F; } .stock .amt { color: #1E1F4B; }
-
-  .jobs { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
-  .job { position: relative; padding: 16px 18px 16px 22px; border-radius: 14px; border: 1px solid transparent; opacity: 0.4;
-    transition: opacity 0.45s var(--ease), background 0.45s var(--ease), border-color 0.45s var(--ease); }
-  .job::before { content: ''; position: absolute; left: 0; top: 16px; bottom: 16px; width: 2px; border-radius: 2px; background: #01B5EC; transform: scaleY(0); transition: transform 0.45s var(--ease); }
-  .job.on { opacity: 1; background: rgba(1, 181, 236, 0.06); border-color: rgba(1, 181, 236, 0.22); }
-  .job.on::before { transform: scaleY(1); }
-  .kk { display: flex; gap: 10px; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #5ED0F3; }
-  .kk i { font-style: normal; color: var(--dim); }
-  .pb, .dn { margin-top: 6px; font-size: 15px; line-height: 1.55; }
-  .pb { color: var(--muted); }
-  .dn { color: var(--fg); }
-  .pb span, .dn span { display: inline-block; min-width: 76px; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); }
-  /* without script, or with reduced motion, everything is simply shown */
-  :global(.no-js) .row, :global(.reduced-motion) .row { grid-template-rows: 1fr; opacity: 1; }
-  :global(.no-js) .job, :global(.reduced-motion) .job { opacity: 1; }
-  @media (max-width: 860px) { .ls { grid-template-columns: minmax(0, 1fr); } .screen { min-height: 500px; } }
+  /* a dark, see-through panel in Luca navy */
+  .jf { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 2.2fr); gap: clamp(24px, 4vw, 56px); align-items: center;
+    padding: clamp(24px, 4vw, 52px); border-radius: var(--r); background: rgba(30, 31, 75, 0.36); border: 1px solid rgba(1, 181, 236, 0.2); }
+  .rail { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  .rail li { display: flex; align-items: baseline; gap: 12px; font-size: clamp(20px, 2.2vw, 30px); font-weight: 600; letter-spacing: -0.02em;
+    color: rgba(235, 238, 245, 0.26); transition: color 0.5s var(--ease), transform 0.5s var(--ease); }
+  .rail li span { font-size: 11px; font-weight: 400; letter-spacing: 0.1em; color: var(--dim); }
+  .rail li:global(.on) { color: #fff; transform: translateX(8px); }
+  .rail li:global(.on) span { color: #5ED0F3; }
+  .win { position: relative; height: clamp(300px, 29vw, 350px); overflow: hidden;
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 70%, transparent 100%); mask-image: linear-gradient(180deg, #000 0%, #000 70%, transparent 100%); }
+  .track { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; will-change: transform; }
+  .card { display: grid; gap: 10px; padding: 22px 24px; border-radius: 16px; background: rgba(10, 11, 24, 0.5); border: 1px solid rgba(255, 255, 255, 0.07); opacity: 0.45;
+    transition: opacity 0.5s var(--ease), border-color 0.5s var(--ease), background 0.5s var(--ease); }
+  .card:global(.on) { opacity: 1; border-color: rgba(1, 181, 236, 0.34); background: rgba(30, 31, 75, 0.62); }
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .k { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #5ED0F3; }
+  .chip { display: inline-flex; align-items: center; gap: 12px; padding: 6px 12px; border-radius: 999px; background: rgba(255, 255, 255, 0.06); font-size: 11.5px; color: rgba(235, 238, 245, 0.82); }
+  .chip b { font-weight: 600; }
+  .in .chip b { color: #3DD68C; } .out .chip b { color: #FF7A7F; } .due .chip b { color: #F5C451; } .stock .chip b { color: #fff; }
+  .bf, .wl { font-size: 15.5px; line-height: 1.55; }
+  .bf { color: var(--muted); }
+  .wl { color: var(--fg); }
+  .bf span, .wl span { display: inline-block; min-width: 88px; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); }
+  .wl span { color: #5ED0F3; }
+  /* without script, or with reduced motion: a plain list of the six */
+  :global(.no-js) .win, :global(.reduced-motion) .win { height: auto; -webkit-mask-image: none; mask-image: none; }
+  :global(.no-js) .card, :global(.reduced-motion) .card { opacity: 1; }
+  :global(.no-js) .card[aria-hidden], :global(.reduced-motion) .card[aria-hidden] { display: none; }
+  @media (max-width: 860px) { .jf { grid-template-columns: minmax(0, 1fr); } .rail { display: none; } .win { height: 380px; } }
 </style>

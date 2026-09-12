@@ -19,15 +19,15 @@ const img = (name: string) => { const k = Object.keys(files).find((p) => p.endsW
 const shots = (names: [string, string][]) => names.map(([n, alt]) => ({ src: img(n), alt }));
 
 const breakdown = [
-  { k: 'Who it serves', v: 'Small business owners who are not accountants', s: 'Micro and small businesses across Nigeria' },
-  { k: 'What it covers', v: 'Sales, expenses, debts and stock', s: 'In one place, from one home screen' },
-  { k: 'Platforms', v: 'Mobile app, web app and system admin', s: 'Plus the public landing page' },
-  { k: 'Built for', v: 'Low internet and very little data', s: 'Offline first, by design' },
-  { k: 'My role', v: 'Product design lead', s: 'UX research, UX flows, UI and prototypes' },
+  { k: 'For', v: 'Small business owners', s: 'Micro and small businesses across Nigeria' },
+  { k: 'Covers', v: 'Sales, expenses, debts and stock', s: 'All in one app' },
+  { k: 'Platforms', v: 'Mobile app, web app and admin', s: 'Plus a landing page' },
+  { k: 'Works', v: 'With little or no internet', s: 'Built to use very little data' },
+  { k: 'My role', v: 'Product design lead', s: 'Research, UX flows, UI design and prototypes' },
   { k: 'Timeline', v: '2021 to 2022', s: 'UX flows mapped in 2021' },
 ];
 
-// the board: a small shop's books, as they are really kept
+// the board: the everyday bookkeeping of a small shop
 const colors = { in: '#A9E0A0', out: '#FFC9CF', owe: '#F7E36A', stock: '#9FD3F5', wallet: '#D8CCFF' };
 const notes: [string, string, string][] = [
   ['Record a sale at the counter', 'Sell', 'in'], ['Total sales today', 'Home', 'in'], ['Cash, transfer or POS', 'Payment', 'in'], ['Invoice #020921', 'Invoice', 'in'],
@@ -39,20 +39,21 @@ const notes: [string, string, string][] = [
   ['85 products', 'Products', 'stock'], ['Vintage bag, ₦20,000', 'Products', 'stock'], ['Edit a product', 'Products', 'stock'], ['Stock counted by eye', 'Before Luca', 'stock'],
   ['Upload a product photo', 'Products', 'stock'],
   ['Wallet balance ₦300,000', 'Wallet', 'wallet'], ['Deposit by bank transfer', 'Wallet', 'wallet'], ['Top up with a card', 'Wallet', 'wallet'], ['Create a PIN code', 'Onboarding', 'wallet'],
-  ['Electricity token', 'Bills', 'wallet'], ['Prepaid or postpaid meter', 'Bills', 'wallet'],
+  ['Pay for electricity', 'Bills', 'wallet'], ['Prepaid or postpaid meter', 'Bills', 'wallet'],
 ];
 const legend: [string, string][] = [['in', 'Money in'], ['out', 'Money out'], ['owe', 'Who owes whom'], ['stock', 'Stock'], ['wallet', 'Wallet and bills']];
 
 const process = [
-  ['Interviews and surveys', 'Talking to business owners about how they keep their books today, and where it breaks.'],
-  ['UX flows', 'In 2021 I mapped every flow in Whimsical: onboarding and a PIN, selling and buying, customers, stock, invoices and the wallet.'],
-  ['Wireframes and prototypes', 'Built in Figma and Framer, then put in front of owners as interactive prototypes.'],
-  ['User testing', 'Several rounds of testing with business owners, one flow at a time.'],
+  ['Interviews and surveys', 'I spoke with business owners about how they keep their books today and where it goes wrong.'],
+  ['UX flows', 'In 2021 I mapped every flow in Whimsical: sign-up and PIN, selling and buying, customers, stock, invoices and the wallet.'],
+  ['Design and prototypes', 'I designed the app in Figma and turned the key flows into clickable prototypes.'],
+  ['User testing', 'I tested each flow with business owners over several rounds.'],
 ];
-const results = [['50%', 'more accurate books'], ['30%', 'less time spent on bookkeeping'], ['80%', 'of users kept using it']];
+const results = [['50%', 'more accurate records'], ['30%', 'less time spent on bookkeeping'], ['80%', 'of users kept using the app']];
 ---
 <Base title={`${d.title} · Oluwayemi Akinbande`} ogTitle={d.title} description={d.summary}>
   <article class="study">
+    <div class="atmos" aria-hidden="true"></div>
     <header class="wrap head">
       <div class="lead">
         <p class="mono crumbs" data-reveal><a href="/work/">Work</a><span class="sep">/</span><span>{d.org}</span></p>
@@ -69,7 +70,7 @@ const results = [['50%', 'more accurate books'], ['30%', 'less time spent on boo
 
       <section class="sec">
         <div class="copy" data-reveal><h2>What was designed</h2></div>
-        <ul class="cards wide">
+        <ul class="cards wide" id="glance">
           {breakdown.map((b, i) => (
             <li class="bd" data-reveal data-reveal-delay={String((i % 3) * 0.08)}><span class="mono k">{b.k}</span><b>{b.v}</b><span class="s">{b.s}</span></li>
           ))}
@@ -79,7 +80,7 @@ const results = [['50%', 'more accurate books'], ['30%', 'less time spent on boo
       <section class="sec">
         <div class="copy" data-reveal>
           <h2>The home screen answers the first question</h2>
-          <p>How much did I sell today? Total sales sit at the top, Sell and Buy are one tap away, and every naira in or out is listed with its time and how it was paid.</p>
+          <p>How much did I sell today? Total sales sit at the top. Sell and Buy are one tap away. Every payment in or out is listed with its time and method.</p>
         </div>
         <div class="wide"><Stack items={shots([
           ['l1', 'Home: total sales, Sell and Buy, and every transaction with its time and channel'],
@@ -95,18 +96,18 @@ const results = [['50%', 'more accurate books'], ['30%', 'less time spent on boo
 
       <section class="sec">
         <div class="copy" data-reveal>
-          <h2>A shop's books, as they are really kept</h2>
-          <p>Sales in one notebook, debts in memory, stock counted by eye. Luca had to hold all of it without asking the owner to think like an accountant.</p>
+          <h2>A shop's books</h2>
+          <p>Everything a small shop keeps track of: sales, expenses, debts, stock and bills.</p>
         </div>
         <div class="wide"><StickyBoard id="luca-board" label="A small shop's bookkeeping jobs, grouped by money in, money out, debts, stock, and wallet and bills"
-          eyebrow="A small shop's books" sub="Twenty-eight of the jobs Luca holds, from a sale at the counter to a meter token at month end"
+          eyebrow="Everyday bookkeeping" sub="Twenty-eight everyday tasks Luca handles, from recording a sale to paying for electricity"
           notes={notes} legend={legend} colors={colors} /></div>
       </section>
 
       <section class="sec">
         <div class="copy" data-reveal>
-          <h2>Six jobs, one ledger</h2>
-          <p>Each line is a job the notebook did badly, and the screen that now does it.</p>
+          <h2>Six jobs, one app</h2>
+          <p>Each of these jobs was slow or easy to get wrong on paper. Here is what Luca does instead.</p>
         </div>
         <div class="wide"><LedgerStream /></div>
       </section>
@@ -127,10 +128,6 @@ const results = [['50%', 'more accurate books'], ['30%', 'less time spent on boo
       </section>
 
       <section class="sec">
-        <div class="copy" data-reveal>
-          <h2>The landing page</h2>
-          <p>Offline first, said in one line: record every transaction with little or no internet and minimal data. Then straight to the app stores, on a desktop and on a phone.</p>
-        </div>
         <div class="wide"><LucaLanding /></div>
       </section>
 
@@ -139,7 +136,7 @@ const results = [['50%', 'more accurate books'], ['30%', 'less time spent on boo
           <div class="close-l">
             <span class="eyebrow">Status</span>
             <h2>Live at luca.africa</h2>
-            <p>Designed for micro and small businesses across Nigeria, on the phone they already carry.</p>
+            <p>Built for micro and small businesses across Nigeria, on the phone they already use.</p>
             <div class="acts">
               {d.link && <a class="btn btn-ghost" href={d.link} target="_blank" rel="noopener noreferrer">Visit luca.africa<span class="sr-only"> (opens in a new tab)</span>
                 <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M5 11 11 5M11 5H6.2M11 5v4.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -161,11 +158,37 @@ const results = [['50%', 'more accurate books'], ['30%', 'less time spent on boo
   </article>
 </Base>
 
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  gsap.registerPlugin(ScrollTrigger);
+  // a slow light passes across each card, as on the Collga study
+  function glance() {
+    const el = document.getElementById('glance');
+    if (!el || el.dataset.init) return; el.dataset.init = '1';
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    gsap.to(el.querySelectorAll('.bd'), { '--sweep': '220%', duration: 5, ease: 'none', repeat: -1, stagger: { each: 0.35, repeat: -1 },
+      scrollTrigger: { trigger: el, start: 'top 90%', end: 'bottom 10%', toggleActions: 'play pause resume pause' } });
+  }
+  document.addEventListener('astro:page-load', glance);
+</script>
+
 <style>
-  /* Luca: no gradients anywhere; the colour comes from its own navy (#1E1F4B) and blue (#01B5EC) */
+  /* Luca's colours: navy (#1E1F4B) and blue (#01B5EC). No gradients on the product films or screens;
+     the page itself carries the project colour, taken deep, like the other studies. */
   .study { position: relative; padding-top: calc(var(--nav-h) + clamp(40px, 8vw, 96px)); padding-bottom: clamp(72px, 10vw, 140px); }
-  .head { position: relative; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr); gap: clamp(28px, 5vw, 72px); align-items: start; }
-  .head :global(.facts) { border-color: rgba(1, 181, 236, 0.24); }
+  .atmos { position: absolute; left: 0; right: 0; top: 0; height: min(92vh, 900px); pointer-events: none; z-index: 0; overflow: hidden;
+    background: linear-gradient(180deg, rgba(30, 31, 75, 0.5) 0%, rgba(30, 31, 75, 0.14) 45%, transparent 75%);
+    -webkit-mask-image: linear-gradient(180deg, #000 55%, transparent 100%); mask-image: linear-gradient(180deg, #000 55%, transparent 100%); }
+  .atmos::before, .atmos::after { content: ''; position: absolute; border-radius: 50%; filter: blur(36px); will-change: transform; }
+  .atmos::before { width: 72vw; height: 72vw; max-width: 1000px; max-height: 1000px; left: -16vw; top: -34vw; background: radial-gradient(circle, rgba(44, 46, 112, 1) 0%, rgba(30, 31, 75, 0.76) 38%, rgba(30, 31, 75, 0.22) 60%, transparent 72%); animation: driftA 22s ease-in-out infinite alternate; }
+  .atmos::after { width: 48vw; height: 48vw; max-width: 660px; max-height: 660px; right: -10vw; top: -6vw; background: radial-gradient(circle, rgba(1, 181, 236, 0.22) 0%, rgba(1, 181, 236, 0.09) 45%, transparent 70%); animation: driftB 26s ease-in-out infinite alternate; }
+  @keyframes driftA { from { transform: translate(0, 0); } to { transform: translate(6vw, 4vw); } }
+  @keyframes driftB { from { transform: translate(0, 0); } to { transform: translate(-5vw, 5vw); } }
+  @media (prefers-reduced-motion: reduce) { .atmos::before, .atmos::after { animation: none; } }
+  .head, .body { position: relative; z-index: 1; }
+  .head { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr); gap: clamp(28px, 5vw, 72px); align-items: start; }
+  .head :global(.facts) { border-color: rgba(1, 181, 236, 0.24); background: linear-gradient(180deg, rgba(30, 31, 75, 0.36), var(--surface) 60%); }
   .lead { display: grid; gap: 18px; }
   .crumbs { display: flex; gap: 10px; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); }
   .crumbs a:hover { color: var(--fg); } .sep { opacity: 0.5; }
@@ -180,7 +203,9 @@ const results = [['50%', 'more accurate books'], ['30%', 'less time spent on boo
   .wide { width: 100%; max-width: 1240px; margin: 0 auto; min-width: 0; }
 
   .cards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-  .bd { padding: clamp(22px, 2.6vw, 30px); display: grid; gap: 10px; align-content: start; border-radius: 16px; background: #1E1F4B; border: 1px solid rgba(1, 181, 236, 0.18); }
+  .bd { --sweep: -60%; position: relative; overflow: hidden; padding: clamp(22px, 2.6vw, 30px); display: grid; gap: 10px; align-content: start; border-radius: 16px;
+    border: 1px solid rgba(1, 181, 236, 0.18); background: linear-gradient(160deg, #1E1F4B 0%, #17183C 45%, #0F102A 100%); box-shadow: inset 0 1px 0 rgba(127, 217, 245, 0.10); }
+  .bd::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(115deg, transparent 0%, rgba(127, 217, 245, 0.13) 50%, transparent 100%); transform: translateX(var(--sweep)); }
   .bd .k { font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: #7FD9F5; }
   .bd b { font-size: clamp(17px, 1.6vw, 20px); font-weight: 600; letter-spacing: -0.02em; line-height: 1.3; color: #FFFFFF; }
   .bd .s { color: rgba(255,255,255,0.68); font-size: 13.5px; line-height: 1.5; }
@@ -197,7 +222,7 @@ const results = [['50%', 'more accurate books'], ['30%', 'less time spent on boo
   .stats span { color: var(--muted); font-size: 15px; }
   .note { font-size: 11px; letter-spacing: 0.06em; color: var(--dim); }
 
-  .close { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); border: 1px solid rgba(1, 181, 236, 0.22); border-radius: var(--r); overflow: hidden; background: var(--surface); }
+  .close { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); border: 1px solid rgba(1, 181, 236, 0.22); border-radius: var(--r); overflow: hidden; background: linear-gradient(160deg, #1B1C47 0%, var(--surface) 55%); }
   .close-l { padding: clamp(28px, 4vw, 48px); display: grid; gap: 14px; align-content: start; justify-items: start; }
   .close-l h2 { font-size: clamp(24px, 2.8vw, 34px); letter-spacing: -0.03em; }
   .close-l p { color: var(--muted); font-size: 15px; line-height: 1.65; max-width: 56ch; }

@@ -1,9 +1,10 @@
 ---
-/* The Luca landing page as a short film on #DFF4FF. It starts on his cover mockup; the brand mission and the
-   contact screens slide in from the right into the very same card; the page steps back and three phones rise
-   softly from the centre; each spins quickly to preview the next mobile screen; the logo closes the loop. */
+/* The Luca landing page as a short film on #DFF4FF.
+   1 the logo, circled by naira and the jobs of a small shop; 2 the orbit opens and the desktop hero grows out of it;
+   3 the other desktop sections turn in from the right, like a coverflow; 4 the page steps back and three phones
+   rise from the centre; 5 each spins quickly to preview its next screen; 6 they gather, and the loop begins again. */
 import { Image } from 'astro:assets';
-import cover from '../assets/luca/cover1.png';
+import hero from '../assets/luca/web-hero.png';
 import mission from '../assets/luca/web-mission.png';
 import contact from '../assets/luca/web-contact.png';
 import mHero from '../assets/luca/m-hero.png';
@@ -12,12 +13,30 @@ import mFooter from '../assets/luca/m-footer.png';
 import logoSvg from '../../public/luca/luca-logo.svg?raw';
 
 const mobile = [mHero, mMenu, mFooter];
+const line = (d: string) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`;
+const icons = [
+  { k: 'naira', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 18V6l8 12V6M5 10.5h14M5 13.5h14"/></svg>' },
+  { k: 'receipt', svg: line('M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6M9 16h3') },
+  { k: 'chart', svg: line('M4 20h16M7 16v-4M12 16V8M17 16V5') },
+  { k: 'stock', svg: line('M3 7.5 12 3l9 4.5-9 4.5-9-4.5zM3 7.5v9L12 21l9-4.5v-9M12 12v9') },
+  { k: 'wallet', svg: line('M4 7h14a2 2 0 0 1 2 2v9H4zM4 7l11-3v3M16 13.5h1.5') },
+  { k: 'people', svg: line('M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3.5 20c0-3.2 2.5-5.2 5.5-5.2s5.5 2 5.5 5.2M16 11.2a2.6 2.6 0 1 0 0-5.2M17.5 14.9c1.9.6 3 2.3 3 5.1') },
+];
 ---
-<figure class="land" id="luca-land" role="img" aria-label="The Luca landing page: the desktop hero, the brand mission and contact sections, then the mobile hero, menu and footer, playing on a loop">
+<figure class="land" id="luca-land" role="img" aria-label="The Luca landing page: the logo, the desktop hero, the brand mission and contact sections, then the mobile hero, menu and footer, playing on a loop">
   <div class="stage">
-    <div class="cover"><Image src={cover} alt="" width={2400} format="webp" quality={84} /></div>
-    <div class="card mission"><Image src={mission} alt="" width={2400} format="webp" quality={84} /></div>
-    <div class="card contact"><Image src={contact} alt="" width={2400} format="webp" quality={84} /></div>
+    <div class="orbit" aria-hidden="true">
+      <i class="ring r1"></i><i class="ring r2"></i>
+      <div class="spin">
+        {icons.map((ic, i) => <span class={`badge ${ic.k}`} style={`--a:${i * 60}deg`}><span class="up" set:html={ic.svg} /></span>)}
+      </div>
+    </div>
+    <div class="logo" aria-hidden="true" set:html={logoSvg} />
+    <div class="deck3d" aria-hidden="true">
+      <div class="card hero"><Image src={hero} alt="" width={2400} format="webp" quality={84} /></div>
+      <div class="card mission"><Image src={mission} alt="" width={2400} format="webp" quality={84} /></div>
+      <div class="card contact"><Image src={contact} alt="" width={2400} format="webp" quality={84} /></div>
+    </div>
     <div class="phones" aria-hidden="true">
       {[0, 1, 2].map((p) => (
         <div class="ph">
@@ -25,7 +44,6 @@ const mobile = [mHero, mMenu, mFooter];
         </div>
       ))}
     </div>
-    <div class="logo" aria-hidden="true" set:html={logoSvg} />
   </div>
 </figure>
 
@@ -36,29 +54,40 @@ const mobile = [mHero, mMenu, mFooter];
   function init() {
     const root = document.getElementById('luca-land');
     if (!root || root.dataset.init) return; root.dataset.init = '1';
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; // the cover stays, still
     const q = (s: string) => root.querySelector<HTMLElement>(s)!;
-    const cover = q('.cover'), mission = q('.mission'), contact = q('.contact'), logo = q('.logo');
-    const phones = [...root.querySelectorAll<HTMLElement>('.ph')];
+    const qa = (s: string) => [...root.querySelectorAll<HTMLElement>(s)];
+    const orbit = q('.orbit'), spin = q('.spin'), logo = q('.logo'), hero = q('.hero'), mission = q('.mission'), contact = q('.contact');
+    const rings = qa('.ring'), ups = qa('.up'), cards = [hero, mission, contact], phones = qa('.ph');
     const layers = phones.map((p) => [...p.querySelectorAll<HTMLElement>('.ly')]);
-    const show = (k: number) => layers.map((ls) => ls.map((l, j) => (j === k ? 1 : 0)));
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) { gsap.set(hero, { opacity: 1 }); gsap.set(orbit, { opacity: 0 }); return; } // the hero, still
     const tl = gsap.timeline({ repeat: -1, paused: true, defaults: { ease: 'power3.inOut' } });
-    // the next screens wait fully off stage to the right (130% of the card's width), so no sliver peeks in
-    tl.set(cover, { xPercent: 0, opacity: 1, scale: 1 }).set([mission, contact], { xPercent: 130, opacity: 1, scale: 1 })
-      .set(phones, { xPercent: 0, scale: 0.8, opacity: 0, rotationY: 0 }).set(logo, { opacity: 0, scale: 0.92 });
+    tl.set(orbit, { opacity: 1, scale: 1 }).set(rings, { scale: 0.6, opacity: 0 }).set(ups, { scale: 0, rotation: 0 }).set(spin, { rotation: 0 })
+      .set(logo, { opacity: 0, scale: 0.9 })
+      .set(cards, { opacity: 0, xPercent: 0, yPercent: 0, rotationY: 0, rotationX: 0, scale: 1 })
+      .set(phones, { xPercent: 0, scale: 0.8, opacity: 0, rotationY: 0 });
     layers.forEach((ls) => tl.set(ls, { opacity: (j: number) => (j === 0 ? 1 : 0) }, 0));
-    tl.to({}, { duration: 1.3 })
-      // the brand mission slides in from the right, into the same card
-      .to(mission, { xPercent: 0, duration: 0.8 }).to(cover, { xPercent: -34, opacity: 0, duration: 0.8 }, '<')
-      .to({}, { duration: 1.1 })
-      // then the contact section
-      .to(contact, { xPercent: 0, duration: 0.8 }).to(mission, { xPercent: -34, opacity: 0, duration: 0.8 }, '<')
-      .to({}, { duration: 1.1 })
-      // the page steps back and three phones rise softly out of the centre
-      .to(contact, { scale: 0.84, opacity: 0, duration: 0.6, ease: 'power2.inOut' })
+    // 1 the logo, circled by naira and the jobs of a small shop
+    tl.to(rings, { scale: 1, opacity: 1, duration: 0.6, ease: 'power3.out', stagger: 0.07 })
+      .to(logo, { opacity: 1, scale: 1, duration: 0.6, ease: 'power3.out' }, '<0.1')
+      .to(ups, { scale: 1, duration: 0.45, ease: 'back.out(1.8)', stagger: 0.05 }, '<0.15')
+      .to(spin, { rotation: 120, duration: 2.0, ease: 'power1.inOut' }, '<')
+      .to(ups, { rotation: -120, duration: 2.0, ease: 'power1.inOut' }, '<')
+      // 2 the orbit opens and the desktop hero grows out of it
+      .to([orbit, logo], { scale: 1.35, opacity: 0, duration: 0.7, ease: 'power2.in' }, '-=0.5')
+      .fromTo(hero, { opacity: 0, scale: 0.55, rotationX: 18, yPercent: 6 }, { opacity: 1, scale: 1, rotationX: 0, yPercent: 0, duration: 0.95, ease: 'power3.out' }, '-=0.35')
+      .to({}, { duration: 1.1 });
+    // 3 the other desktop sections turn in from the right, like a coverflow
+    const turn = (out: HTMLElement, inn: HTMLElement) => {
+      tl.to(out, { xPercent: -62, rotationY: 38, scale: 0.78, opacity: 0, duration: 0.95 })
+        .fromTo(inn, { xPercent: 62, rotationY: -38, scale: 0.78, opacity: 0 }, { xPercent: 0, rotationY: 0, scale: 1, opacity: 1, duration: 0.95 }, '<')
+        .to({}, { duration: 1.1 });
+    };
+    turn(hero, mission); turn(mission, contact);
+    // 4 the page steps back; three phones rise softly out of the centre
+    tl.to(contact, { scale: 0.82, rotationX: 10, opacity: 0, duration: 0.6, ease: 'power2.inOut' })
       .to(phones, { opacity: 1, scale: 1, xPercent: (i: number) => [-118, 0, 118][i], duration: 0.8, ease: 'power3.out', stagger: 0.05 }, '-=0.35')
-      .to({}, { duration: 0.9 });
-    // a quick spin on each phone previews its next screen
+      .to({}, { duration: 0.8 });
+    // 5 a quick spin on each phone previews its next screen
     [1, 2].forEach((k) => {
       const at = tl.duration();
       phones.forEach((p, i) => {
@@ -67,16 +96,11 @@ const mobile = [mHero, mMenu, mFooter];
           .set(layers[i], { opacity: (j: number) => (j === k ? 1 : 0) }, t0 + 0.22)
           .fromTo(p, { rotationY: -90 }, { rotationY: 0, duration: 0.26, ease: 'power2.out' }, t0 + 0.22);
       });
-      tl.to({}, { duration: 0.9 });
+      tl.to({}, { duration: 0.8 });
     });
-    // the phones gather and the logo closes the loop
-    tl.to(phones, { xPercent: 0, scale: 0.8, opacity: 0, duration: 0.5, ease: 'power2.in' })
-      .to(logo, { opacity: 1, scale: 1, duration: 0.6, ease: 'power3.out' })
-      .to({}, { duration: 1 })
-      .to(logo, { opacity: 0, duration: 0.4, ease: 'power2.in' })
-      .fromTo(cover, { xPercent: 0, opacity: 0, scale: 0.98 }, { opacity: 1, scale: 1, duration: 0.6, ease: 'power2.out' });
+    // 6 the phones gather and fade; the loop opens on the logo again
+    tl.to(phones, { xPercent: 0, scale: 0.8, opacity: 0, duration: 0.5, ease: 'power2.in' }).to({}, { duration: 0.25 });
     (root as any).__tl = tl; // lets a reviewer seek to any frame
-    void show;
     ScrollTrigger.create({ trigger: root, start: 'top 90%', end: 'bottom 10%', onToggle: (s) => (s.isActive ? tl.play() : tl.pause()) });
   }
   document.addEventListener('astro:page-load', init);
@@ -84,11 +108,21 @@ const mobile = [mHero, mMenu, mFooter];
 
 <style>
   .land { margin: 0; }
-  /* the same proportions as his cover mockup, so the cover fits exactly */
   .stage { position: relative; aspect-ratio: 2400 / 1557; background: #DFF4FF; border-radius: 16px; overflow: hidden; container-type: size; }
-  .cover { position: absolute; inset: 0; will-change: transform, opacity; }
-  .cover :global(img) { width: 100%; height: 100%; object-fit: cover; display: block; }
-  /* exactly where the browser card sits inside the cover mockup, measured from his file */
+  .orbit, .logo { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+  .ring { grid-area: 1 / 1; border-radius: 50%; border: 1px solid rgba(1, 181, 236, 0.55); }
+  .r1 { width: 90cqh; height: 90cqh; }
+  .r2 { width: 70cqh; height: 70cqh; border-color: rgba(1, 181, 236, 0.32); }
+  .spin { grid-area: 1 / 1; position: relative; width: 90cqh; height: 90cqh; }
+  .badge { position: absolute; left: 50%; top: 50%; width: 9cqh; height: 9cqh; margin: -4.5cqh 0 0 -4.5cqh;
+    transform: rotate(var(--a)) translateY(-45cqh) rotate(calc(-1 * var(--a))); }
+  .up { display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%; background: #fff; border: 0.5px solid #0B0B0C; color: #1E1F4B; }
+  .up :global(svg) { width: 52%; height: 52%; }
+  .naira .up { background: #01B5EC; border-color: #01B5EC; color: #fff; }
+  .logo { opacity: 0; }
+  .logo :global(svg) { width: 24%; height: auto; }
+  /* the desktop sections, exactly where the card sits in his cover mockup, turning in 3D */
+  .deck3d { position: absolute; inset: 0; perspective: 1800px; }
   .card { position: absolute; left: 11.938%; top: 13.969%; width: 76.125%; height: 72.126%; opacity: 0; will-change: transform, opacity; }
   .card :global(img) { width: 100%; height: 100%; object-fit: fill; display: block; }
   .phones { position: absolute; inset: 0; display: grid; place-items: center; perspective: 1400px; }
@@ -97,6 +131,4 @@ const mobile = [mHero, mMenu, mFooter];
   .ly { position: absolute; inset: 0; opacity: 0; }
   .ly:first-child { opacity: 1; }
   .ly :global(img) { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
-  .logo { position: absolute; inset: 0; display: grid; place-items: center; opacity: 0; pointer-events: none; }
-  .logo :global(svg) { width: 26%; height: auto; }
 </style>
