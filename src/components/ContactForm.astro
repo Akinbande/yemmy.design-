@@ -1,99 +1,114 @@
 ---
-/* The contact form, shared by the Get in touch panel and the /contact/ page.
-   Step 1 asks what brings someone here. Step 2 asks only what that kind of message needs: a recruiter is asked about the
-   role, a founder about the product, a colleague about the introduction. No budget or salary questions.
-   Sending: with PUBLIC_CONTACT_ENDPOINT set (a Formspree-style form URL) it posts JSON there; without it, it opens the
-   visitor's email app with every answer filled in, addressed to hello@yemmy.design. */
-interface Props { uid: string }
-const { uid } = Astro.props;
+/* The contact form on /contact/. One page, in short numbered sections:
+   1 what brings you here (five reasons), 2 about you, 3 about the role, project, product or introduction (only the
+   questions that reason needs), 4 the message. Everything after the first section opens once a reason is chosen, and
+   changes with it. No budget or salary questions.
+   Sending: with PUBLIC_CONTACT_ENDPOINT set (a Formspree-style form URL) the answers are posted as JSON; without it,
+   the visitor's email app opens with every answer filled in, addressed to hello@yemmy.design. */
 const endpoint = import.meta.env.PUBLIC_CONTACT_ENDPOINT ?? '';
 const EMAIL = 'hello@yemmy.design';
 const line = (d: string) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`;
 const intents = [
-  { v: 'hire', t: 'Hiring for a role', d: 'Full-time or contract, on your team', icon: line('M4 8h16v11H4zM9 8V5h6v3M4 13h16') },
+  { v: 'hire', t: 'Hiring for a role', d: 'A full-time or contract position', icon: line('M4 8h16v11H4zM9 8V5h6v3M4 13h16') },
   { v: 'project', t: 'A project or contract', d: 'Design work with a clear scope', icon: line('M12 3 3 8l9 5 9-5-9-5zM3 13l9 5 9-5') },
   { v: 'product', t: 'Redesigning a product', d: 'A SaaS or app that needs a fresh start', icon: line('M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5') },
-  { v: 'intro', t: 'An introduction', d: 'Recommending me, or inviting me to something', icon: line('M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3.5 20c0-3.2 2.5-5.2 5.5-5.2s5.5 2 5.5 5.2M16 11.2a2.6 2.6 0 1 0 0-5.2M17.5 14.9c1.9.6 3 2.3 3 5.1') },
-  { v: 'other', t: 'Something else', d: 'A question, a talk, or just hello', icon: line('M4 5h16v11H9l-5 4z') },
+  { v: 'intro', t: 'An introduction', d: 'A referral, a recommendation or an invitation', icon: line('M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3.5 20c0-3.2 2.5-5.2 5.5-5.2s5.5 2 5.5 5.2M16 11.2a2.6 2.6 0 1 0 0-5.2M17.5 14.9c1.9.6 3 2.3 3 5.1') },
+  { v: 'other', t: 'Something else', d: 'A question, a talk or a quick hello', icon: line('M4 5h16v11H9l-5 4z') },
 ];
 const when = ['As soon as possible', 'In 1 to 3 months', 'Later'];
-const id = (n: string) => `${uid}-${n}`;
+// a group of pill choices: radios pick one, checkboxes pick any
+const chips = (name: string, options: string[], multi = false) => options.map((o) => ({ name, o, type: multi ? 'checkbox' : 'radio' }));
 ---
-<form class="cf" data-contact-form data-endpoint={endpoint} data-email={EMAIL} novalidate>
+<form class="cf" id="contact-form" data-endpoint={endpoint} data-email={EMAIL} novalidate>
+  <p class="req">Fields marked <i>*</i> are required.</p>
   <div class="hp" aria-hidden="true"><label>Leave this empty <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" /></label></div>
-  <div class="progress mono" aria-hidden="true"><span class="pb on"></span><span class="pb"></span><span class="count">Step <b>1</b> of 2</span></div>
+  <div class="summary" role="alert" tabindex="-1" hidden></div>
 
-  <fieldset class="step" data-step="1">
-    <legend class="q">What brings you here?</legend>
+  <fieldset class="sec">
+    <legend class="h"><span class="n" aria-hidden="true"></span><span>What brings you here?&nbsp;<i>*</i></span></legend>
     <div class="intents">
       {intents.map((it) => (
         <label class="intent">
-          <input type="radio" name="intent" value={it.v} required />
+          <input type="radio" name="intent" value={it.v} required aria-describedby="cf-intent-err" />
           <span class="ic" set:html={it.icon} />
           <span class="txt"><b>{it.t}</b><span>{it.d}</span></span>
           <span class="tick" aria-hidden="true"></span>
         </label>
       ))}
     </div>
-    <p class="err step-err" role="alert" hidden>Choose one to continue.</p>
-    <div class="actions"><button type="button" class="btn btn-primary next">Continue
-      <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+    <span class="err" id="cf-intent-err" data-missing="Choose what brings you here."></span>
   </fieldset>
 
-  <div class="step" data-step="2" hidden>
-    <div class="chosen"><span class="mono">About</span><b data-chosen></b><button type="button" class="change">Change</button></div>
-    <div class="grid2">
-      <label class="f"><span class="l">Your name <i>*</i></span><input id={id('name')} name="name" autocomplete="name" required /><span class="err">Add your name.</span></label>
-      <label class="f"><span class="l">Work email <i>*</i></span><input id={id('email')} type="email" name="email" autocomplete="email" required /><span class="err">Add an email I can reply to.</span></label>
-      <label class="f"><span class="l">Company or organisation</span><input name="company" autocomplete="organization" /></label>
-      <label class="f"><span class="l">Your role</span><input name="title" autocomplete="organization-title" placeholder="Talent partner or founder" /></label>
+  <div class="rest" hidden>
+    <fieldset class="sec">
+      <legend class="h"><span class="n" aria-hidden="true"></span>About you</legend>
+      <div class="grid2">
+        <div class="f"><label for="cf-name">Full name <i>*</i></label><input id="cf-name" name="name" autocomplete="name" required aria-describedby="cf-name-err" /><span class="err" id="cf-name-err" data-missing="Add your name."></span></div>
+        <div class="f"><label for="cf-email">Work email <i>*</i></label><input id="cf-email" type="email" name="email" autocomplete="email" required aria-describedby="cf-email-err" /><span class="err" id="cf-email-err" data-missing="Add an email I can reply to." data-bad="Check the email address, for example name@company.com."></span></div>
+        <div class="f"><label for="cf-company">Company <i data-company-req>*</i></label><input id="cf-company" name="company" autocomplete="organization" aria-describedby="cf-company-err" /><span class="err" id="cf-company-err" data-missing="Add your company."></span></div>
+        <div class="f"><label for="cf-title">Your job title</label><input id="cf-title" name="title" autocomplete="organization-title" placeholder="Talent partner, founder" /></div>
+      </div>
+    </fieldset>
+
+    <fieldset class="sec more" data-for="hire" disabled>
+      <legend class="h"><span class="n" aria-hidden="true"></span>About the role</legend>
+      <div class="f"><label for="cf-role">Role title <i>*</i></label><input id="cf-role" name="role" required placeholder="Senior Product Designer" aria-describedby="cf-role-err" /><span class="err" id="cf-role-err" data-missing="Add the role title."></span></div>
+      <fieldset class="f"><legend>Employment type</legend><div class="chips">{chips('type', ['Full-time', 'Contract', 'Part-time']).map((c) => <label class="chip"><input type={c.type} name={c.name} value={c.o} /><span>{c.o}</span></label>)}</div></fieldset>
+      <div class="grid2">
+        <fieldset class="f"><legend>Work setup</legend><div class="chips">{chips('setup', ['Remote', 'Hybrid', 'On-site']).map((c) => <label class="chip"><input type={c.type} name={c.name} value={c.o} /><span>{c.o}</span></label>)}</div></fieldset>
+        <div class="f"><label for="cf-location">Location</label><input id="cf-location" name="location" placeholder="City, country" /></div>
+      </div>
+      <div class="f"><label for="cf-jobpost">Link to the job post</label><input id="cf-jobpost" name="link" type="text" inputmode="url" autocomplete="url" data-link placeholder="company.com/careers/role" aria-describedby="cf-jobpost-err" /><span class="err" id="cf-jobpost-err" data-bad="Check the link, for example company.com/careers/role."></span></div>
+      <fieldset class="f"><legend>Ideal start</legend><div class="chips">{chips('start', when).map((c) => <label class="chip"><input type={c.type} name={c.name} value={c.o} /><span>{c.o}</span></label>)}</div></fieldset>
+    </fieldset>
+
+    <fieldset class="sec more" data-for="project" disabled>
+      <legend class="h"><span class="n" aria-hidden="true"></span>About the project</legend>
+      <fieldset class="f"><legend>What do you need? <span class="opt">Choose any</span></legend><div class="chips">{chips('needs', ['Service design', 'UX and UI design', 'Design system', 'Research and testing', 'Accessibility review'], true).map((c) => <label class="chip"><input type={c.type} name={c.name} value={c.o} /><span>{c.o}</span></label>)}</div></fieldset>
+      <fieldset class="f"><legend>Timeline</legend><div class="chips">{chips('timeline', when).map((c) => <label class="chip"><input type={c.type} name={c.name} value={c.o} /><span>{c.o}</span></label>)}</div></fieldset>
+      <div class="f"><label for="cf-brief">Link to a brief</label><input id="cf-brief" name="link" type="text" inputmode="url" data-link placeholder="docs.google.com/..." aria-describedby="cf-brief-err" /><span class="err" id="cf-brief-err" data-bad="Check the link, for example docs.google.com/your-brief."></span></div>
+    </fieldset>
+
+    <fieldset class="sec more" data-for="product" disabled>
+      <legend class="h"><span class="n" aria-hidden="true"></span>About the product</legend>
+      <div class="grid2">
+        <div class="f"><label for="cf-product">Product name <i>*</i></label><input id="cf-product" name="product" required aria-describedby="cf-product-err" /><span class="err" id="cf-product-err" data-missing="Add the product's name."></span></div>
+        <div class="f"><label for="cf-plink">Product link</label><input id="cf-plink" name="link" type="text" inputmode="url" data-link placeholder="yourproduct.com" aria-describedby="cf-plink-err" /><span class="err" id="cf-plink-err" data-bad="Check the link, for example yourproduct.com."></span></div>
+      </div>
+      <fieldset class="f"><legend>What needs work? <span class="opt">Choose any</span></legend><div class="chips">{chips('needs', ['Onboarding', 'Core workflows', 'Dashboard', 'Design system', 'The whole product'], true).map((c) => <label class="chip"><input type={c.type} name={c.name} value={c.o} /><span>{c.o}</span></label>)}</div></fieldset>
+      <div class="grid2">
+        <fieldset class="f"><legend>Stage</legend><div class="chips">{chips('stage', ['In design', 'Live', 'Scaling']).map((c) => <label class="chip"><input type={c.type} name={c.name} value={c.o} /><span>{c.o}</span></label>)}</div></fieldset>
+        <fieldset class="f"><legend>Timeline</legend><div class="chips">{chips('timeline', when).map((c) => <label class="chip"><input type={c.type} name={c.name} value={c.o} /><span>{c.o}</span></label>)}</div></fieldset>
+      </div>
+    </fieldset>
+
+    <fieldset class="sec more" data-for="intro" disabled>
+      <legend class="h"><span class="n" aria-hidden="true"></span>About the introduction</legend>
+      <div class="f"><label for="cf-about">What is it for? <i>*</i></label><input id="cf-about" name="about" required placeholder="A role, a project, a talk or a panel" aria-describedby="cf-about-err" /><span class="err" id="cf-about-err" data-missing="Tell me what it is for."></span></div>
+      <div class="f"><label for="cf-how">How do you know my work?</label>
+        <select id="cf-how" name="how"><option value="">Choose one</option><option>We worked together</option><option>Through someone I know</option><option>I found this site</option><option>Another way</option></select>
+      </div>
+    </fieldset>
+
+    <div class="sec">
+      <label class="h" for="cf-message"><span class="n" aria-hidden="true"></span><span><span data-msg-label>Your message</span>&nbsp;<i data-msg-req>*</i></span></label>
+      <p class="help" id="cf-message-help" data-msg-help>Your question or note.</p>
+      <textarea id="cf-message" name="message" rows="6" required aria-describedby="cf-message-help cf-message-err"></textarea>
+      <span class="err" id="cf-message-err" data-missing="Add a short message."></span>
     </div>
 
-    <fieldset class="more" data-for="hire" disabled>
-      <label class="f"><span class="l">Role you are hiring for <i>*</i></span><input name="role" required placeholder="Senior Product Designer" /><span class="err">Add the role.</span></label>
-      <fieldset class="f"><legend class="l">Type</legend><div class="chips">{['Full-time', 'Contract', 'Part-time'].map((o) => <label class="chip"><input type="radio" name="type" value={o} /><span>{o}</span></label>)}</div></fieldset>
-      <div class="grid2">
-        <fieldset class="f"><legend class="l">Where</legend><div class="chips">{['Remote', 'Hybrid', 'On-site'].map((o) => <label class="chip"><input type="radio" name="setup" value={o} /><span>{o}</span></label>)}</div></fieldset>
-        <label class="f"><span class="l">Location</span><input name="location" placeholder="City, country" /></label>
-      </div>
-      <label class="f"><span class="l">Link to the job post</span><input type="url" name="link" placeholder="https://" /><span class="err">Use a full link, starting with https://</span></label>
-      <fieldset class="f"><legend class="l">When would they start?</legend><div class="chips">{when.map((o) => <label class="chip"><input type="radio" name="start" value={o} /><span>{o}</span></label>)}</div></fieldset>
-    </fieldset>
-
-    <fieldset class="more" data-for="project" disabled>
-      <fieldset class="f"><legend class="l">What do you need?</legend><div class="chips">{['Service design', 'UX and UI design', 'Design system', 'Research', 'Accessibility review'].map((o) => <label class="chip"><input type="checkbox" name="needs" value={o} /><span>{o}</span></label>)}</div></fieldset>
-      <fieldset class="f"><legend class="l">Timeline</legend><div class="chips">{when.map((o) => <label class="chip"><input type="radio" name="timeline" value={o} /><span>{o}</span></label>)}</div></fieldset>
-      <label class="f"><span class="l">Link to a brief or product</span><input type="url" name="link" placeholder="https://" /><span class="err">Use a full link, starting with https://</span></label>
-    </fieldset>
-
-    <fieldset class="more" data-for="product" disabled>
-      <div class="grid2">
-        <label class="f"><span class="l">Product name <i>*</i></span><input name="product" required /><span class="err">Add the product's name.</span></label>
-        <label class="f"><span class="l">Product link</span><input type="url" name="link" placeholder="https://" /><span class="err">Use a full link, starting with https://</span></label>
-      </div>
-      <fieldset class="f"><legend class="l">What needs work?</legend><div class="chips">{['Onboarding', 'Core workflows', 'Dashboard', 'Design system', 'The whole product'].map((o) => <label class="chip"><input type="checkbox" name="needs" value={o} /><span>{o}</span></label>)}</div></fieldset>
-      <fieldset class="f"><legend class="l">Where is it now?</legend><div class="chips">{['In design', 'Live', 'Scaling'].map((o) => <label class="chip"><input type="radio" name="stage" value={o} /><span>{o}</span></label>)}</div></fieldset>
-      <fieldset class="f"><legend class="l">Timeline</legend><div class="chips">{when.map((o) => <label class="chip"><input type="radio" name="timeline" value={o} /><span>{o}</span></label>)}</div></fieldset>
-    </fieldset>
-
-    <fieldset class="more" data-for="intro" disabled>
-      <label class="f"><span class="l">What is it for? <i>*</i></span><input name="about" required placeholder="A role, a project, a talk or a panel" /><span class="err">Tell me what it is for.</span></label>
-      <label class="f"><span class="l">How do you know my work?</span>
-        <select name="how"><option value="">Choose one</option><option>We worked together</option><option>Through someone I know</option><option>I found this site</option><option>Another way</option></select>
-      </label>
-    </fieldset>
-
-    <label class="f"><span class="l"><span data-msg-label>Your message</span> <i data-msg-req>*</i></span><textarea name="message" rows="5" required data-msg></textarea><span class="err">Add a short message.</span></label>
-    <p class="err send-err" role="alert" hidden>That did not send. Please try again, or write to <a href={`mailto:${EMAIL}`}>{EMAIL}</a>.</p>
-    <div class="actions">
-      <button type="submit" class="btn btn-primary send">Send message</button>
-      <span class="fine">Your details are only used to reply to you.</span>
+    <div class="send-row">
+      <button type="submit" class="btn btn-primary send">Send message
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <p class="fine">Your details are used only to reply to you. Nothing goes on a mailing list.</p>
     </div>
+    <p class="send-err" role="alert" hidden>That did not send. Please try again, or write to <a href={`mailto:${EMAIL}`}>{EMAIL}</a>.</p>
   </div>
 
-  <div class="step done" data-step="3" hidden tabindex="-1">
+  <div class="done" tabindex="-1" hidden>
     <span class="ok" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.2 4.2L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-    <h3 data-done-title>Thank you.</h3>
+    <h2 data-done-title>Thank you.</h2>
     <p data-done-text></p>
     <button type="button" class="btn btn-ghost again">Send another message</button>
   </div>
@@ -101,89 +116,116 @@ const id = (n: string) => `${uid}-${n}`;
 
 <script>
   const TITLES: Record<string, string> = { hire: 'Hiring for a role', project: 'A project or contract', product: 'Redesigning a product', intro: 'An introduction', other: 'Something else' };
-  // the message field changes with the reason: its label, its prompt, and whether it is needed (a recruiter's details are enough)
+  // the message changes with the reason: its heading, its helper line, and whether it is needed (a recruiter's details are enough)
   const MSG: Record<string, [string, string, boolean]> = {
     hire: ['Anything else I should know?', 'The team, the product and the interview steps.', false],
-    project: ['Tell me about the project', 'What you are building, who it is for, and what good looks like.', true],
+    project: ['Tell me about the project', 'What you are building, who it is for, and what a good result looks like.', true],
     product: ['What is not working today?', 'What feels hard for your users, and what you want to change.', true],
     intro: ['Tell me more', 'Who you would like to introduce me to, and why.', true],
     other: ['Your message', 'Your question or note.', true],
   };
-  const LABELS: [string, string][] = [['name', 'Name'], ['email', 'Email'], ['company', 'Company'], ['title', 'Their role'], ['role', 'Hiring for'], ['type', 'Type'],
-    ['setup', 'Where'], ['location', 'Location'], ['start', 'Start'], ['product', 'Product'], ['stage', 'Stage'], ['needs', 'Needs'], ['timeline', 'Timeline'],
+  const COMPANY_NEEDED = ['hire', 'project', 'product'];
+  const LABELS: [string, string][] = [['name', 'Name'], ['email', 'Email'], ['company', 'Company'], ['title', 'Job title'], ['role', 'Role'], ['type', 'Employment type'],
+    ['setup', 'Work setup'], ['location', 'Location'], ['start', 'Ideal start'], ['product', 'Product'], ['stage', 'Stage'], ['needs', 'Needs'], ['timeline', 'Timeline'],
     ['about', 'For'], ['how', 'Knows my work'], ['link', 'Link'], ['message', 'Message']];
+  // links are accepted as people paste them; a missing https:// is added, and a link needs at least a dot
+  const fixLink = (v: string) => (v && !/^https?:\/\//i.test(v) ? `https://${v}` : v);
+  const linkOk = (v: string) => !v || /^[^\s]+\.[^\s]{2,}$/.test(v.replace(/^https?:\/\//i, ''));
 
-  function initForm(form: HTMLFormElement) {
-    if (form.dataset.init) return; form.dataset.init = '1';
-    const steps = [...form.querySelectorAll<HTMLElement>('.step')];
-    const progress = form.querySelector<HTMLElement>('.progress')!;
+  function init() {
+    const form = document.getElementById('contact-form') as HTMLFormElement | null;
+    if (!form || form.dataset.init) return; form.dataset.init = '1';
+    const rest = form.querySelector<HTMLElement>('.rest')!, done = form.querySelector<HTMLElement>('.done')!, summary = form.querySelector<HTMLElement>('.summary')!;
     let intent = '';
-    const show = (n: number, focus = true) => {
-      steps.forEach((s) => (s.hidden = s.dataset.step !== String(n)));
-      progress.hidden = n === 3;
-      progress.querySelectorAll('.pb').forEach((b, i) => b.classList.toggle('on', i < n));
-      progress.querySelector('b')!.textContent = String(Math.min(n, 2));
-      if (!focus) return;
-      const step = steps.find((s) => s.dataset.step === String(n))!;
-      const target = n === 3 ? step : step.querySelector<HTMLElement>(n === 1 ? 'input[name="intent"]:checked, input[name="intent"]' : 'input:not([type=hidden]), textarea');
-      target?.focus({ preventScroll: true });
-    };
-    const pick = (v: string) => {
+
+    const choose = (v: string) => {
       intent = v;
       form.querySelectorAll<HTMLFieldSetElement>('.more').forEach((f) => (f.disabled = f.dataset.for !== v));
-      form.querySelector('[data-chosen]')!.textContent = TITLES[v];
-      const [label, hint, req] = MSG[v];
-      const msg = form.querySelector<HTMLTextAreaElement>('[data-msg]')!;
+      const [label, help, needed] = MSG[v];
       form.querySelector('[data-msg-label]')!.textContent = label;
-      (form.querySelector('[data-msg-req]') as HTMLElement).hidden = !req;
-      msg.placeholder = hint; msg.required = req;
-      form.querySelector<HTMLElement>('.step-err')!.hidden = true;
-      show(2);
+      form.querySelector('[data-msg-help]')!.textContent = help;
+      (form.querySelector('[data-msg-req]') as HTMLElement).hidden = !needed;
+      (form.querySelector('#cf-message') as HTMLTextAreaElement).required = needed;
+      const company = form.querySelector<HTMLInputElement>('#cf-company')!;
+      company.required = COMPANY_NEEDED.includes(v);
+      (form.querySelector('[data-company-req]') as HTMLElement).hidden = !company.required;
+      clear(form.querySelector<HTMLElement>('#cf-intent-err')!);
+      form.querySelectorAll('input[name="intent"][aria-invalid]').forEach((r) => r.removeAttribute('aria-invalid'));
+      const first = rest.hidden;
+      rest.hidden = false;
+      if (first) rest.animate?.([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 320, easing: 'cubic-bezier(.2,.7,.2,1)' });
     };
-    // a pointer tap on a reason moves on at once; keyboard users choose with the arrow keys, then press Continue
-    form.querySelectorAll<HTMLInputElement>('input[name="intent"]').forEach((inp) => {
-      inp.closest('.intent')!.addEventListener('pointerup', () => setTimeout(() => pick(inp.value), 160));
-    });
-    form.querySelector('.next')!.addEventListener('click', () => {
-      const c = form.querySelector<HTMLInputElement>('input[name="intent"]:checked');
-      if (c) pick(c.value); else form.querySelector<HTMLElement>('.step-err')!.hidden = false;
-    });
-    form.querySelector('.change')!.addEventListener('click', () => show(1));
-    form.querySelector('.again')!.addEventListener('click', () => { form.reset(); intent = ''; form.classList.remove('show-errors'); show(1); });
+    form.querySelectorAll<HTMLInputElement>('input[name="intent"]').forEach((r) => r.addEventListener('change', () => choose(r.value)));
+
+    // errors: each field says what is wrong in its own words; a summary at the top counts them
+    const errOf = (el: HTMLElement) => document.getElementById(`${el.id}-err`) ?? (el.name === 'intent' ? form.querySelector<HTMLElement>('#cf-intent-err') : null);
+    function clear(err: HTMLElement | null, el?: HTMLElement) { if (err) { err.textContent = ''; err.hidden = true; } el?.removeAttribute('aria-invalid'); }
+    const check = (el: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement): boolean => {
+      const err = errOf(el);
+      let msg = '';
+      if (el.validity.valueMissing) msg = err?.dataset.missing ?? 'This is required.';
+      else if (el.validity.typeMismatch) msg = err?.dataset.bad ?? 'Check this field.';
+      else if ('dataset' in el && (el as HTMLInputElement).dataset.link !== undefined && !linkOk(el.value.trim())) msg = err?.dataset.bad ?? 'Check the link.';
+      if (!msg) { clear(err, el); return true; }
+      if (err) { err.textContent = msg; err.hidden = false; }
+      el.setAttribute('aria-invalid', 'true');
+      return false;
+    };
+    form.querySelectorAll<HTMLElement>('.err').forEach((e) => (e.hidden = true));
+    form.addEventListener('input', (e) => { const el = e.target as HTMLInputElement; if (el.getAttribute('aria-invalid')) check(el); });
+    form.addEventListener('focusout', (e) => { const el = e.target as HTMLInputElement; if (el.matches('input:not([type=radio]):not([type=checkbox]), textarea') && el.value) check(el); });
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       if ((form.elements.namedItem('_gotcha') as HTMLInputElement)?.value) return;   // a bot filled the hidden field
-      form.classList.add('show-errors');
-      if (!intent || !form.checkValidity()) { form.querySelector<HTMLElement>('.step[data-step="2"] :invalid:not(fieldset)')?.focus(); return; }
+      const fields = [...form.querySelectorAll<HTMLInputElement>('input, textarea, select')].filter((el) => !el.disabled && el.name && el.name !== '_gotcha' && !el.closest('[hidden]') && el.type !== 'checkbox' && !(el.type === 'radio' && el.name !== 'intent'));
+      const seen = new Set<string>();
+      const bad = fields.filter((el) => { if (el.type === 'radio') { if (seen.has(el.name)) return false; seen.add(el.name); } return !check(el); });
+      if (bad.length) {
+        summary.textContent = bad.length === 1 ? 'One answer needs a look before this can be sent.' : `${bad.length} answers need a look before this can be sent.`;
+        summary.hidden = false;
+        bad[0].focus();
+        return;
+      }
+      summary.hidden = true;
+      form.querySelectorAll<HTMLInputElement>('[data-link]').forEach((el) => { if (!el.disabled) el.value = fixLink(el.value.trim()); });
       const fd = new FormData(form);
       const rows: [string, string][] = [['About', TITLES[intent]]];
       LABELS.forEach(([k, lab]) => { const v = fd.getAll(k).map((x) => String(x).trim()).filter(Boolean); if (v.length) rows.push([lab, v.join(', ')]); });
       const name = String(fd.get('name') || '').trim(), email = String(fd.get('email') || '').trim(), company = String(fd.get('company') || '').trim();
       const subject = `${TITLES[intent]}: ${name}${company ? ` at ${company}` : ''}`;
       const send = form.querySelector<HTMLButtonElement>('.send')!, err = form.querySelector<HTMLElement>('.send-err')!;
-      const done = (viaMail: boolean) => {
+      const finish = (viaMail: boolean) => {
         form.querySelector('[data-done-title]')!.textContent = `Thank you, ${name.split(' ')[0]}.`;
         form.querySelector('[data-done-text]')!.textContent = viaMail
           ? `Your email app should now be open with your message ready. Press send there to finish. If nothing opened, write to ${form.dataset.email}.`
           : `Your message is on its way. I'll reply to ${email}.`;
-        form.classList.remove('show-errors'); show(3);
+        form.querySelectorAll<HTMLElement>(':scope > :not(.done)').forEach((el) => (el.hidden = true));
+        done.hidden = false; done.focus();
       };
       err.hidden = true;
       if (form.dataset.endpoint) {
-        send.disabled = true; send.textContent = 'Sending';
+        send.disabled = true;
         try {
           const r = await fetch(form.dataset.endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
             body: JSON.stringify({ ...Object.fromEntries(rows), _replyto: email, _subject: subject }) });
           if (!r.ok) throw new Error(String(r.status));
-          done(false);
+          finish(false);
         } catch { err.hidden = false; }
-        send.disabled = false; send.textContent = 'Send message';
+        send.disabled = false;
       } else {
-        const body = rows.map(([k, v]) => `${k}: ${v}`).join('\n');
-        window.location.href = `mailto:${form.dataset.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-        done(true);
+        window.location.href = `mailto:${form.dataset.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(rows.map(([k, v]) => `${k}: ${v}`).join('\n'))}`;
+        finish(true);
       }
+    });
+
+    form.querySelector('.again')!.addEventListener('click', () => {
+      form.reset(); intent = '';
+      form.querySelectorAll<HTMLElement>(':scope > .req, :scope > fieldset').forEach((el) => (el.hidden = false));
+      rest.hidden = true; done.hidden = true; summary.hidden = true;
+      form.querySelectorAll<HTMLElement>('.err').forEach((e) => clear(e));
+      form.querySelectorAll('[aria-invalid]').forEach((el) => el.removeAttribute('aria-invalid'));
+      form.querySelector<HTMLInputElement>('input[name="intent"]')?.focus();
     });
   }
   function initCopy() {
@@ -194,81 +236,84 @@ const id = (n: string) => `${uid}-${n}`;
       });
     });
   }
-  document.addEventListener('astro:page-load', () => { document.querySelectorAll<HTMLFormElement>('[data-contact-form]').forEach(initForm); initCopy(); });
+  document.addEventListener('astro:page-load', () => { init(); initCopy(); });
 </script>
 
 <style>
-  .cf { display: grid; gap: 22px; }
+  .cf { display: grid; gap: 30px; counter-reset: sec; }
+  .req { font-size: 13px; color: var(--dim); }
+  .req i, .h i, label i { font-style: normal; color: var(--accent); }
   .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .summary { padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255, 138, 122, 0.45); background: rgba(255, 138, 122, 0.08); color: #FFB3A8; font-size: 14px; outline: none; }
   fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
-  .step { display: grid; gap: 18px; }
-  .progress { display: flex; align-items: center; gap: 6px; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); }
-  .pb { width: 28px; height: 3px; border-radius: 3px; background: var(--line-a); transition: background 0.3s var(--ease); }
-  .pb.on { background: var(--accent); }
-  .count { margin-left: 8px; }
-  .count b { color: var(--fg); font-weight: 500; }
-  .q { font-size: 19px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 14px; padding: 0; }
+  legend { padding: 0; }
 
-  /* the reasons: five cards, each a radio */
-  .intents { display: grid; gap: 10px; }
-  .intent { position: relative; display: grid; grid-template-columns: 42px 1fr 20px; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 14px; cursor: pointer;
-    border: 1px solid var(--line-a); background: rgba(235, 238, 245, 0.025); transition: border-color 0.2s, background 0.2s, transform 0.2s var(--ease); }
-  .intent:hover { border-color: rgba(235, 238, 245, 0.22); background: rgba(235, 238, 245, 0.05); transform: translateY(-1px); }
+  /* numbered sections: 01, 02, 03... counted only when shown */
+  .sec { display: grid; gap: 16px; counter-increment: sec; }
+  .rest { display: grid; gap: 30px; padding-top: 28px; border-top: 1px solid var(--line-a); }
+  .rest[hidden] { display: none; }
+  .more[disabled] { display: none; }
+  .h { display: flex; align-items: baseline; gap: 12px; font-size: 18px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 2px; color: var(--fg); }
+  .n::before { content: counter(sec, decimal-leading-zero); font-family: var(--mono); font-size: 11px; font-weight: 400; letter-spacing: 0.1em; color: var(--accent); }
+  .help { margin-top: -8px; font-size: 13.5px; color: var(--muted); }
+
+  /* the reasons: five cards in two columns, each a radio */
+  .intents { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .intent { position: relative; display: grid; grid-template-columns: 40px 1fr 20px; align-items: center; gap: 12px; padding: 14px 14px 14px 12px; border-radius: 14px; cursor: pointer;
+    border: 1px solid var(--line-a); background: rgba(235, 238, 245, 0.025); transition: border-color 0.2s, background 0.2s; }
+  .intent:last-child { grid-column: 1 / -1; }
+  .intent:hover { border-color: rgba(235, 238, 245, 0.22); background: rgba(235, 238, 245, 0.05); }
   .intent input { position: absolute; opacity: 0; pointer-events: none; }
-  .intent .ic { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; background: rgba(235, 238, 245, 0.05); color: var(--fg); }
-  .intent .ic :global(svg) { width: 20px; height: 20px; }
-  .txt { display: grid; gap: 2px; }
-  .txt b { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
-  .txt span { font-size: 13px; color: var(--muted); }
+  .intent .ic { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 11px; background: rgba(235, 238, 245, 0.05); color: var(--fg); }
+  .intent .ic :global(svg) { width: 19px; height: 19px; }
+  .txt { display: grid; gap: 2px; min-width: 0; }
+  .txt b { font-size: 14.5px; font-weight: 600; letter-spacing: -0.01em; }
+  .txt span { font-size: 12.5px; color: var(--muted); line-height: 1.4; }
   .tick { width: 20px; height: 20px; border-radius: 50%; border: 1px solid var(--line); transition: all 0.2s; }
   .intent:has(input:checked) { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 9%, transparent); }
   .intent:has(input:checked) .ic { background: color-mix(in srgb, var(--accent) 22%, transparent); color: #fff; }
   .intent:has(input:checked) .tick { border-color: var(--accent); background: var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m6 12.5 4 4L18 8' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 14px no-repeat; }
   .intent:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .intent:has(input[aria-invalid]) { border-color: rgba(255, 138, 122, 0.6); }
 
-  .chosen { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 12px; border: 1px solid var(--line-a); background: rgba(235, 238, 245, 0.03); font-size: 14px; }
-  .chosen .mono { font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); }
-  .change { margin-left: auto; background: none; border: 0; color: var(--accent); font: inherit; font-size: 13.5px; cursor: pointer; padding: 6px 4px; min-height: 32px; }
-  .more { display: grid; gap: 16px; }
-  .more[disabled] { display: none; }
-  .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 12px; }
+  .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 14px; }
 
-  /* fields */
-  .f { display: grid; gap: 7px; min-width: 0; }
-  .l { font-size: 13px; color: var(--muted); padding: 0; }
-  .l i { font-style: normal; color: var(--accent); }
+  /* fields: the label above, a helper or error below */
+  .f { display: grid; gap: 7px; min-width: 0; align-content: start; }
+  .f > label, .f > legend { font-size: 13.5px; color: var(--muted); }
+  .opt { margin-left: 6px; font-size: 12px; color: var(--dim); }
   input:not([type=radio]):not([type=checkbox]), select, textarea {
     width: 100%; font: 400 15px/1.4 var(--sans); color: var(--fg); background: rgba(235, 238, 245, 0.04); border: 1px solid var(--line-a); border-radius: 10px;
     padding: 12px 14px; min-height: 46px; transition: border-color 0.2s, background 0.2s; }
-  textarea { resize: vertical; min-height: 120px; }
+  textarea { resize: vertical; min-height: 150px; line-height: 1.55; }
   select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%23A8ACB6' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 14px; padding-right: 36px; }
   select option { color: #09090A; }
   input::placeholder, textarea::placeholder { color: var(--dim); }
   input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); background: rgba(235, 238, 245, 0.06); }
-  .err { display: none; font-size: 12.5px; color: #FF8A7A; }
-  .show-errors .f:has(> :invalid) > .err { display: block; }
-  .show-errors .f:has(> :invalid) > input, .show-errors .f:has(> :invalid) > textarea { border-color: #FF8A7A; }
-  .step-err:not([hidden]), .send-err:not([hidden]) { display: block; }
-  .send-err a { color: var(--fg); text-decoration: underline; }
+  [aria-invalid='true']:not([type=radio]) { border-color: #FF8A7A !important; }
+  .err { font-size: 12.5px; color: #FF9D8F; }
+  .err[hidden] { display: none; }
 
-  /* chips: radios and checkboxes as pills */
+  /* pills: radios and checkboxes */
   .chips { display: flex; flex-wrap: wrap; gap: 8px; }
   .chip { position: relative; cursor: pointer; }
   .chip input { position: absolute; opacity: 0; pointer-events: none; }
-  .chip span { display: inline-flex; align-items: center; min-height: 38px; padding: 8px 14px; border-radius: 999px; font-size: 13.5px; border: 1px solid var(--line-a); color: var(--muted);
+  .chip span { display: inline-flex; align-items: center; min-height: 40px; padding: 8px 15px; border-radius: 999px; font-size: 13.5px; border: 1px solid var(--line-a); color: var(--muted);
     background: rgba(235, 238, 245, 0.03); transition: all 0.2s; }
   .chip:hover span { border-color: rgba(235, 238, 245, 0.22); color: var(--fg); }
   .chip input:checked + span { border-color: var(--accent); color: #fff; background: color-mix(in srgb, var(--accent) 16%, transparent); }
   .chip input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; margin-top: 4px; }
-  .fine { font-size: 12.5px; color: var(--dim); }
+  .send-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; padding-top: 6px; }
+  .fine { font-size: 12.5px; color: var(--dim); max-width: 38ch; }
   .send[disabled] { opacity: 0.6; }
+  .send-err { font-size: 13.5px; color: #FF9D8F; }
+  .send-err a { color: var(--fg); text-decoration: underline; }
 
-  .done { justify-items: start; gap: 12px; padding: 24px 0; outline: none; }
+  .done { display: grid; justify-items: start; gap: 12px; padding: 12px 0; outline: none; }
   .ok { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; color: #fff; background: color-mix(in srgb, var(--ok, #3FB27F) 85%, transparent); }
-  .done h3 { font-size: 24px; }
+  .done h2 { font-size: 26px; }
   .done p { color: var(--muted); font-size: 15px; line-height: 1.6; max-width: 46ch; }
 
-  @media (max-width: 520px) { .grid2 { grid-template-columns: 1fr; } }
+  @media (max-width: 620px) { .intents, .grid2 { grid-template-columns: 1fr; } }
 </style>

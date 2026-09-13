@@ -17,7 +17,7 @@ const links = [
       {links.map((l) => <a href={l.href}>{l.label}</a>)}
     </nav>
     <div class="nav-actions">
-      <a class="btn btn-primary btn-sm" href="/contact/" data-contact>Get in touch</a>
+      <a class="btn btn-primary btn-sm" href="/contact/">Get in touch</a>
       <button class="menu-btn" id="menu-open" type="button" aria-controls="layers" aria-expanded="false">
         <span class="sr-only">Open menu</span>
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
@@ -76,7 +76,7 @@ const links = [
     <li class="layer"><a class="row" href="/travel/"><svg class="ic" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/><path d="M1.5 7h11M7 1.5c2 2 2 9 0 11M7 1.5c-2 2-2 9 0 11" stroke="currentColor" stroke-width="1.3"/></svg><span>Travel</span></a></li>
     <li class="layer"><a class="row" href="/#approach"><svg class="ic" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 3.5h10M2 7h10M2 10.5h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span>Approach</span></a></li>
     <li class="layer"><a class="row" href="/about/"><svg class="ic" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M2.5 12.5c.6-2.5 2.4-3.5 4.5-3.5s3.9 1 4.5 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span>About</span></a></li>
-    <li class="layer"><a class="row" href="/contact/" data-contact><svg class="ic" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><rect x="1.5" y="3" width="11" height="8" rx="1.3" stroke="currentColor" stroke-width="1.3"/><path d="M2 4l5 4 5-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Contact</span></a></li>
+    <li class="layer"><a class="row" href="/contact/"><svg class="ic" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><rect x="1.5" y="3" width="11" height="8" rx="1.3" stroke="currentColor" stroke-width="1.3"/><path d="M2 4l5 4 5-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Contact</span></a></li>
   </ul>
   <div class="layers-foot mono">
     <span><kbd>⌘</kbd><kbd>K</kbd> jump anywhere</span>
@@ -92,7 +92,7 @@ const links = [
       {links.map((l) => <li data-cmd={`page ${l.label}`}><a href={l.href}><span class="k">Page</span>{l.label}</a></li>)}
       {work.map((w) => <li data-cmd={`work ${w.data.org} ${w.data.title}`}><a href={`/work/${w.id}/`}><span class="k">Work</span>{w.data.org}<span class="sub">{w.data.title}</span></a></li>)}
       {screens.map((w) => <li data-cmd={`screens ${w.data.org} ${w.data.title}`}><a href={`/screens/${w.id}/`}><span class="k">Screens</span>{w.data.org}<span class="sub">{w.data.title}</span></a></li>)}
-      <li data-cmd="contact email hello get in touch hire"><a href="/contact/" data-contact><span class="k">Contact</span>Get in touch</a></li>
+      <li data-cmd="contact email hello get in touch hire"><a href="/contact/"><span class="k">Contact</span>Get in touch</a></li>
     </ul>
   </div>
 </div>
