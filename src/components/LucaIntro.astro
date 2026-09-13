@@ -1,22 +1,28 @@
 ---
-/* The first screen of the Luca study. No titles, clean assets on #DFF4FF, a phone with a 0.5px black outline.
+/* The first screen of the Luca study. No titles, clean assets on #DFF4FF, phones with a 0.5px black outline.
    1 the first onboarding screen rises in; 2 the other two slide out from behind and close back;
-   3 naira and the jobs of a small shop circle the phone; 4 the phone leaves the frame and the icons spin into the centre,
-   where the phone comes back with the home screen; 5 the app plays: each new page opens from the tab bar like a tap,
-   sheets rise over their page; 6 the phone leaves through the top, and the loop brings it back up from below. */
+   3 naira and the jobs of a small shop circle the phone; 4 the phone leaves, the icons spin into the centre, and the phone
+   comes back with Home; 5 it steps into a lineup of four (Home, Products, Customers, Wallet), and they gather again;
+   6 the app plays: a tap opens the next page from the spot that was tapped, Back closes it into that spot, a sheet rises;
+   7 the phone leaves and the Luca logo draws itself, fills with its blue, and clears for the loop. */
 import { Image } from 'astro:assets';
+import logo from '../../public/luca/luca-logo.svg?raw';
 import onb1 from '../assets/luca/onb1.png';
 import onb2 from '../assets/luca/onb2.png';
 import onb3 from '../assets/luca/onb3.png';
-import dashboard from '../assets/luca/dashboard.png';
-import inv1 from '../assets/luca/app-inventory1.png';
-import inv2 from '../assets/luca/app-inventory2.png';
-import wallet from '../assets/luca/wallet.png';
-import e1 from '../assets/luca/app-e1.png';
-import e2 from '../assets/luca/app-e2.png';
+import home from '../assets/luca/app-home.png';
+import products from '../assets/luca/app-products.png';
+import customers from '../assets/luca/app-customers.png';
+import wallet from '../assets/luca/app-wallet.png';
+import sell from '../assets/luca/app-sell.png';
+import buy from '../assets/luca/app-buy.png';
+import electricity from '../assets/luca/app-e1.png';
+import provider from '../assets/luca/app-e2.png';
 
-// page = a new page opens from the tab bar; sheet = a dialog rises over the page it belongs to
-const flow: [ImageMetadata, 'page' | 'sheet'][] = [[dashboard, 'page'], [inv1, 'page'], [inv2, 'sheet'], [wallet, 'page'], [e1, 'page'], [e2, 'sheet']];
+// the pages of the main phone, in stacking order (a later page opens over an earlier one)
+const pages: [string, ImageMetadata][] = [['home', home], ['sell', sell], ['buy', buy], ['wallet', wallet], ['electricity', electricity], ['provider', provider]];
+// the three phones that join Home in the lineup, left to right after it
+const lineup = [products, customers, wallet];
 const line = (d: string) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`;
 const icons = [
   { k: 'naira', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 18V6l8 12V6M5 10.5h14M5 13.5h14"/></svg>' },
@@ -26,8 +32,9 @@ const icons = [
   { k: 'wallet', svg: line('M4 7h14a2 2 0 0 1 2 2v9H4zM4 7l11-3v3M16 13.5h1.5') },
   { k: 'people', svg: line('M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3.5 20c0-3.2 2.5-5.2 5.5-5.2s5.5 2 5.5 5.2M16 11.2a2.6 2.6 0 1 0 0-5.2M17.5 14.9c1.9.6 3 2.3 3 5.1') },
 ];
+const shot = { alt: '', width: 720, format: 'webp' as const, quality: 84, loading: 'eager' as const };
 ---
-<figure class="intro" id="luca-intro" role="img" aria-label="The Luca app: its three onboarding screens, the jobs of a small shop circling it, then the home screen, products, wallet and bills, playing on a loop">
+<figure class="intro" id="luca-intro" role="img" aria-label="The Luca app on a loop: the three onboarding screens, the jobs of a small shop circling the phone, Home beside Products, Customers and Wallet, then selling, buying, the wallet and an electricity bill, ending on the Luca logo">
   <div class="stage">
     <div class="orbit" aria-hidden="true">
       <i class="ring r1"></i><i class="ring r2"></i>
@@ -35,15 +42,18 @@ const icons = [
         {icons.map((ic, i) => <span class={`badge ${ic.k}`} style={`--a:${i * 60}deg`}><span class="up" set:html={ic.svg} /></span>)}
       </div>
     </div>
+    {/* every screen loads up front, so no page is ever caught half-loaded mid-film */}
     <div class="deck" aria-hidden="true">
-      <div class="ph side left"><Image src={onb2} alt="" width={720} format="webp" quality={84} loading="eager" /></div>
-      <div class="ph side right"><Image src={onb3} alt="" width={720} format="webp" quality={84} loading="eager" /></div>
+      <div class="ph side left"><Image src={onb2} {...shot} /></div>
+      <div class="ph side right"><Image src={onb3} {...shot} /></div>
+      {lineup.map((src) => <div class="ph line"><Image src={src} {...shot} /></div>)}
       <div class="ph main">
-        <div class="scr"><Image src={onb1} alt="" width={720} format="webp" quality={84} loading="eager" /></div>
-        {/* every screen loads up front, so no page is ever caught half-loaded mid-film */}
-        {flow.map(([src, kind]) => <div class="scr" data-kind={kind}><Image src={src} alt="" width={720} format="webp" quality={84} loading="eager" /></div>)}
+        <div class="scr" data-k="onb"><Image src={onb1} {...shot} /></div>
+        {pages.map(([k, src]) => <div class="scr" data-k={k}><Image src={src} {...shot} /></div>)}
+        <i class="tap"></i>
       </div>
     </div>
+    <div class="mark" aria-hidden="true"><div class="logo" set:html={logo} /></div>
   </div>
 </figure>
 
@@ -56,27 +66,39 @@ const icons = [
     if (!root || root.dataset.init) return; root.dataset.init = '1';
     const q = (s: string) => root.querySelector<HTMLElement>(s)!;
     const qa = (s: string) => [...root.querySelectorAll<HTMLElement>(s)];
-    const main = q('.main'), L = q('.side.left'), R = q('.side.right'), orbit = q('.orbit'), spin = q('.spin');
-    const rings = qa('.ring'), ups = qa('.up'), scr = qa('.main .scr');
-    // a page is hidden inside a closed circle at the tab bar, and opens from there
-    const shut = 'circle(0% at 50% 94%)', open = 'circle(140% at 50% 94%)';
+    const main = q('.main'), L = q('.side.left'), R = q('.side.right'), orbit = q('.orbit'), spin = q('.spin'), tap = q('.main .tap'), logo = q('.logo');
+    const rings = qa('.ring'), ups = qa('.up'), scr = qa('.main .scr'), line = qa('.ph.line');
+    const pg = Object.fromEntries(scr.map((s) => [s.dataset.k!, s]));
+    // decode every screen now, so a phone that has been hidden until its moment never shows white on its first entrance
+    root.querySelectorAll('img').forEach((im) => im.decode?.().catch(() => {}));
+    const paths = [...root.querySelectorAll<SVGPathElement>('.logo path')];
+    const markPaths = paths.slice(0, 2), letters = paths.slice(2);   // the book mark, then L, u, c, a
+    // a page is hidden inside a closed circle at the spot that opens it, and opens from there
+    const shut = (o: string) => `circle(0% at ${o})`, open = (o: string) => `circle(150% at ${o})`;
+    // where the taps land, as a share of the screen: read from his screens
+    const at = { sell: '26% 36%', buy: '74% 36%', walletTab: '63% 92%', bills: '30% 45%', provider: '50% 22%', back: '10% 8.6%' };
+    // the lineup: phones at 78%, one phone-width apart (the gap is a fifth of a phone)
+    const S = 0.78, SLOTS = [-150, -50, 50, 150];
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
       gsap.set(scr.slice(1), { opacity: 0 });
       gsap.set(L, { xPercent: -106, rotation: -6, scale: 0.9, opacity: 1 }); gsap.set(R, { xPercent: 106, rotation: 6, scale: 0.9, opacity: 1 });
       return;
     }
+    const lens = paths.map((p) => p.getTotalLength());
+    gsap.set(paths, { attr: { stroke: '#01B5EC', 'stroke-width': 2.4, 'stroke-linejoin': 'round' }, strokeDasharray: (i: number) => lens[i] });
 
     // the phone waits just below the stage: the film starts by bringing it up, with no pause
     gsap.set(main, { yPercent: 110 });
-    gsap.set(scr.slice(1), { clipPath: shut });
+    gsap.set(scr.slice(1), { clipPath: shut('50% 50%') });
     const tl = gsap.timeline({ repeat: -1, paused: true, defaults: { ease: 'power3.inOut', force3D: true } });
     // every loop starts from the same clean state, so the tenth pass plays exactly like the first
-    tl.set(scr, { opacity: 1, scale: 1, yPercent: 0, clipPath: shut }).set(scr[0], { clipPath: open })
-      .set([L, R], { xPercent: 0, rotation: 0, scale: 0.86, opacity: 0 })
+    tl.set(scr, { opacity: 1, scale: 1, yPercent: 0, clipPath: shut('50% 50%') }).set(scr[0], { clipPath: open('50% 50%') })
+      .set([L, R], { xPercent: 0, rotation: 0, scale: 0.86, opacity: 0 }).set(line, { xPercent: 0, yPercent: 0, scale: S, opacity: 0 })
       .set(orbit, { opacity: 0, yPercent: 0 }).set(rings, { scale: 0.7, opacity: 0 }).set(ups, { scale: 0, rotation: 0, opacity: 1 })
-      .set(spin, { rotation: 0, '--r': '45cqh' })
+      .set(spin, { rotation: 0, '--r': '45cqh' }).set(tap, { opacity: 0, scale: 0.35 })
+      .set(logo, { opacity: 0, yPercent: 0, scale: 0.96 }).set(paths, { strokeDashoffset: (i: number) => lens[i], fillOpacity: 0, strokeOpacity: 1 })
       // 1 the phone rises into view with the first onboarding screen
-      .fromTo(main, { yPercent: 110, scale: 0.96 }, { yPercent: 0, scale: 1, duration: 0.6, ease: 'power3.out' })
+      .fromTo(main, { xPercent: 0, yPercent: 110, scale: 0.96 }, { yPercent: 0, scale: 1, duration: 0.6, ease: 'power3.out' })
       // 2 the other two slide out from behind it, hold, and close back
       .to(L, { xPercent: -106, rotation: -6, scale: 0.9, opacity: 1, duration: 0.6, ease: 'power3.out' }, '-=0.2')
       .to(R, { xPercent: 106, rotation: 6, scale: 0.9, opacity: 1, duration: 0.6, ease: 'power3.out' }, '<')
@@ -88,25 +110,60 @@ const icons = [
       .to(ups, { scale: 1, duration: 0.4, ease: 'back.out(1.8)', stagger: 0.04 }, '-=0.3')
       .to(spin, { rotation: 90, duration: 1, ease: 'power1.inOut' }, '-=0.25')
       .to(ups, { rotation: -90, duration: 1, ease: 'power1.inOut' }, '<')
-      // 4 the phone leaves the frame; the icons speed up and spin into the centre...
+      // 4 the phone leaves the frame; the icons speed up and spin into the centre, where the phone comes back with Home
       .addLabel('gather')
       .to(main, { yPercent: -125, scale: 0.92, duration: 0.55, ease: 'power3.in' }, 'gather')
       .to(spin, { rotation: '+=330', '--r': '0cqh', duration: 0.8, ease: 'power2.in' }, 'gather+=0.1')
       .to(ups, { rotation: '-=330', scale: 0.4, opacity: 0, duration: 0.8, ease: 'power2.in' }, 'gather+=0.1')
       .to(rings, { scale: 0.25, opacity: 0, duration: 0.8, ease: 'power2.in' }, 'gather+=0.1')
-      // ...where the phone comes back up with the home screen
-      .set(scr[1], { clipPath: open }, 'gather+=0.6')
+      .set(pg.home, { clipPath: open('50% 50%') }, 'gather+=0.6')
       .fromTo(main, { yPercent: 110, scale: 0.94 }, { yPercent: 0, scale: 1, duration: 0.65, ease: 'power3.out' }, 'gather+=0.7')
-      .set(orbit, { opacity: 0 });
-    // 5 the app: a page opens from the tab bar like a tap while the page under it eases back; a sheet rises over its page
-    for (let i = 2; i < scr.length; i++) {
-      const inn = scr[i], out = scr[i - 1];
-      if (inn.dataset.kind === 'sheet') tl.fromTo(inn, { clipPath: open, opacity: 0, yPercent: 6 }, { opacity: 1, yPercent: 0, duration: 0.45, ease: 'power3.out' }, '+=0.7');
-      else tl.fromTo(inn, { clipPath: shut }, { clipPath: open, duration: 0.7, ease: 'power2.inOut' }, '+=0.7')
-        .to(out, { scale: 0.96, duration: 0.7, ease: 'power2.inOut' }, '<');
-    }
-    // 6 the phone leaves through the top; the loop brings it straight back up from below
-    tl.to(main, { yPercent: -115, scale: 0.96, duration: 0.55, ease: 'power3.in' }, '+=0.8');
+      .set(orbit, { opacity: 0 })
+      // 5 Home steps back into a lineup of four; the others come out from behind it, then they all gather again
+      .addLabel('line', '+=0.4')
+      .to(main, { scale: S, duration: 0.45, ease: 'power2.inOut' }, 'line')
+      .set(line, { opacity: 1 }, 'line+=0.45')
+      .to(main, { xPercent: SLOTS[0], duration: 0.8, ease: 'expo.out' }, 'line+=0.45')
+      .to(line, { xPercent: (i: number) => SLOTS[i + 1], duration: 0.8, ease: 'expo.out', stagger: 0.07 }, 'line+=0.45')
+      .to([main, ...line], { yPercent: -3, duration: 0.4, ease: 'sine.inOut', stagger: 0.09, yoyo: true, repeat: 1 }, '+=0.1')
+      .to({}, { duration: 0.35 })
+      .to([main, ...line], { xPercent: 0, duration: 0.65, ease: 'expo.inOut' })
+      .set(line, { opacity: 0 })
+      .to(main, { scale: 1, duration: 0.45, ease: 'power2.out' })
+      .to({}, { duration: 0.3 });
+
+    // 6 the app: a tap ripples where the finger lands, and the page opens from that spot; Back closes it into the same spot
+    const tapAt = (o: string) => {
+      const [x, y] = o.split(' ');
+      tl.set(tap, { left: x, top: y, scale: 0.35, opacity: 1 }).to(tap, { scale: 1.25, opacity: 0, duration: 0.42, ease: 'power2.out' });
+    };
+    const openAt = (el: HTMLElement, o: string, hold: number) => {
+      tapAt(o);
+      tl.fromTo(el, { clipPath: shut(o) }, { clipPath: open(o), duration: 0.6, ease: 'power2.inOut', immediateRender: false }, '-=0.3').to({}, { duration: hold });
+    };
+    const backTo = (el: HTMLElement, o: string) => {
+      tapAt(at.back);
+      tl.to(el, { clipPath: shut(o), duration: 0.45, ease: 'power2.inOut' }, '-=0.25').to({}, { duration: 0.15 });
+    };
+    openAt(pg.sell, at.sell, 0.75); backTo(pg.sell, at.sell);
+    openAt(pg.buy, at.buy, 0.75); backTo(pg.buy, at.buy);
+    openAt(pg.wallet, at.walletTab, 0.65);
+    openAt(pg.electricity, at.bills, 0.55);
+    tapAt(at.provider);
+    tl.fromTo(pg.provider, { clipPath: open('50% 50%'), opacity: 0, yPercent: 6 }, { opacity: 1, yPercent: 0, duration: 0.45, ease: 'power3.out', immediateRender: false }, '-=0.25')
+      .to({}, { duration: 0.85 });
+
+    // 7 the phone leaves; the logo draws itself (the mark first, then each letter), fills with Luca blue, holds and clears
+    tl.addLabel('logo')
+      .to(main, { yPercent: -115, scale: 0.96, duration: 0.55, ease: 'power3.in' }, 'logo')
+      .set(logo, { opacity: 1 }, 'logo+=0.35')
+      .to(logo, { scale: 1, duration: 2.2, ease: 'power1.out' }, 'logo+=0.35')
+      .to(markPaths, { strokeDashoffset: 0, duration: 0.9, ease: 'power2.inOut', stagger: 0.12 }, 'logo+=0.35')
+      .to(letters, { strokeDashoffset: 0, duration: 0.75, ease: 'power2.inOut', stagger: 0.09 }, 'logo+=0.6')
+      .to(paths, { fillOpacity: 1, duration: 0.5, ease: 'power1.out', stagger: 0.05 }, 'logo+=1.35')
+      .to(paths, { strokeOpacity: 0, duration: 0.4 }, 'logo+=1.6')
+      .to({}, { duration: 1 })
+      .to(logo, { opacity: 0, yPercent: -10, duration: 0.45, ease: 'power2.in' });
     (root as any).__tl = tl; // lets a reviewer seek to any frame
     // it loops for as long as it is on screen, and starts at once if it already is
     const st = ScrollTrigger.create({ trigger: root, start: 'top 95%', end: 'bottom 5%', onToggle: (self) => (self.isActive ? tl.play() : tl.pause()) });
@@ -118,13 +175,17 @@ const icons = [
 <style>
   .intro { margin: 0; }
   .stage { position: relative; aspect-ratio: 16 / 9; background: #DFF4FF; border-radius: 16px; overflow: hidden; container-type: size; }
-  .deck, .orbit { position: absolute; inset: 0; display: grid; place-items: center; }
+  .deck, .orbit, .mark { position: absolute; inset: 0; display: grid; place-items: center; }
   /* the phone: white, a 0.5px black outline, iPhone proportions and corners */
   .ph { position: relative; grid-area: 1 / 1; height: 78cqh; aspect-ratio: 1125 / 2436; border: 0.5px solid #0B0B0C; border-radius: 13% / 6%;
     background: #fff; overflow: hidden; box-shadow: 0 1.6cqh 4cqh -1.6cqh rgba(16, 52, 84, 0.16); will-change: transform; }
-  .side { opacity: 0; }
+  .side, .line { opacity: 0; }
   .scr { position: absolute; inset: 0; background: #fff; will-change: transform; }
+  /* screens taller than the phone show their top; the rest is cut */
   .ph :global(img) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
+  /* where the finger lands: a soft Luca-blue ripple */
+  .tap { position: absolute; z-index: 2; left: 50%; top: 50%; width: 15%; aspect-ratio: 1; margin: -7.5% 0 0 -7.5%; border-radius: 50%; opacity: 0; pointer-events: none;
+    background: rgba(1, 181, 236, 0.28); border: 1px solid rgba(1, 181, 236, 0.7); }
 
   .orbit { opacity: 0; pointer-events: none; }
   .ring { grid-area: 1 / 1; border-radius: 50%; border: 1px solid rgba(1, 181, 236, 0.55); will-change: transform; }
@@ -136,4 +197,9 @@ const icons = [
   .up { display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%; background: #fff; border: 0.5px solid #0B0B0C; color: #1E1F4B; }
   .up :global(svg) { width: 52%; height: 52%; }
   .naira .up { background: #01B5EC; border-color: #01B5EC; color: #fff; }
+
+  /* the closing logo, centred, about a third of the stage wide */
+  .mark { pointer-events: none; }
+  .logo { width: 34cqw; opacity: 0; }
+  .logo :global(svg) { display: block; width: 100%; height: auto; overflow: visible; }
 </style>
