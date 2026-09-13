@@ -17,10 +17,10 @@ const line: Record<string, string> = {
   luca: 'Bookkeeping for small business owners who are not accountants',
   newdawn: 'A design system and website for a disability support provider',
   'glaze-dental': 'A website and booking journey for a Lagos dental clinic',
-  fintech: 'A fintech app. Screens are being added',
+  hometown: 'A banking app and web app for people in Nigeria',
 };
 // each project's own colour: the card stroke and glow, the index row on hover
-const mark: Record<string, string> = { collga: '#6CB460', newdawn: '#FF5101', 'glaze-dental': '#5B86D6', luca: '#01B5EC' };
+const mark: Record<string, string> = { collga: '#6CB460', newdawn: '#FF5101', 'glaze-dental': '#5B86D6', luca: '#01B5EC', hometown: '#FF6600' };
 
 const studies = all.filter((e) => e.data.tier === 1).length;
 const smaller = all.length - studies;
@@ -69,7 +69,7 @@ const intro = `${words[studies]} case studies and ${words[smaller].toLowerCase()
       <div class="r">
         <WorkTile e={by('glaze-dental')} line={line['glaze-dental']} variant="video" accent={mark['glaze-dental']}
           video={{ src: '/glaze/glaze-product-film.mp4#t=4', poster: '/glaze/glaze-product-film-tile.jpg' }} />
-        <WorkTile e={by('fintech')} line={line.fintech} />
+        <WorkTile e={by('hometown')} line={line.hometown} variant="image" image="/covers/hometown" accent={mark.hometown} ground="#FFF4ED" />
       </div>
     </section>
 

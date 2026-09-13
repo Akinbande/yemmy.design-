@@ -1,0 +1,193 @@
+---
+/* The first screen of the Hometown page. No text, clean assets on the peach of his mockup boards (#FFF4ED),
+   a phone with a 0.5px black outline, and a plain browser window in the same outline.
+   1 the phone rises and four screens cut past fast, each cut a little slower than the last;
+   2 it starts over, slowly: the three welcome screens, the identity check, home, adding money, the PIN and the confirmation;
+   3 the phone steps aside on Home as the web app rises beside it: a cursor opens the account panel, closes it,
+     goes to Payments and chooses a bank transfer; 4 both leave, and the loop brings the phone back up. */
+import { Image } from 'astro:assets';
+import splash1 from '../assets/hometown/splash1.png';
+import splash2 from '../assets/hometown/splash2.png';
+import splash3 from '../assets/hometown/splash3.png';
+import verify from '../assets/hometown/verify.png';
+import dashboard from '../assets/hometown/dashboard.png';
+import addMoney from '../assets/hometown/add-money.png';
+import pin from '../assets/hometown/pin.png';
+import confirm from '../assets/hometown/confirm.png';
+import login from '../assets/hometown/login.png';
+import transfer from '../assets/hometown/transfer.png';
+import webHome from '../assets/hometown/web-home.png';
+import webAccount from '../assets/hometown/web-account.png';
+import webPayment from '../assets/hometown/web-payment.png';
+import webBank from '../assets/hometown/web-payment-bank.png';
+
+// the phone's pages in stacking order: a later page shows over an earlier one (login and transfer only appear in the fast cut)
+const phone: [string, ImageMetadata][] = [['splash1', splash1], ['splash2', splash2], ['splash3', splash3], ['verify', verify], ['dashboard', dashboard],
+  ['add', addMoney], ['pin', pin], ['confirm', confirm], ['login', login], ['transfer', transfer]];
+const web: [string, ImageMetadata][] = [['home', webHome], ['account', webAccount], ['payment', webPayment], ['bank', webBank]];
+const shot = { alt: '', width: 720, format: 'webp' as const, quality: 86, loading: 'eager' as const };
+const wide = { alt: '', width: 1600, format: 'webp' as const, quality: 86, loading: 'eager' as const };
+---
+<figure class="intro" id="ht-intro" role="img" aria-label="The Hometown app on a loop: four screens in quick succession, then the welcome screens, the identity check, home, adding money with a PIN, and the web app's home, account panel and payment screens">
+  <div class="stage">
+    <div class="web" aria-hidden="true">
+      <div class="bar"><i></i><i></i><i></i></div>
+      <div class="view">
+        {web.map(([k, src]) => <div class="pg" data-k={k}><Image src={src} {...wide} /></div>)}
+        <i class="click"></i>
+        <svg class="cursor" viewBox="0 0 24 24"><path d="M4 2v17l4.5-4.2 3 6.7 2.5-1.1-2.9-6.5 5.9-.3z" fill="#0B0B0C" stroke="#fff" stroke-width="1.3" stroke-linejoin="round" /></svg>
+      </div>
+    </div>
+    {/* every screen loads up front, so no page is ever caught half-loaded mid-film */}
+    <div class="deck" aria-hidden="true">
+      <div class="ph">
+        {phone.map(([k, src]) => <div class="scr" data-k={k}><Image src={src} {...shot} /></div>)}
+        <i class="tap"></i>
+      </div>
+    </div>
+  </div>
+</figure>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  gsap.registerPlugin(ScrollTrigger);
+  function init() {
+    const root = document.getElementById('ht-intro');
+    if (!root || root.dataset.init) return; root.dataset.init = '1';
+    const q = (s: string) => root.querySelector<HTMLElement>(s)!;
+    const qa = (s: string) => [...root.querySelectorAll<HTMLElement>(s)];
+    const ph = q('.ph'), web = q('.web'), tap = q('.ph .tap'), cursor = q('.cursor'), click = q('.click');
+    const scr = qa('.ph .scr'), pgs = qa('.web .pg');
+    const s = Object.fromEntries(scr.map((e) => [e.dataset.k!, e])), w = Object.fromEntries(pgs.map((e) => [e.dataset.k!, e]));
+    // decode every screen now, so a page that has been hidden until its moment never shows white on its first entrance
+    root.querySelectorAll('img').forEach((im) => im.decode?.().catch(() => {}));
+    // where the taps and clicks land, as a share of the screen: read from his screens
+    const at = { signUp: '50% 83%', verify: '50% 89.5%', addMoney: '23% 56.5%', pinGo: '50% 88.4%' };
+    const clicks = { add: ['33%', '22.7%'], close: ['72.1%', '8.9%'], payments: ['62.2%', '6.3%'], bank: ['54.2%', '46%'] };
+    // beside the web app the phone sits 53.6cqh right of centre, at 84%, so the pair has the same margin on both sides
+    const SIDE = { xPercent: 149, scale: 0.84 };
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      gsap.set(scr, { opacity: 0 }); gsap.set(s.dashboard, { opacity: 1 }); gsap.set(ph, SIDE);
+      gsap.set(pgs, { opacity: 0 }); gsap.set(w.home, { opacity: 1 }); gsap.set(web, { opacity: 1 });
+      return;
+    }
+
+    // the phone waits just below the stage: the film starts by bringing it up, with no pause
+    gsap.set(ph, { yPercent: 110 });
+    const tl = gsap.timeline({ repeat: -1, paused: true, defaults: { ease: 'power3.inOut', force3D: true } });
+    // every loop starts from the same clean state, so the tenth pass plays exactly like the first
+    tl.set(scr, { opacity: 0, scale: 1, yPercent: 0 }).set(s.splash1, { opacity: 1 })
+      .set(pgs, { opacity: 0, scale: 1 }).set(w.home, { opacity: 1 })
+      .set(web, { yPercent: 115, opacity: 0 }).set([tap, click], { opacity: 0 }).set(cursor, { opacity: 0, left: '80%', top: '74%', scale: 1 })
+      .fromTo(ph, { xPercent: 0, yPercent: 110, scale: 1 }, { yPercent: 0, duration: 0.55, ease: 'power3.out' });
+
+    // 1 fast: four screens cut past, each cut held a little longer than the last, so the film slows into itself
+    const cut = (el: HTMLElement, hold: number, off?: HTMLElement) => {
+      tl.to({}, { duration: hold }).set(el, { opacity: 1 });
+      if (off) tl.set(off, { opacity: 0 });
+      tl.fromTo(ph, { scale: 1.018 }, { scale: 1, duration: 0.22, ease: 'power2.out' });
+    };
+    cut(s.login, 0.14); cut(s.dashboard, 0.2, s.login); cut(s.transfer, 0.3, s.dashboard);
+    // 2 then it starts over, slowly: the phone draws a breath and returns to the first welcome screen
+    tl.to({}, { duration: 0.5 })
+      .to(ph, { scale: 0.97, duration: 0.4, ease: 'power2.inOut' })
+      .to(s.transfer, { opacity: 0, duration: 0.55, ease: 'power1.inOut' }, '<+0.1')
+      .to(ph, { scale: 1, duration: 0.55, ease: 'power2.out' })
+      .to({}, { duration: 0.5 });
+
+    // a welcome screen settles in; a tap ripples orange where the finger lands, and the next page comes forward
+    // while the one under it eases back; a sheet rises over its page
+    const settle = (el: HTMLElement, hold: number) => {
+      tl.fromTo(el, { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.8, ease: 'power2.out', immediateRender: false }).to({}, { duration: hold });
+    };
+    const tapAt = (o: string) => {
+      const [x, y] = o.split(' ');
+      tl.set(tap, { left: x, top: y, scale: 0.35, opacity: 1 }).to(tap, { scale: 1.25, opacity: 0, duration: 0.42, ease: 'power2.out' });
+    };
+    const open = (el: HTMLElement, under: HTMLElement, o: string, hold: number) => {
+      tapAt(o);
+      tl.fromTo(el, { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.6, ease: 'power2.inOut', immediateRender: false }, '-=0.25')
+        .to(under, { scale: 0.97, duration: 0.6, ease: 'power2.inOut' }, '<')
+        .to({}, { duration: hold });
+    };
+    settle(s.splash2, 0.65); settle(s.splash3, 0.65);
+    open(s.verify, s.splash3, at.signUp, 0.8);
+    open(s.dashboard, s.verify, at.verify, 0.9);
+    open(s.add, s.dashboard, at.addMoney, 0.7);
+    // swipe to top-up: the finger slides along the button, and the PIN sheet rises
+    tl.set(tap, { left: '14%', top: '89.7%', scale: 0.55, opacity: 1 })
+      .to(tap, { left: '64%', duration: 0.5, ease: 'power2.inOut' })
+      .to(tap, { opacity: 0, scale: 1.1, duration: 0.25 })
+      .fromTo(s.pin, { opacity: 0, yPercent: 5 }, { opacity: 1, yPercent: 0, duration: 0.5, ease: 'power3.out', immediateRender: false }, '-=0.2')
+      .to({}, { duration: 0.8 });
+    tapAt(at.pinGo);
+    tl.fromTo(s.confirm, { opacity: 0, yPercent: 3 }, { opacity: 1, yPercent: 0, duration: 0.45, ease: 'power3.out', immediateRender: false }, '-=0.25')
+      .to({}, { duration: 0.9 });
+
+    // 3 the phone steps aside on Home, and the web app rises beside it
+    tl.addLabel('web', '+=0.1')
+      .set(s.dashboard, { scale: 1 }, 'web')
+      .to([s.confirm, s.pin, s.add], { opacity: 0, duration: 0.45, ease: 'power1.inOut' }, 'web')
+      .to(ph, { ...SIDE, duration: 0.9, ease: 'power3.inOut' }, 'web+=0.2')
+      .fromTo(web, { yPercent: 115, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.9, ease: 'power3.out', immediateRender: false }, 'web+=0.35')
+      .to({}, { duration: 0.45 })
+      .set(cursor, { opacity: 1 });
+    // the cursor glides to each spot, presses, and the click ripples orange
+    const clickAt = ([x, y]: string[]) => {
+      tl.to(cursor, { left: x, top: y, duration: 0.7, ease: 'power2.inOut' })
+        .set(click, { left: x, top: y, scale: 0.3, opacity: 1 })
+        .to(cursor, { scale: 0.86, duration: 0.09, yoyo: true, repeat: 1, transformOrigin: '17% 8%' }, '<')
+        .to(click, { scale: 1.5, opacity: 0, duration: 0.4, ease: 'power2.out' }, '<');
+    };
+    clickAt(clicks.add);
+    tl.fromTo(w.account, { opacity: 0, scale: 0.99 }, { opacity: 1, scale: 1, duration: 0.4, ease: 'power2.out', immediateRender: false }, '-=0.3').to({}, { duration: 1 });
+    clickAt(clicks.close);
+    tl.to(w.account, { opacity: 0, duration: 0.3, ease: 'power1.in' }, '-=0.3').to({}, { duration: 0.2 });
+    clickAt(clicks.payments);
+    tl.fromTo(w.payment, { opacity: 0 }, { opacity: 1, duration: 0.45, ease: 'power1.inOut', immediateRender: false }, '-=0.3').to({}, { duration: 0.7 });
+    clickAt(clicks.bank);
+    tl.fromTo(w.bank, { opacity: 0 }, { opacity: 1, duration: 0.4, ease: 'power1.inOut', immediateRender: false }, '-=0.3').to({}, { duration: 1.2 });
+
+    // 4 both leave; the loop brings the phone straight back up from below
+    tl.addLabel('out')
+      .to(cursor, { opacity: 0, duration: 0.2 }, 'out')
+      .to(web, { yPercent: 115, opacity: 0, duration: 0.7, ease: 'power3.in' }, 'out')
+      .to(ph, { yPercent: -120, duration: 0.7, ease: 'power3.in' }, 'out+=0.1');
+    (root as any).__tl = tl; // lets a reviewer seek to any frame
+    // it loops for as long as it is on screen, and starts at once if it already is
+    const st = ScrollTrigger.create({ trigger: root, start: 'top 95%', end: 'bottom 5%', onToggle: (self) => (self.isActive ? tl.play() : tl.pause()) });
+    if (st.isActive) tl.play();
+  }
+  document.addEventListener('astro:page-load', init);
+</script>
+
+<style>
+  .intro { margin: 0; }
+  .stage { position: relative; aspect-ratio: 16 / 9; background: #FFF4ED; border-radius: 16px; overflow: hidden; container-type: size; }
+  /* phones: a taller stage (3:2) so the phone and the browser are bigger; both still fit side by side */
+  @media (max-width: 600px) { .stage { aspect-ratio: 3 / 2; } }
+  .deck { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+  /* the phone: white, a 0.5px black outline, iPhone proportions and corners */
+  .ph { position: relative; height: 78cqh; aspect-ratio: 1125 / 2436; border: 0.5px solid #0B0B0C; border-radius: 13% / 6%;
+    background: #fff; overflow: hidden; box-shadow: 0 1.6cqh 4cqh -1.6cqh rgba(120, 50, 10, 0.16); will-change: transform; }
+  .scr { position: absolute; inset: 0; background: #fff; opacity: 0; will-change: transform, opacity; }
+  .scr:first-child { opacity: 1; }
+  .ph :global(img), .pg :global(img) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
+  /* where the finger lands: a soft Hometown-orange ripple */
+  .tap { position: absolute; z-index: 2; left: 50%; top: 50%; width: 15%; aspect-ratio: 1; margin: -7.5% 0 0 -7.5%; border-radius: 50%; opacity: 0; pointer-events: none;
+    background: rgba(255, 102, 0, 0.26); border: 1px solid rgba(255, 102, 0, 0.7); }
+
+  /* the web app in a plain browser window with the same outline: three dots, no address, no text */
+  .web { position: absolute; left: calc(50% - 68.6cqh); top: 13cqh; width: 98.4cqh; border: 0.5px solid #0B0B0C; border-radius: 1.6cqh; background: #fff; overflow: hidden;
+    box-shadow: 0 2cqh 5cqh -2cqh rgba(120, 50, 10, 0.18); opacity: 0; will-change: transform, opacity; }
+  .bar { height: 4cqh; display: flex; align-items: center; gap: 0.8cqh; padding: 0 1.6cqh; background: #F6F3F1; border-bottom: 0.5px solid rgba(11, 11, 12, 0.12); }
+  .bar i { width: 1.1cqh; height: 1.1cqh; border-radius: 50%; background: #D9D4D0; }
+  .view { position: relative; aspect-ratio: 4320 / 3072; overflow: hidden; }
+  .pg { position: absolute; inset: 0; opacity: 0; background: #FFFCFA; will-change: opacity; }
+  .pg:first-child { opacity: 1; }
+  .cursor { position: absolute; z-index: 3; left: 80%; top: 74%; width: 2.8cqh; height: 2.8cqh; margin: -0.23cqh 0 0 -0.47cqh; opacity: 0; pointer-events: none;
+    filter: drop-shadow(0 0.3cqh 0.4cqh rgba(0, 0, 0, 0.22)); }
+  .click { position: absolute; z-index: 2; width: 4cqh; height: 4cqh; margin: -2cqh 0 0 -2cqh; border-radius: 50%; opacity: 0; pointer-events: none;
+    background: rgba(255, 102, 0, 0.18); border: 1px solid rgba(255, 102, 0, 0.8); }
+</style>

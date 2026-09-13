@@ -48,7 +48,22 @@ def render(src, sp, W, S=4):
     return Image.alpha_composite(out, ink).convert('RGB')
 
 
+# covers that are already raster artboards (4800 x 3114, the same shape): resized only, same widths, same Lanczos, lossless
+RASTER = {'hometown': os.path.join('case studies', 'hometown', 'h1.png')}
+
+
 def main():
+    for name, rel in RASTER.items():
+        src = Image.open(os.path.join(ROOT, rel))
+        src.load()
+        if 'A' in src.getbands():
+            ground = Image.new('RGBA', src.size, (255, 255, 255, 255))
+            src = Image.alpha_composite(ground, src.convert('RGBA'))
+        src = src.convert('RGB')
+        for W in WIDTHS:
+            path = os.path.join(ROOT, 'public', 'covers', f'{name}-{W}.png')
+            src.resize((W, round(src.height * W / src.width)), Image.LANCZOS).save(path, optimize=True)
+            print(f'{name}-{W}.png', f'{os.path.getsize(path) // 1024} KB')
     for name, sp in SPECS.items():
         svg = open(os.path.join(ROOT, 'case studies', 'cover', f'{name}.svg')).read()
         assert sp['tf'] in svg, f'{name}: the SVG geometry changed; update SPECS from the new file'

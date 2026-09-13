@@ -17,14 +17,15 @@ interface Props {
   video?: { src: string; poster: string; wide?: string };
   image?: ImageMetadata | string;   // a string is a cover base under /public (e.g. /covers/luca), served as lossless PNG at the width the screen needs
   accent?: string;
+  ground?: string;   // the image card's background, behind the cover (the colour of the project's mockup board)
 }
-const { e, line, variant = 'glyph', video, image, accent } = Astro.props;
+const { e, line, variant = 'glyph', video, image, accent, ground } = Astro.props;
 const d = e.data;
 const label: Record<string, string> = { live: 'Live', 'early-access': 'Early access', shipped: 'Shipped', concept: 'Concept' };
 const isStudy = d.tier === 1;
 const href = isStudy ? `/work/${e.id}/` : `/screens/${e.id}/`;
 const kind = isStudy ? 'Case study' : 'Screens';
-const style = `--tint:${d.hoverTint ?? '#16233F'};--acc:${accent ?? '#6190FF'}`;
+const style = `--tint:${d.hoverTint ?? '#16233F'};--acc:${accent ?? '#6190FF'}${ground ? `;--ground:${ground}` : ''}`;
 ---
 <a class={`tile ${variant} ${accent ? 'tinted' : ''}`} href={href} style={style}>
   <div class="media" aria-hidden="true">
@@ -97,7 +98,7 @@ const style = `--tint:${d.hoverTint ?? '#16233F'};--acc:${accent ?? '#6190FF'}`;
 
   /* image: the cover fills the image area only; it sits on the bottom edge, so a phone that runs off the artboard
      runs off the card's image area in the same place. No drift and no zoom, so the picture stays crisp */
-  .image .media { container-type: normal; background: #DFF4FF; }
+  .image .media { container-type: normal; background: var(--ground, #DFF4FF); }
   .tinted.image .media { border-bottom-color: color-mix(in srgb, var(--acc) 26%, transparent); }
   .image .media-in { inset: 0; }
   .image .media-in :global(img) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 100%; display: block; transition: transform 1.1s var(--ease); }
