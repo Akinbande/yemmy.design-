@@ -39,15 +39,18 @@ const { id, label, eyebrow, sub, notes, legend, colors } = Astro.props;
       const phone = W < 480, cols = phone ? 3 : W < 900 ? 4 : 7;
       const shown = phone ? notes.slice(0, 18) : notes;
       notes.forEach((n, i) => { n.style.display = i < shown.length ? '' : 'none'; });
-      const rows = Math.ceil(shown.length / cols);
       const cw = W / cols, nw = Math.min(cw * 0.88, 200);
-      gsap.set(shown[0], { width: nw });
-      const rh = shown[0].offsetHeight + 24;
-      field.style.height = rows * rh + 16 + 'px';
+      // every note gets its width first, then each row is as tall as its tallest note, so a long note (five lines in a
+      // narrow phone column) never covers the one below it; the small jitter and tilt stay inside the gap between rows
+      gsap.set(shown, { width: nw });
+      const gap = 26, heights: number[] = [];
+      shown.forEach((n, i) => { const row = Math.floor(i / cols); heights[row] = Math.max(heights[row] ?? 0, n.offsetHeight); });
+      const tops = heights.map((_, r) => heights.slice(0, r).reduce((s, h) => s + h + gap, 0));
+      field.style.height = heights.reduce((s, h) => s + h + gap, 0) - gap + 16 + 'px';
       shown.forEach((n, i) => {
         const col = i % cols, row = Math.floor(i / cols);
-        const jx = (seeded(i + salt) - 0.5) * (cw - nw) * 0.9, jy = (seeded(i * 3 + salt) - 0.5) * rh * 0.22;
-        gsap.set(n, { width: nw, left: col * cw + (cw - nw) / 2 + jx, top: row * rh + 8 + jy, rotation: (seeded(i * 7 + salt) - 0.5) * 10 });
+        const jx = (seeded(i + salt) - 0.5) * (cw - nw) * 0.9, jy = (seeded(i * 3 + salt) - 0.5) * 14;
+        gsap.set(n, { left: col * cw + (cw - nw) / 2 + jx, top: tops[row] + 8 + jy, rotation: (seeded(i * 7 + salt) - 0.5) * 10 });
       });
     };
     place(1);

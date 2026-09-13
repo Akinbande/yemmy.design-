@@ -175,6 +175,9 @@ const shot = { alt: '', width: 720, format: 'webp' as const, quality: 84, loadin
 <style>
   .intro { margin: 0; }
   .stage { position: relative; aspect-ratio: 16 / 9; background: #DFF4FF; border-radius: 16px; overflow: hidden; container-type: size; }
+  /* phones: a taller stage (3:2) so every phone in the film is about a fifth bigger; the lineup of four still fits
+     with room at both edges, and the orbit and onboarding spread stay inside */
+  @media (max-width: 600px) { .stage { aspect-ratio: 3 / 2; } }
   .deck, .orbit, .mark { position: absolute; inset: 0; display: grid; place-items: center; }
   /* the phone: white, a 0.5px black outline, iPhone proportions and corners */
   .ph { position: relative; grid-area: 1 / 1; height: 78cqh; aspect-ratio: 1125 / 2436; border: 0.5px solid #0B0B0C; border-radius: 13% / 6%;

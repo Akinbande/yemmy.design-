@@ -6,7 +6,6 @@ import Stack from '../../components/Stack.astro';
 import Marquee from '../../components/Marquee.astro';
 import StickyBoard from '../../components/StickyBoard.astro';
 import LucaIntro from '../../components/LucaIntro.astro';
-import LucaPrototype from '../../components/LucaPrototype.astro';
 import LucaLanding from '../../components/LucaLanding.astro';
 
 const entry = (await getEntry('work', 'luca'))!;
@@ -102,14 +101,6 @@ const results = [['50%', 'more accurate records'], ['30%', 'less time spent on b
         <div class="wide"><StickyBoard id="luca-board" label="A small shop's bookkeeping jobs, grouped by money in, money out, debts, stock, and wallet and bills"
           eyebrow="Everyday bookkeeping" sub="Twenty-eight everyday tasks Luca handles, from recording a sale to paying for electricity"
           notes={notes} legend={legend} colors={colors} /></div>
-      </section>
-
-      <section class="sec">
-        <div class="copy" data-reveal>
-          <h2>How the screens connect</h2>
-          <p>Every job starts on the home screen. Follow one at a time: a sale, a purchase, a product edit and an electricity bill.</p>
-        </div>
-        <div class="wide"><LucaPrototype /></div>
       </section>
 
       <section class="sec">
@@ -235,12 +226,15 @@ const results = [['50%', 'more accurate records'], ['30%', 'less time spent on b
   .close-r:hover .go { transform: translateX(4px); border-color: #01B5EC; color: #01B5EC; }
 
   @media (max-width: 860px) {
-    .head, .rules, .close { grid-template-columns: 1fr; }
+    .head, .close { grid-template-columns: 1fr; }
     .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .stats { grid-template-columns: 1fr; }
+    .close-r { border-left: 0; border-top: 1px solid var(--line-a); }
+  }
+  /* phones: one column; tablets keep the process in two columns and the three figures side by side */
+  @media (max-width: 600px) {
+    .rules, .stats { grid-template-columns: 1fr; }
     .stats li { border-right: 0; border-bottom: 1px solid var(--line-a); }
     .stats li:last-child { border-bottom: 0; }
-    .close-r { border-left: 0; border-top: 1px solid var(--line-a); }
   }
   @media (max-width: 480px) { .cards { grid-template-columns: 1fr; } }
 </style>
