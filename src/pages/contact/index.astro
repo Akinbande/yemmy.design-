@@ -1,0 +1,51 @@
+---
+/* The contact page: the same form as the Get in touch panel, with the ways to reach me beside it.
+   Useful as a link to share, and it works without JavaScript for everything but sending. */
+import Base from '../../layouts/Base.astro';
+import ContactForm from '../../components/ContactForm.astro';
+import { social } from '../../config';
+const EMAIL = 'hello@yemmy.design';
+---
+<Base title="Contact · Oluwayemi Akinbande" description="Hiring for a role, planning a project, redesigning a product, or making an introduction. Tell me a little and I will take it from there.">
+  <section class="wrap contact-page">
+    <div class="side">
+      <p class="mono crumbs" data-reveal>Contact</p>
+      <h1 data-reveal data-reveal-delay="0.08">Let's talk</h1>
+      <p class="sum" data-reveal data-reveal-delay="0.16">Hiring for a role, planning a project, redesigning a product, or making an introduction. Tell me a little, and I will take it from there.</p>
+      <dl class="panel ways" data-reveal data-reveal-delay="0.22">
+        <div><dt>Email</dt><dd><a href={`mailto:${EMAIL}`}>{EMAIL}</a><button type="button" class="copy" data-copy={EMAIL}>Copy</button></dd></div>
+        <div><dt>LinkedIn</dt><dd><a href={social.linkedin} target="_blank" rel="noopener noreferrer">akinoluwayemi<span class="sr-only"> (opens in a new tab)</span></a></dd></div>
+        <div><dt>Based in</dt><dd>Calgary, Canada</dd></div>
+        <div><dt>Time zone</dt><dd>Mountain Time (MT)</dd></div>
+      </dl>
+      <ol class="next" data-reveal data-reveal-delay="0.28">
+        <li><span class="mono">1</span>Your message comes straight to me.</li>
+        <li><span class="mono">2</span>I reply by email.</li>
+        <li><span class="mono">3</span>If it is a fit, we set up a call.</li>
+      </ol>
+    </div>
+    <div class="panel box" data-reveal data-reveal-delay="0.12"><ContactForm uid="cp" /></div>
+  </section>
+</Base>
+
+<style>
+  .contact-page { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(32px, 6vw, 88px); align-items: start;
+    padding-top: calc(var(--nav-h) + clamp(40px, 8vw, 96px)); padding-bottom: clamp(72px, 10vw, 140px); }
+  .side { display: grid; gap: 18px; position: sticky; top: calc(var(--nav-h) + 32px); }
+  .crumbs { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); }
+  h1 { font-size: clamp(40px, 5.6vw, 72px); letter-spacing: -0.045em; }
+  .sum { color: var(--muted); font-size: clamp(16px, 1.35vw, 18.5px); line-height: 1.6; max-width: 44ch; }
+  .ways { margin: 10px 0 0; }
+  .ways > div { display: grid; grid-template-columns: 96px 1fr; gap: 14px; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--line-a); }
+  .ways > div:last-child { border-bottom: 0; }
+  dt { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); }
+  dd { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; font-size: 14.5px; }
+  dd a { border-bottom: 1px solid var(--line); }
+  .copy { background: none; border: 1px solid var(--line-a); color: var(--muted); border-radius: 999px; font: 500 12px/1 var(--sans); padding: 6px 10px; cursor: pointer; min-height: 28px; }
+  .copy:hover { color: var(--fg); border-color: rgba(235, 238, 245, 0.22); }
+  .next { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 10px; color: var(--muted); font-size: 14.5px; }
+  .next li { display: flex; align-items: center; gap: 12px; }
+  .next .mono { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--line-a); font-size: 11px; color: var(--fg); flex: none; }
+  .box { padding: clamp(22px, 3vw, 36px); }
+  @media (max-width: 900px) { .contact-page { grid-template-columns: 1fr; } .side { position: static; } }
+</style>

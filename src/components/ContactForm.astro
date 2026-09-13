@@ -1,0 +1,274 @@
+---
+/* The contact form, shared by the Get in touch panel and the /contact/ page.
+   Step 1 asks what brings someone here. Step 2 asks only what that kind of message needs: a recruiter is asked about the
+   role, a founder about the product, a colleague about the introduction. No budget or salary questions.
+   Sending: with PUBLIC_CONTACT_ENDPOINT set (a Formspree-style form URL) it posts JSON there; without it, it opens the
+   visitor's email app with every answer filled in, addressed to hello@yemmy.design. */
+interface Props { uid: string }
+const { uid } = Astro.props;
+const endpoint = import.meta.env.PUBLIC_CONTACT_ENDPOINT ?? '';
+const EMAIL = 'hello@yemmy.design';
+const line = (d: string) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`;
+const intents = [
+  { v: 'hire', t: 'Hiring for a role', d: 'Full-time or contract, on your team', icon: line('M4 8h16v11H4zM9 8V5h6v3M4 13h16') },
+  { v: 'project', t: 'A project or contract', d: 'Design work with a clear scope', icon: line('M12 3 3 8l9 5 9-5-9-5zM3 13l9 5 9-5') },
+  { v: 'product', t: 'Redesigning a product', d: 'A SaaS or app that needs a fresh start', icon: line('M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5') },
+  { v: 'intro', t: 'An introduction', d: 'Recommending me, or inviting me to something', icon: line('M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3.5 20c0-3.2 2.5-5.2 5.5-5.2s5.5 2 5.5 5.2M16 11.2a2.6 2.6 0 1 0 0-5.2M17.5 14.9c1.9.6 3 2.3 3 5.1') },
+  { v: 'other', t: 'Something else', d: 'A question, a talk, or just hello', icon: line('M4 5h16v11H9l-5 4z') },
+];
+const when = ['As soon as possible', 'In 1 to 3 months', 'Later'];
+const id = (n: string) => `${uid}-${n}`;
+---
+<form class="cf" data-contact-form data-endpoint={endpoint} data-email={EMAIL} novalidate>
+  <div class="hp" aria-hidden="true"><label>Leave this empty <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" /></label></div>
+  <div class="progress mono" aria-hidden="true"><span class="pb on"></span><span class="pb"></span><span class="count">Step <b>1</b> of 2</span></div>
+
+  <fieldset class="step" data-step="1">
+    <legend class="q">What brings you here?</legend>
+    <div class="intents">
+      {intents.map((it) => (
+        <label class="intent">
+          <input type="radio" name="intent" value={it.v} required />
+          <span class="ic" set:html={it.icon} />
+          <span class="txt"><b>{it.t}</b><span>{it.d}</span></span>
+          <span class="tick" aria-hidden="true"></span>
+        </label>
+      ))}
+    </div>
+    <p class="err step-err" role="alert" hidden>Choose one to continue.</p>
+    <div class="actions"><button type="button" class="btn btn-primary next">Continue
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+  </fieldset>
+
+  <div class="step" data-step="2" hidden>
+    <div class="chosen"><span class="mono">About</span><b data-chosen></b><button type="button" class="change">Change</button></div>
+    <div class="grid2">
+      <label class="f"><span class="l">Your name <i>*</i></span><input id={id('name')} name="name" autocomplete="name" required /><span class="err">Add your name.</span></label>
+      <label class="f"><span class="l">Work email <i>*</i></span><input id={id('email')} type="email" name="email" autocomplete="email" required /><span class="err">Add an email I can reply to.</span></label>
+      <label class="f"><span class="l">Company or organisation</span><input name="company" autocomplete="organization" /></label>
+      <label class="f"><span class="l">Your role</span><input name="title" autocomplete="organization-title" placeholder="Talent partner or founder" /></label>
+    </div>
+
+    <fieldset class="more" data-for="hire" disabled>
+      <label class="f"><span class="l">Role you are hiring for <i>*</i></span><input name="role" required placeholder="Senior Product Designer" /><span class="err">Add the role.</span></label>
+      <fieldset class="f"><legend class="l">Type</legend><div class="chips">{['Full-time', 'Contract', 'Part-time'].map((o) => <label class="chip"><input type="radio" name="type" value={o} /><span>{o}</span></label>)}</div></fieldset>
+      <div class="grid2">
+        <fieldset class="f"><legend class="l">Where</legend><div class="chips">{['Remote', 'Hybrid', 'On-site'].map((o) => <label class="chip"><input type="radio" name="setup" value={o} /><span>{o}</span></label>)}</div></fieldset>
+        <label class="f"><span class="l">Location</span><input name="location" placeholder="City, country" /></label>
+      </div>
+      <label class="f"><span class="l">Link to the job post</span><input type="url" name="link" placeholder="https://" /><span class="err">Use a full link, starting with https://</span></label>
+      <fieldset class="f"><legend class="l">When would they start?</legend><div class="chips">{when.map((o) => <label class="chip"><input type="radio" name="start" value={o} /><span>{o}</span></label>)}</div></fieldset>
+    </fieldset>
+
+    <fieldset class="more" data-for="project" disabled>
+      <fieldset class="f"><legend class="l">What do you need?</legend><div class="chips">{['Service design', 'UX and UI design', 'Design system', 'Research', 'Accessibility review'].map((o) => <label class="chip"><input type="checkbox" name="needs" value={o} /><span>{o}</span></label>)}</div></fieldset>
+      <fieldset class="f"><legend class="l">Timeline</legend><div class="chips">{when.map((o) => <label class="chip"><input type="radio" name="timeline" value={o} /><span>{o}</span></label>)}</div></fieldset>
+      <label class="f"><span class="l">Link to a brief or product</span><input type="url" name="link" placeholder="https://" /><span class="err">Use a full link, starting with https://</span></label>
+    </fieldset>
+
+    <fieldset class="more" data-for="product" disabled>
+      <div class="grid2">
+        <label class="f"><span class="l">Product name <i>*</i></span><input name="product" required /><span class="err">Add the product's name.</span></label>
+        <label class="f"><span class="l">Product link</span><input type="url" name="link" placeholder="https://" /><span class="err">Use a full link, starting with https://</span></label>
+      </div>
+      <fieldset class="f"><legend class="l">What needs work?</legend><div class="chips">{['Onboarding', 'Core workflows', 'Dashboard', 'Design system', 'The whole product'].map((o) => <label class="chip"><input type="checkbox" name="needs" value={o} /><span>{o}</span></label>)}</div></fieldset>
+      <fieldset class="f"><legend class="l">Where is it now?</legend><div class="chips">{['In design', 'Live', 'Scaling'].map((o) => <label class="chip"><input type="radio" name="stage" value={o} /><span>{o}</span></label>)}</div></fieldset>
+      <fieldset class="f"><legend class="l">Timeline</legend><div class="chips">{when.map((o) => <label class="chip"><input type="radio" name="timeline" value={o} /><span>{o}</span></label>)}</div></fieldset>
+    </fieldset>
+
+    <fieldset class="more" data-for="intro" disabled>
+      <label class="f"><span class="l">What is it for? <i>*</i></span><input name="about" required placeholder="A role, a project, a talk or a panel" /><span class="err">Tell me what it is for.</span></label>
+      <label class="f"><span class="l">How do you know my work?</span>
+        <select name="how"><option value="">Choose one</option><option>We worked together</option><option>Through someone I know</option><option>I found this site</option><option>Another way</option></select>
+      </label>
+    </fieldset>
+
+    <label class="f"><span class="l"><span data-msg-label>Your message</span> <i data-msg-req>*</i></span><textarea name="message" rows="5" required data-msg></textarea><span class="err">Add a short message.</span></label>
+    <p class="err send-err" role="alert" hidden>That did not send. Please try again, or write to <a href={`mailto:${EMAIL}`}>{EMAIL}</a>.</p>
+    <div class="actions">
+      <button type="submit" class="btn btn-primary send">Send message</button>
+      <span class="fine">Your details are only used to reply to you.</span>
+    </div>
+  </div>
+
+  <div class="step done" data-step="3" hidden tabindex="-1">
+    <span class="ok" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.2 4.2L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    <h3 data-done-title>Thank you.</h3>
+    <p data-done-text></p>
+    <button type="button" class="btn btn-ghost again">Send another message</button>
+  </div>
+</form>
+
+<script>
+  const TITLES: Record<string, string> = { hire: 'Hiring for a role', project: 'A project or contract', product: 'Redesigning a product', intro: 'An introduction', other: 'Something else' };
+  // the message field changes with the reason: its label, its prompt, and whether it is needed (a recruiter's details are enough)
+  const MSG: Record<string, [string, string, boolean]> = {
+    hire: ['Anything else I should know?', 'The team, the product and the interview steps.', false],
+    project: ['Tell me about the project', 'What you are building, who it is for, and what good looks like.', true],
+    product: ['What is not working today?', 'What feels hard for your users, and what you want to change.', true],
+    intro: ['Tell me more', 'Who you would like to introduce me to, and why.', true],
+    other: ['Your message', 'Your question or note.', true],
+  };
+  const LABELS: [string, string][] = [['name', 'Name'], ['email', 'Email'], ['company', 'Company'], ['title', 'Their role'], ['role', 'Hiring for'], ['type', 'Type'],
+    ['setup', 'Where'], ['location', 'Location'], ['start', 'Start'], ['product', 'Product'], ['stage', 'Stage'], ['needs', 'Needs'], ['timeline', 'Timeline'],
+    ['about', 'For'], ['how', 'Knows my work'], ['link', 'Link'], ['message', 'Message']];
+
+  function initForm(form: HTMLFormElement) {
+    if (form.dataset.init) return; form.dataset.init = '1';
+    const steps = [...form.querySelectorAll<HTMLElement>('.step')];
+    const progress = form.querySelector<HTMLElement>('.progress')!;
+    let intent = '';
+    const show = (n: number, focus = true) => {
+      steps.forEach((s) => (s.hidden = s.dataset.step !== String(n)));
+      progress.hidden = n === 3;
+      progress.querySelectorAll('.pb').forEach((b, i) => b.classList.toggle('on', i < n));
+      progress.querySelector('b')!.textContent = String(Math.min(n, 2));
+      if (!focus) return;
+      const step = steps.find((s) => s.dataset.step === String(n))!;
+      const target = n === 3 ? step : step.querySelector<HTMLElement>(n === 1 ? 'input[name="intent"]:checked, input[name="intent"]' : 'input:not([type=hidden]), textarea');
+      target?.focus({ preventScroll: true });
+    };
+    const pick = (v: string) => {
+      intent = v;
+      form.querySelectorAll<HTMLFieldSetElement>('.more').forEach((f) => (f.disabled = f.dataset.for !== v));
+      form.querySelector('[data-chosen]')!.textContent = TITLES[v];
+      const [label, hint, req] = MSG[v];
+      const msg = form.querySelector<HTMLTextAreaElement>('[data-msg]')!;
+      form.querySelector('[data-msg-label]')!.textContent = label;
+      (form.querySelector('[data-msg-req]') as HTMLElement).hidden = !req;
+      msg.placeholder = hint; msg.required = req;
+      form.querySelector<HTMLElement>('.step-err')!.hidden = true;
+      show(2);
+    };
+    // a pointer tap on a reason moves on at once; keyboard users choose with the arrow keys, then press Continue
+    form.querySelectorAll<HTMLInputElement>('input[name="intent"]').forEach((inp) => {
+      inp.closest('.intent')!.addEventListener('pointerup', () => setTimeout(() => pick(inp.value), 160));
+    });
+    form.querySelector('.next')!.addEventListener('click', () => {
+      const c = form.querySelector<HTMLInputElement>('input[name="intent"]:checked');
+      if (c) pick(c.value); else form.querySelector<HTMLElement>('.step-err')!.hidden = false;
+    });
+    form.querySelector('.change')!.addEventListener('click', () => show(1));
+    form.querySelector('.again')!.addEventListener('click', () => { form.reset(); intent = ''; form.classList.remove('show-errors'); show(1); });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if ((form.elements.namedItem('_gotcha') as HTMLInputElement)?.value) return;   // a bot filled the hidden field
+      form.classList.add('show-errors');
+      if (!intent || !form.checkValidity()) { form.querySelector<HTMLElement>('.step[data-step="2"] :invalid:not(fieldset)')?.focus(); return; }
+      const fd = new FormData(form);
+      const rows: [string, string][] = [['About', TITLES[intent]]];
+      LABELS.forEach(([k, lab]) => { const v = fd.getAll(k).map((x) => String(x).trim()).filter(Boolean); if (v.length) rows.push([lab, v.join(', ')]); });
+      const name = String(fd.get('name') || '').trim(), email = String(fd.get('email') || '').trim(), company = String(fd.get('company') || '').trim();
+      const subject = `${TITLES[intent]}: ${name}${company ? ` at ${company}` : ''}`;
+      const send = form.querySelector<HTMLButtonElement>('.send')!, err = form.querySelector<HTMLElement>('.send-err')!;
+      const done = (viaMail: boolean) => {
+        form.querySelector('[data-done-title]')!.textContent = `Thank you, ${name.split(' ')[0]}.`;
+        form.querySelector('[data-done-text]')!.textContent = viaMail
+          ? `Your email app should now be open with your message ready. Press send there to finish. If nothing opened, write to ${form.dataset.email}.`
+          : `Your message is on its way. I'll reply to ${email}.`;
+        form.classList.remove('show-errors'); show(3);
+      };
+      err.hidden = true;
+      if (form.dataset.endpoint) {
+        send.disabled = true; send.textContent = 'Sending';
+        try {
+          const r = await fetch(form.dataset.endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify({ ...Object.fromEntries(rows), _replyto: email, _subject: subject }) });
+          if (!r.ok) throw new Error(String(r.status));
+          done(false);
+        } catch { err.hidden = false; }
+        send.disabled = false; send.textContent = 'Send message';
+      } else {
+        const body = rows.map(([k, v]) => `${k}: ${v}`).join('\n');
+        window.location.href = `mailto:${form.dataset.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        done(true);
+      }
+    });
+  }
+  function initCopy() {
+    document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((b) => {
+      if (b.dataset.init) return; b.dataset.init = '1';
+      b.addEventListener('click', async () => {
+        try { await navigator.clipboard.writeText(b.dataset.copy!); b.textContent = 'Copied'; setTimeout(() => (b.textContent = 'Copy'), 1600); } catch { /* the address is on screen to copy by hand */ }
+      });
+    });
+  }
+  document.addEventListener('astro:page-load', () => { document.querySelectorAll<HTMLFormElement>('[data-contact-form]').forEach(initForm); initCopy(); });
+</script>
+
+<style>
+  .cf { display: grid; gap: 22px; }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+  .step { display: grid; gap: 18px; }
+  .progress { display: flex; align-items: center; gap: 6px; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); }
+  .pb { width: 28px; height: 3px; border-radius: 3px; background: var(--line-a); transition: background 0.3s var(--ease); }
+  .pb.on { background: var(--accent); }
+  .count { margin-left: 8px; }
+  .count b { color: var(--fg); font-weight: 500; }
+  .q { font-size: 19px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 14px; padding: 0; }
+
+  /* the reasons: five cards, each a radio */
+  .intents { display: grid; gap: 10px; }
+  .intent { position: relative; display: grid; grid-template-columns: 42px 1fr 20px; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 14px; cursor: pointer;
+    border: 1px solid var(--line-a); background: rgba(235, 238, 245, 0.025); transition: border-color 0.2s, background 0.2s, transform 0.2s var(--ease); }
+  .intent:hover { border-color: rgba(235, 238, 245, 0.22); background: rgba(235, 238, 245, 0.05); transform: translateY(-1px); }
+  .intent input { position: absolute; opacity: 0; pointer-events: none; }
+  .intent .ic { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; background: rgba(235, 238, 245, 0.05); color: var(--fg); }
+  .intent .ic :global(svg) { width: 20px; height: 20px; }
+  .txt { display: grid; gap: 2px; }
+  .txt b { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+  .txt span { font-size: 13px; color: var(--muted); }
+  .tick { width: 20px; height: 20px; border-radius: 50%; border: 1px solid var(--line); transition: all 0.2s; }
+  .intent:has(input:checked) { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 9%, transparent); }
+  .intent:has(input:checked) .ic { background: color-mix(in srgb, var(--accent) 22%, transparent); color: #fff; }
+  .intent:has(input:checked) .tick { border-color: var(--accent); background: var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m6 12.5 4 4L18 8' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 14px no-repeat; }
+  .intent:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .chosen { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 12px; border: 1px solid var(--line-a); background: rgba(235, 238, 245, 0.03); font-size: 14px; }
+  .chosen .mono { font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); }
+  .change { margin-left: auto; background: none; border: 0; color: var(--accent); font: inherit; font-size: 13.5px; cursor: pointer; padding: 6px 4px; min-height: 32px; }
+  .more { display: grid; gap: 16px; }
+  .more[disabled] { display: none; }
+  .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 12px; }
+
+  /* fields */
+  .f { display: grid; gap: 7px; min-width: 0; }
+  .l { font-size: 13px; color: var(--muted); padding: 0; }
+  .l i { font-style: normal; color: var(--accent); }
+  input:not([type=radio]):not([type=checkbox]), select, textarea {
+    width: 100%; font: 400 15px/1.4 var(--sans); color: var(--fg); background: rgba(235, 238, 245, 0.04); border: 1px solid var(--line-a); border-radius: 10px;
+    padding: 12px 14px; min-height: 46px; transition: border-color 0.2s, background 0.2s; }
+  textarea { resize: vertical; min-height: 120px; }
+  select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%23A8ACB6' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 14px; padding-right: 36px; }
+  select option { color: #09090A; }
+  input::placeholder, textarea::placeholder { color: var(--dim); }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); background: rgba(235, 238, 245, 0.06); }
+  .err { display: none; font-size: 12.5px; color: #FF8A7A; }
+  .show-errors .f:has(> :invalid) > .err { display: block; }
+  .show-errors .f:has(> :invalid) > input, .show-errors .f:has(> :invalid) > textarea { border-color: #FF8A7A; }
+  .step-err:not([hidden]), .send-err:not([hidden]) { display: block; }
+  .send-err a { color: var(--fg); text-decoration: underline; }
+
+  /* chips: radios and checkboxes as pills */
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { position: relative; cursor: pointer; }
+  .chip input { position: absolute; opacity: 0; pointer-events: none; }
+  .chip span { display: inline-flex; align-items: center; min-height: 38px; padding: 8px 14px; border-radius: 999px; font-size: 13.5px; border: 1px solid var(--line-a); color: var(--muted);
+    background: rgba(235, 238, 245, 0.03); transition: all 0.2s; }
+  .chip:hover span { border-color: rgba(235, 238, 245, 0.22); color: var(--fg); }
+  .chip input:checked + span { border-color: var(--accent); color: #fff; background: color-mix(in srgb, var(--accent) 16%, transparent); }
+  .chip input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; margin-top: 4px; }
+  .fine { font-size: 12.5px; color: var(--dim); }
+  .send[disabled] { opacity: 0.6; }
+
+  .done { justify-items: start; gap: 12px; padding: 24px 0; outline: none; }
+  .ok { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; color: #fff; background: color-mix(in srgb, var(--ok, #3FB27F) 85%, transparent); }
+  .done h3 { font-size: 24px; }
+  .done p { color: var(--muted); font-size: 15px; line-height: 1.6; max-width: 46ch; }
+
+  @media (max-width: 520px) { .grid2 { grid-template-columns: 1fr; } }
+</style>

@@ -1,0 +1,137 @@
+---
+/* The problems I solved, laid out as a service map: six stages of a customer's journey across the top, and for each
+   stage the problem in it, what I designed, the gain in a few words, and the screen that does it. Every design line is
+   read from his screens. In view, the rail draws and the stages come in one after another. On phones the map keeps its
+   width and scrolls sideways inside its frame, with the lane names pinned on the left. */
+import { Image } from 'astro:assets';
+import login from '../assets/hometown/login.png';
+import verify from '../assets/hometown/verify.png';
+import pin from '../assets/hometown/pin.png';
+import transfer from '../assets/hometown/transfer.png';
+import h6 from '../assets/hometown/h6.png';
+import webHome from '../assets/hometown/web-home.png';
+
+const stages = [
+  { n: '01', t: 'Sign up', img: login, kind: 'phone',
+    problem: 'Open an account without a branch visit or a long form.',
+    fix: 'A phone number and a 6-digit password to begin, a code to confirm the number, then fingerprint sign-in.',
+    gain: 'Phone number first' },
+  { n: '02', t: 'Verify', img: verify, kind: 'phone',
+    problem: 'Meet the legal identity check without making it feel like one.',
+    fix: 'One number, BVN or NIN, then one document. One question per screen, with a line on why it is asked.',
+    gain: 'One ID number' },
+  { n: '03', t: 'Add money', img: pin, kind: 'phone',
+    problem: 'Bring money in from another bank and feel safe doing it.',
+    fix: 'Choose the amount, swipe to top up, enter a 4-digit PIN, and check card, amount and total before it goes.',
+    gain: 'One swipe, one PIN' },
+  { n: '04', t: 'Send and pay', img: transfer, kind: 'phone',
+    problem: 'Pay the same people and the same bills without typing them in again.',
+    fix: 'Saved beneficiaries, free transfers to any local bank, preset airtime amounts, and bills as quick actions on home.',
+    gain: 'No retyping' },
+  { n: '05', t: 'Cards and limits', img: h6, kind: 'crop',
+    problem: 'Never leave a customer guessing what a card costs or why a transfer is capped.',
+    fix: 'Card fees and 48-hour delivery shown before ordering. Each account level lists its limits and what raises them.',
+    gain: 'No surprises' },
+  { n: '06', t: 'On the web', img: webHome, kind: 'web',
+    problem: 'Give customers at a desk the same account on a bigger screen.',
+    fix: 'One home for balance, savings, loans and transactions, and payments by bank account or by username.',
+    gain: 'Same account, bigger screen' },
+];
+---
+<div class="map-scroll">
+  <div class="map" id="ht-map" role="table" aria-label="The problems I solved, stage by stage: the problem, what I designed, and the screen">
+    <div class="row head" role="row">
+      <span class="lane" role="rowheader">Stage</span>
+      {stages.map((s) => <div class="cell stage" role="columnheader"><i class="node" aria-hidden="true"></i><span class="mono n">{s.n}</span><b>{s.t}</b></div>)}
+      <i class="rail" aria-hidden="true"></i>
+    </div>
+    <div class="row" role="row">
+      <span class="lane" role="rowheader">The problem</span>
+      {stages.map((s) => <p class="cell prob" role="cell">{s.problem}</p>)}
+    </div>
+    <div class="row" role="row">
+      <span class="lane" role="rowheader">What I designed</span>
+      {stages.map((s) => <p class="cell fix" role="cell">{s.fix}</p>)}
+    </div>
+    <div class="row" role="row">
+      <span class="lane" role="rowheader">In short</span>
+      {stages.map((s) => <div class="cell" role="cell"><span class="gain">{s.gain}</span></div>)}
+    </div>
+    <div class="row shots" role="row">
+      <span class="lane" role="rowheader">The screen</span>
+      {stages.map((s) => (
+        <div class="cell" role="cell">
+          <div class={`thumb ${s.kind}`}>
+            {s.kind === 'web' && <span class="bar" aria-hidden="true"><i></i><i></i><i></i></span>}
+            <Image src={s.img} alt={`${s.t}: the screen`} width={s.kind === 'phone' ? 360 : 900} format="webp" quality={86} loading="lazy" />
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
+<p class="hint mono" aria-hidden="true">Scroll sideways to see all six stages</p>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  gsap.registerPlugin(ScrollTrigger);
+  function init() {
+    const map = document.getElementById('ht-map');
+    if (!map || map.dataset.init) return; map.dataset.init = '1';
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const rail = map.querySelector('.rail'), nodes = map.querySelectorAll('.node');
+    // each stage is a column; its cells come in together, one column after another
+    const cols = Array.from({ length: 6 }, (_, i) => map.querySelectorAll(`.row .cell:nth-of-type(${i + 1})`));
+    const tl = gsap.timeline({ scrollTrigger: { trigger: map, start: 'top 78%', once: true } });
+    tl.from(rail, { scaleX: 0, transformOrigin: '0 50%', duration: 1.2, ease: 'power2.inOut' })
+      .from(nodes, { scale: 0, duration: 0.35, ease: 'back.out(2)', stagger: 0.18 }, 0.1);
+    cols.forEach((c, i) => tl.from(c, { opacity: 0, y: 14, duration: 0.5, ease: 'power3.out', stagger: 0.05 }, 0.15 + i * 0.18));
+  }
+  document.addEventListener('astro:page-load', init);
+</script>
+
+<style>
+  /* a dark navy board with orange accents; six equal stage columns after the lane names */
+  .map-scroll { border-radius: 16px; }
+  .map { --lane: 132px; display: grid; gap: 0; border: 1px solid rgba(255, 102, 0, 0.18); border-radius: 16px; overflow: hidden;
+    background: linear-gradient(160deg, #0B0B52 0%, #080840 50%, #06062C 100%); }
+  .row { position: relative; display: grid; grid-template-columns: var(--lane) repeat(6, minmax(0, 1fr)); border-top: 1px solid rgba(255, 255, 255, 0.07); }
+  .row.head { border-top: 0; }
+  .lane { position: sticky; left: 0; z-index: 2; display: flex; align-items: flex-start; padding: 18px 16px; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: #FF9A55; background: #09094A; border-right: 1px solid rgba(255, 255, 255, 0.07); }
+  .cell { margin: 0; padding: 18px 16px; border-left: 1px solid rgba(255, 255, 255, 0.05); min-width: 0; }
+  .row .cell:nth-of-type(1) { border-left: 0; }
+
+  /* the stage rail: a line through six nodes */
+  .stage { position: relative; display: grid; gap: 6px; padding-top: 40px; }
+  .stage .n { font-size: 10.5px; letter-spacing: 0.12em; color: rgba(255, 255, 255, 0.5); }
+  .stage b { font-size: 15.5px; font-weight: 600; letter-spacing: -0.01em; color: #fff; }
+  .rail { position: absolute; left: var(--lane); right: 0; top: 24px; height: 1px; background: linear-gradient(90deg, rgba(255, 102, 0, 0.8), rgba(255, 102, 0, 0.25)); }
+  .node { position: absolute; top: 19px; width: 11px; height: 11px; border-radius: 50%; background: #FF6600; box-shadow: 0 0 0 4px rgba(255, 102, 0, 0.18); z-index: 1; }
+
+  .prob { color: rgba(255, 255, 255, 0.66); font-size: 13.5px; line-height: 1.55; }
+  .fix { color: #fff; font-size: 13.5px; line-height: 1.55; background: rgba(255, 102, 0, 0.06); box-shadow: inset 2px 0 0 #FF6600; }
+  .gain { display: inline-block; padding: 5px 10px; border-radius: 999px; font-size: 12px; font-weight: 500; color: #FFB27F; background: rgba(255, 102, 0, 0.12); border: 1px solid rgba(255, 102, 0, 0.28); }
+
+  /* the screens: phones in the 0.5px outline, the card screen cropped from its mockup, the web app in a small window */
+  .shots .cell { display: flex; align-items: flex-start; }
+  .thumb { position: relative; overflow: hidden; background: #FFF4ED; border: 0.5px solid rgba(255, 255, 255, 0.6); }
+  .thumb :global(img) { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+  .thumb.phone { width: 72px; aspect-ratio: 1125 / 2436; border-radius: 10px; }
+  .thumb.crop { width: 72px; aspect-ratio: 1125 / 2436; border-radius: 10px; }
+  .thumb.crop :global(img) { width: 330%; max-width: none; height: auto; margin-left: -115%; margin-top: 6%; }
+  .thumb.web { width: 100%; max-width: 170px; border-radius: 6px; background: #fff; }
+  .thumb.web .bar { display: flex; gap: 3px; padding: 4px 6px; background: #F6F3F1; border-bottom: 0.5px solid rgba(11, 11, 12, 0.12); }
+  .thumb.web .bar i { width: 4px; height: 4px; border-radius: 50%; background: #D9D4D0; }
+  .thumb.web :global(img) { height: auto; aspect-ratio: 4320 / 3072; }
+  .node { left: 16px; }
+
+  .hint { display: none; margin: 10px 0 0; text-align: center; font-size: 10.5px; letter-spacing: 0.08em; color: var(--dim); }
+  /* phones and small tablets: the map keeps a readable width and scrolls inside its frame */
+  @media (max-width: 1000px) {
+    .map-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .map { min-width: 1060px; --lane: 110px; }
+    .hint { display: block; }
+  }
+</style>
