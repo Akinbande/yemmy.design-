@@ -1,9 +1,14 @@
 ---
 /* Get in touch: a full page, and where every Get in touch link on the site goes.
-   The heading, availability and email first; then the form, with cards beside it for the ways to reach me, what I am
-   open to, what I bring and what happens next. On phones the form comes straight after the heading. */
+   The heading, availability and email first; then the form, with a Recent work strip under it (a slow, endless row
+   of project covers, each a link), and cards beside it for the ways to reach me (with my local time, live), what I am
+   open to, what I bring and what happens next. Light touches of interaction: a soft spotlight follows the pointer
+   over each panel, the cards lift on hover, and the light behind the heading drifts. On phones the form comes first. */
 import Base from '../../layouts/Base.astro';
+import { Image } from 'astro:assets';
 import ContactForm from '../../components/ContactForm.astro';
+import newdawn from '../../assets/newdawn/h1.png';
+import glaze from '../../assets/glaze/g1.png';
 import { social } from '../../config';
 const EMAIL = 'hello@yemmy.design';
 // the same words as the About page, so the two pages never disagree
@@ -12,6 +17,14 @@ const bring: [string, string][] = [
   ['Information architecture', 'Enterprise platforms, case management, operations and admin systems'],
   ['Design systems', 'Design tokens, component libraries and interaction standards'],
   ['Accessibility', 'WCAG 2.2 AA as a build constraint, not a final pass'],
+];
+// the Recent work strip: every cover links to its project
+const reel: { src: ImageMetadata | string; org: string; kind: string; href: string }[] = [
+  { src: '/covers/collga-1280.png', org: 'Collga', kind: 'Case study', href: '/work/collga/' },
+  { src: '/covers/luca-1280.png', org: 'Luca', kind: 'Case study', href: '/work/luca/' },
+  { src: '/covers/hometown-1280.png', org: 'Hometown', kind: 'Screens', href: '/screens/hometown/' },
+  { src: newdawn, org: 'Newdawn', kind: 'Screens', href: '/screens/newdawn/' },
+  { src: glaze, org: 'Glaze Dental', kind: 'Screens', href: '/screens/glaze-dental/' },
 ];
 ---
 <Base title="Get in touch · Oluwayemi Akinbande" description="Hiring for a role, planning a project, redesigning a product, or making an introduction. Tell me what you have in mind.">
@@ -27,27 +40,57 @@ const bring: [string, string][] = [
     </header>
 
     <div class="wrap body">
-      <section class="panel formbox" aria-label="Contact form" data-reveal data-reveal-delay="0.1"><ContactForm /></section>
+      <div class="main-col">
+        <section class="panel formbox spot" aria-label="Contact form" data-reveal data-reveal-delay="0.1"><ContactForm /></section>
+
+        <section class="panel reel spot" aria-labelledby="reel-h" data-reveal>
+          <div class="reel-head">
+            <div class="rh"><p class="eyebrow">While you are here</p><h2 id="reel-h" class="t">Recent work</h2></div>
+            <a class="all" href="/work/">See all work
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </div>
+          <div class="track-wrap">
+            <ul class="track">
+              {[...reel, ...reel].map((r, i) => {
+                const copy = i >= reel.length;   // the second set only makes the loop seamless: hidden from assistive tech
+                return (
+                  <li aria-hidden={copy ? 'true' : undefined}>
+                    <a href={r.href} tabindex={copy ? -1 : undefined}>
+                      <span class="thumb">
+                        {typeof r.src === 'string'
+                          ? <img src={r.src} alt="" width="1280" height="830" loading="lazy" decoding="async" />
+                          : <Image src={r.src} alt="" width={640} format="webp" quality={82} loading="lazy" />}
+                      </span>
+                      <span class="cap"><b>{r.org}</b><span class="mono">{r.kind}</span></span>
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </section>
+      </div>
 
       <aside class="side" aria-label="Other ways to reach me">
-        <div class="panel card" data-reveal data-reveal-delay="0.16">
+        <div class="panel card spot" data-reveal data-reveal-delay="0.16">
           <h2 class="t">Reach me directly</h2>
           <dl class="ways">
             <div><dt>Email</dt><dd><a href={`mailto:${EMAIL}`}>{EMAIL}</a><button type="button" class="copy" data-copy={EMAIL}>Copy</button></dd></div>
             <div><dt>LinkedIn</dt><dd><a href={social.linkedin} target="_blank" rel="noopener noreferrer">akinoluwayemi<span class="sr-only"> (opens in a new tab)</span></a></dd></div>
             <div><dt>Based in</dt><dd>Calgary, Alberta, Canada</dd></div>
-            <div><dt>Time zone</dt><dd>Mountain Time (MT)</dd></div>
+            <div><dt>Local time</dt><dd class="clock" data-clock data-state="off"><i class="cdot" aria-hidden="true"></i><span data-t>Mountain Time (MT)</span><span class="mono cs" data-s></span></dd></div>
           </dl>
         </div>
-        <div class="panel card" data-reveal data-reveal-delay="0.2">
+        <div class="panel card spot" data-reveal data-reveal-delay="0.2">
           <h2 class="t">Open to</h2>
           <p>Senior Service and UX Design roles, and freelance or contract engagements.</p>
         </div>
-        <div class="panel card" data-reveal data-reveal-delay="0.24">
+        <div class="panel card spot" data-reveal data-reveal-delay="0.24">
           <h2 class="t">What I bring</h2>
           <dl class="caps">{bring.map(([k, v]) => <div><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
         </div>
-        <div class="panel card" data-reveal data-reveal-delay="0.28">
+        <div class="panel card spot" data-reveal data-reveal-delay="0.28">
           <h2 class="t">What happens next</h2>
           <ol class="next">
             <li><span class="mono">1</span>Your message comes straight to me.</li>
@@ -60,52 +103,130 @@ const bring: [string, string][] = [
   </article>
 </Base>
 
+<script>
+  let ctl: AbortController | null = null;
+  let clockTimer = 0;
+  function init() {
+    ctl?.abort(); ctl = new AbortController();
+    clearInterval(clockTimer);
+    if (!document.querySelector('.contact')) return;
+    const { signal } = ctl;
+    // a soft light follows the pointer over each panel
+    if (matchMedia('(hover: hover)').matches) {
+      document.querySelectorAll<HTMLElement>('.contact .spot').forEach((el) => {
+        el.addEventListener('pointermove', (e) => {
+          const r = el.getBoundingClientRect();
+          el.style.setProperty('--mx', `${e.clientX - r.left}px`);
+          el.style.setProperty('--my', `${e.clientY - r.top}px`);
+        }, { signal });
+      });
+    }
+    // my local time, live: the time in Mountain Time, and whether it is inside working hours (weekdays, 9 to 5)
+    const clock = document.querySelector<HTMLElement>('[data-clock]');
+    if (clock) {
+      const time = new Intl.DateTimeFormat('en-GB', { timeZone: 'America/Edmonton', hour: '2-digit', minute: '2-digit', hour12: false });
+      const day = new Intl.DateTimeFormat('en-GB', { timeZone: 'America/Edmonton', weekday: 'short' });
+      const update = () => {
+        const now = new Date(), t = time.format(now), h = +t.slice(0, 2);
+        const working = !['Sat', 'Sun'].includes(day.format(now)) && h >= 9 && h < 17;
+        clock.querySelector('[data-t]')!.textContent = `${t} MT`;
+        clock.querySelector('[data-s]')!.textContent = working ? 'Working hours' : 'Outside working hours';
+        clock.dataset.state = working ? 'on' : 'off';
+      };
+      update();
+      clockTimer = window.setInterval(update, 30000);
+    }
+  }
+  document.addEventListener('astro:page-load', init);
+</script>
+
 <style>
   .contact { position: relative; padding-top: calc(var(--nav-h) + clamp(40px, 8vw, 96px)); padding-bottom: clamp(72px, 10vw, 140px); }
-  /* a faint light of the site's accent behind the heading */
+  /* a faint light of the site's accent behind the heading, drifting slowly */
   .contact::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 560px; pointer-events: none;
     background: radial-gradient(55% 80% at 18% 0%, color-mix(in srgb, var(--accent) 13%, transparent), transparent 70%);
     animation: c-glow 16s ease-in-out infinite alternate; }
-  /* the light behind the heading drifts slowly, left to right and back */
   @keyframes c-glow { from { transform: translate3d(-4%, 0, 0); opacity: 0.85; } to { transform: translate3d(8%, 3%, 0); opacity: 1; } }
-  @media (prefers-reduced-motion: reduce) { .contact::before { animation: none; } }
   .head, .body { position: relative; }
   .head { display: grid; gap: 16px; }
   .crumbs { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); }
   h1 { font-size: clamp(38px, 5.4vw, 68px); letter-spacing: -0.045em; max-width: 16ch; }
   .sum { color: var(--muted); font-size: clamp(16px, 1.35vw, 18.5px); line-height: 1.6; max-width: 56ch; }
   .direct { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin-top: 4px; font-size: 14.5px; color: var(--muted); }
-  .direct a { color: var(--fg); border-bottom: 1px solid var(--line); }
+  .direct a { color: var(--fg); border-bottom: 1px solid var(--line); transition: border-color 0.2s; }
+  .direct a:hover { border-color: var(--fg); }
   .open { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line-a); background: rgba(235, 238, 245, 0.03);
     font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--fg); }
   .open i { position: relative; width: 7px; height: 7px; border-radius: 50%; background: var(--ok); }
   .open i::after { content: ''; position: absolute; inset: -5px; border-radius: 50%; border: 1px solid var(--ok); animation: c-pulse 2.2s ease-out infinite; }
   @keyframes c-pulse { from { transform: scale(0.4); opacity: 0.9; } to { transform: scale(1.6); opacity: 0; } }
-  @media (prefers-reduced-motion: reduce) { .open i::after { animation: none; opacity: 0.5; } }
 
   .body { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 0.8fr); gap: clamp(20px, 3vw, 36px); align-items: start; margin-top: clamp(36px, 5vw, 64px); }
+  .main-col { display: grid; gap: 14px; align-content: start; min-width: 0; }
   .formbox { padding: clamp(22px, 3.2vw, 40px); }
   .side { display: grid; gap: 14px; position: sticky; top: calc(var(--nav-h) + 24px); }
+
+  /* the spotlight: a soft light under the content, where the pointer is */
+  /* the lift uses translate, not transform, so it never fights the scroll reveal */
+  .spot { position: relative; isolation: isolate; transition: border-color 0.3s, translate 0.4s var(--ease); }
+  .spot::after { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; border-radius: inherit; opacity: 0; transition: opacity 0.35s;
+    background: radial-gradient(460px circle at var(--mx, 50%) var(--my, 0%), color-mix(in srgb, var(--accent) 10%, transparent), transparent 62%); }
+  .spot:hover::after { opacity: 1; }
+  .spot:hover { border-color: rgba(235, 238, 245, 0.18); }
+
+  /* the side cards: each lifts a little on hover */
   .card { padding: 20px 22px; display: grid; gap: 12px; }
+  .card:hover { translate: 0 -2px; }
   .t { font-size: 15.5px; letter-spacing: -0.01em; }
   .card p { color: var(--muted); font-size: 14px; line-height: 1.6; }
   .ways, .caps { margin: 0; display: grid; gap: 10px; }
   .ways > div { display: grid; grid-template-columns: 80px 1fr; gap: 12px; align-items: center; }
   .ways dt { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); }
   .ways dd { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 14px; min-width: 0; }
-  .ways dd a { border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+  .ways dd a { border-bottom: 1px solid var(--line); overflow-wrap: anywhere; transition: border-color 0.2s; }
+  .ways dd a:hover { border-color: var(--fg); }
+  .clock .cdot { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); }
+  .clock[data-state='on'] .cdot { background: var(--ok); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 22%, transparent); }
+  .cs { font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); }
   .caps > div { display: grid; gap: 3px; }
   .caps dt { font-size: 14px; font-weight: 500; color: var(--fg); }
   .caps dd { margin: 0; font-size: 13px; line-height: 1.5; color: var(--muted); }
-  .copy { background: none; border: 1px solid var(--line-a); color: var(--muted); border-radius: 999px; font: 500 12px/1 var(--sans); padding: 7px 12px; cursor: pointer; min-height: 32px; }
+  .copy { background: none; border: 1px solid var(--line-a); color: var(--muted); border-radius: 999px; font: 500 12px/1 var(--sans); padding: 7px 12px; cursor: pointer; min-height: 32px; transition: color 0.2s, border-color 0.2s; }
   .copy:hover { color: var(--fg); border-color: rgba(235, 238, 245, 0.22); }
   .next { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; color: var(--muted); font-size: 14px; }
   .next li { display: flex; align-items: center; gap: 12px; }
   .next .mono { display: inline-grid; place-items: center; width: 24px; height: 24px; flex: none; border-radius: 50%; border: 1px solid var(--line-a); font-size: 11px; color: var(--fg); }
+
+  /* Recent work: a slow, endless row of covers under the form; it pauses while the pointer is on it */
+  .reel { padding: 22px 0 24px; display: grid; gap: 16px; overflow: hidden; }
+  .reel-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding: 0 clamp(22px, 3.2vw, 40px); }
+  .rh { display: grid; gap: 6px; }
+  .all { display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--muted); transition: color 0.2s; }
+  .all svg { transition: transform 0.3s var(--ease); }
+  .all:hover { color: var(--fg); }
+  .all:hover svg { transform: translateX(4px); }
+  .track-wrap { overflow: hidden; padding-top: 4px; -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%); }
+  .track { list-style: none; margin: 0; padding: 0; display: flex; width: max-content; animation: c-reel 42s linear infinite; }
+  .track-wrap:hover .track, .track:focus-within { animation-play-state: paused; }
+  @keyframes c-reel { to { transform: translateX(-50%); } }
+  /* a margin, not a gap, so the second set starts exactly half-way and the loop never jumps */
+  .track li { flex: none; width: clamp(200px, 17vw, 250px); margin-right: 12px; }
+  .track a { display: grid; gap: 10px; }
+  .thumb { display: block; overflow: hidden; aspect-ratio: 2400 / 1557; border-radius: 12px; border: 1px solid var(--line-a); background: #0C0D0F; transition: border-color 0.3s, transform 0.4s var(--ease); }
+  .thumb :global(img) { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .track a:hover .thumb, .track a:focus-visible .thumb { border-color: color-mix(in srgb, var(--accent) 55%, transparent); transform: translateY(-3px); }
+  .cap { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 0 2px; font-size: 13.5px; }
+  .cap b { font-weight: 500; }
+  .cap .mono { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); }
 
   /* tablets: the cards sit in two columns under the form; phones: one column */
   @media (max-width: 960px) { .body { grid-template-columns: 1fr; } .side { position: static; grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (max-width: 620px) { .side { grid-template-columns: 1fr; } }
   /* very narrow screens: each label sits above its value, so the email never breaks mid-word */
   @media (max-width: 400px) { .ways > div { grid-template-columns: 1fr; gap: 4px; } .ways dd a { overflow-wrap: normal; } }
+  @media (prefers-reduced-motion: reduce) {
+    .contact::before, .open i::after { animation: none; }
+    .track { animation: none; } .track-wrap { overflow-x: auto; }
+    .card:hover { translate: none; } .thumb { transform: none !important; }
+  }
 </style>

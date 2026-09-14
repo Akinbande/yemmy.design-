@@ -158,6 +158,7 @@ const length = ['Under 3 months', '3 to 6 months', '6 to 12 months', '1 year or 
       const on = (form.querySelector<HTMLInputElement>('input[name="type"]:checked')?.value ?? '') === 'Contract';
       contract.hidden = !on;
       contract.querySelectorAll<HTMLInputElement>('input').forEach((i) => { i.disabled = !on; if (!on) i.checked = false; });
+      pills();
     };
     form.querySelectorAll<HTMLInputElement>('input[name="type"]').forEach((r) => r.addEventListener('change', syncContract));
 
@@ -177,9 +178,28 @@ const length = ['Under 3 months', '3 to 6 months', '6 to 12 months', '1 year or 
       form.querySelectorAll('input[name="intent"][aria-invalid]').forEach((r) => r.removeAttribute('aria-invalid'));
       const first = rest.hidden;
       rest.hidden = false;
+      pills();
       if (first) rest.animate?.([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 320, easing: 'cubic-bezier(.2,.7,.2,1)' });
     };
     form.querySelectorAll<HTMLInputElement>('input[name="intent"]').forEach((r) => r.addEventListener('change', () => choose(r.value)));
+
+    // one-answer choices: a lit pill slides to the part that was chosen (placed from each part's own box, so it also
+    // works when a control wraps into rows on a phone)
+    function pills() {
+      form!.querySelectorAll<HTMLElement>('.seg').forEach((seg) => {
+        let pill = seg.querySelector<HTMLElement>(':scope > .seg-pill');
+        if (!pill) { pill = document.createElement('i'); pill.className = 'seg-pill'; pill.setAttribute('aria-hidden', 'true'); seg.prepend(pill); seg.classList.add('js'); }
+        const on = seg.querySelector<HTMLInputElement>('input:checked')?.closest('label') as HTMLElement | null;
+        if (!on || !seg.offsetParent) { pill.style.opacity = '0'; return; }
+        pill.style.opacity = '1';
+        pill.style.width = `${on.offsetWidth}px`;
+        pill.style.height = `${on.offsetHeight}px`;
+        pill.style.transform = `translate(${on.offsetLeft}px, ${on.offsetTop}px)`;
+      });
+    }
+    pills();
+    form.addEventListener('change', (e) => { if ((e.target as HTMLElement).closest('.seg')) pills(); });
+    window.addEventListener('resize', pills, { passive: true });
 
     // errors: each field says what is wrong in its own words; a summary at the top counts them
     const errOf = (el: HTMLElement) => document.getElementById(`${el.id}-err`) ?? ((el as HTMLInputElement).name === 'intent' ? form.querySelector<HTMLElement>('#cf-intent-err') : null);
@@ -248,6 +268,7 @@ const length = ['Under 3 months', '3 to 6 months', '6 to 12 months', '1 year or 
       form.querySelectorAll<HTMLElement>(':scope > .req, :scope > fieldset').forEach((el) => (el.hidden = false));
       rest.hidden = true; done.hidden = true; summary.hidden = true;
       syncContract();
+      pills();
       form.querySelectorAll<HTMLElement>('.err').forEach((e) => clear(e));
       form.querySelectorAll('[aria-invalid]').forEach((el) => el.removeAttribute('aria-invalid'));
       form.querySelector<HTMLInputElement>('input[name="intent"]')?.focus();
@@ -313,19 +334,24 @@ const length = ['Under 3 months', '3 to 6 months', '6 to 12 months', '1 year or 
   .opt { margin-left: 6px; font-size: 12px; color: var(--dim); }
   input:not([type=radio]):not([type=checkbox]), select, textarea {
     width: 100%; font: 400 15px/1.4 var(--sans); color: var(--fg); background: rgba(235, 238, 245, 0.04); border: 1px solid var(--line-a); border-radius: 10px;
-    padding: 0 14px; height: 46px; transition: border-color 0.2s, background 0.2s; }
+    padding: 0 14px; height: 46px; transition: border-color 0.2s, background 0.2s, box-shadow 0.25s; }
   textarea { height: auto; padding: 12px 14px; resize: vertical; min-height: 150px; line-height: 1.55; }
   select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%23A8ACB6' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 14px; padding-right: 36px; }
   select option { color: #09090A; }
   input::placeholder, textarea::placeholder { color: var(--dim); }
-  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); background: rgba(235, 238, 245, 0.06); }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); background: rgba(235, 238, 245, 0.06); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 16%, transparent); }
   [aria-invalid='true']:not([type=radio]) { border-color: #FF8A7A !important; }
   .err { font-size: 12.5px; color: #FF9D8F; }
   .err[hidden] { display: none; }
 
   /* one answer: a segmented control in equal parts, exactly as tall as a text box */
-  .seg { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 3px; padding: 3px; height: 46px; border-radius: 10px; border: 1px solid var(--line-a); background: rgba(235, 238, 245, 0.03); }
-  .seg label { position: relative; cursor: pointer; min-width: 0; }
+  .seg { position: relative; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 3px; padding: 3px; height: 46px; border-radius: 10px; border: 1px solid var(--line-a); background: rgba(235, 238, 245, 0.03); }
+  .seg label { position: relative; z-index: 1; cursor: pointer; min-width: 0; }
+  /* the sliding pill (added by the script); with it, the chosen part only needs its text lit */
+  .seg :global(.seg-pill) { position: absolute; left: 0; top: 0; z-index: 0; border-radius: 7px; opacity: 0; pointer-events: none;
+    background: color-mix(in srgb, var(--accent) 20%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 65%, transparent);
+    transition: transform 0.42s var(--ease), width 0.42s var(--ease), height 0.42s var(--ease), opacity 0.2s; }
+  .seg.js input:checked + span { background: transparent; box-shadow: none; }
   .seg input { position: absolute; opacity: 0; pointer-events: none; }
   .seg span { display: flex; align-items: center; justify-content: center; text-align: center; height: 100%; padding: 0 8px; border-radius: 7px;
     font-size: 13.5px; line-height: 1.2; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: background 0.2s, color 0.2s, box-shadow 0.2s; }
@@ -342,12 +368,15 @@ const length = ['Under 3 months', '3 to 6 months', '6 to 12 months', '1 year or 
   .pick span::before { content: ''; flex: none; width: 16px; height: 16px; border-radius: 5px; border: 1px solid var(--line); transition: all 0.2s; }
   .pick:hover span { border-color: rgba(235, 238, 245, 0.22); color: var(--fg); }
   .pick input:checked + span { color: #fff; border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); }
-  .pick input:checked + span::before { border-color: var(--accent); background: var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m6 12.5 4 4L18 8' fill='none' stroke='white' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 12px no-repeat; }
+  @keyframes cf-pop { 0% { transform: scale(0.6); } 60% { transform: scale(1.18); } 100% { transform: scale(1); } }
+  .pick input:checked + span::before { animation: cf-pop 0.32s var(--ease); border-color: var(--accent); background: var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m6 12.5 4 4L18 8' fill='none' stroke='white' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 12px no-repeat; }
   .pick input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
 
   .send-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; padding-top: 6px; }
   .fine { font-size: 12.5px; color: var(--dim); max-width: 38ch; }
   .send[disabled] { opacity: 0.6; }
+  .send svg { transition: transform 0.3s var(--ease); }
+  .send:hover svg { transform: translateX(4px); }
   .send-err { font-size: 13.5px; color: #FF9D8F; }
   .send-err a { color: var(--fg); text-decoration: underline; }
 
@@ -357,7 +386,7 @@ const length = ['Under 3 months', '3 to 6 months', '6 to 12 months', '1 year or 
   .done p { color: var(--muted); font-size: 15px; line-height: 1.6; max-width: 46ch; }
 
   /* narrower forms: four-part choices wrap into two rows of two, still equal */
-  @media (max-width: 720px) { .seg:has(> label:nth-child(4)) { grid-auto-flow: row; grid-template-columns: repeat(2, minmax(0, 1fr)); height: auto; } .seg:has(> label:nth-child(4)) span { height: 38px; } }
+  @media (max-width: 720px) { .seg:has(> label:nth-of-type(4)) { grid-auto-flow: row; grid-template-columns: repeat(2, minmax(0, 1fr)); height: auto; } .seg:has(> label:nth-of-type(4)) span { height: 38px; } }
   @media (max-width: 620px) { .intents, .grid2 { grid-template-columns: 1fr; } .picks { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (max-width: 420px) { .seg { grid-auto-flow: row; grid-template-columns: 1fr; height: auto; } .seg span { height: 38px; } }
   @media (prefers-reduced-motion: reduce) { .intent { animation: none; } }
