@@ -245,9 +245,7 @@ const length = ['Under 3 months', '3 to 6 months', '6 to 12 months', '1 year or 
           ? `Your email app should now be open with your message ready. Press send there to finish. If nothing opened, write to ${form.dataset.email}.`
           : `Your message is on its way. I'll reply to ${email}.`;
         form.querySelectorAll<HTMLElement>(':scope > :not(.done)').forEach((el) => (el.hidden = true));
-        done.hidden = false; done.focus();
-        form.dispatchEvent(new CustomEvent('cf:sent', { detail: { viaMail } }));   // the page's How this works follows it
-      };
+        done.hidden = false; done.focus();      };
       err.hidden = true;
       if (form.dataset.endpoint) {
         send.disabled = true;
@@ -272,9 +270,7 @@ const length = ['Under 3 months', '3 to 6 months', '6 to 12 months', '1 year or 
       pills();
       form.querySelectorAll<HTMLElement>('.err').forEach((e) => clear(e));
       form.querySelectorAll('[aria-invalid]').forEach((el) => el.removeAttribute('aria-invalid'));
-      form.querySelector<HTMLInputElement>('input[name="intent"]')?.focus();
-      form.dispatchEvent(new CustomEvent('cf:reset'));
-    });
+      form.querySelector<HTMLInputElement>('input[name="intent"]')?.focus();    });
   }
   function initCopy() {
     document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((b) => {
