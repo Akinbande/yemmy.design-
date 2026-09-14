@@ -1,11 +1,10 @@
 ---
-/* Behind the About header: his project covers as dark, see-through cards moving through 3D space.
-   Each card slips in from deep in the distance (faint, angled away), glides forward and sideways as it turns toward
-   the viewer and brightens, then eases back out the way it came, and returns: a slow loop of its own length, started
-   at its own point, so some cards come forward while others recede and they cross in depth. The whole scene leans a
-   little toward the pointer, and on scroll the cards rise at different speeds as the header leaves. A veil keeps the
-   left side dark so the heading always reads. Decorative only: hidden from assistive tech.
-   Three layers per card, so the motions never fight: .pc (scroll), .pc-move (the in-and-out loop), .pc-in (the look). */
+/* Behind the About header: his project covers on a slow 3D carousel ring (his choice).
+   The ring is tilted, seen a little from above, and turns without stopping: each cover comes around from the back
+   (dim and small), sweeps across the front (bright and large), and goes round again. At the sides a cover angles like
+   it sits on the ring; at the back it still faces the viewer, so no screen ever shows mirrored. Scrolling spins the
+   ring faster for a moment; the pointer tilts it; as the header leaves, the ring drifts up and dims. It rests while
+   the header is off screen. A veil keeps the left side dark so the heading always reads. Decorative only. */
 import { Image } from 'astro:assets';
 import newdawn from '../assets/newdawn/h1.png';
 import glaze from '../assets/glaze/g1.png';
@@ -13,32 +12,21 @@ import lucaScreens from '../assets/luca/l2.png';
 import collgaAdmin from '../assets/collga/admin1.png';
 import hometownLanding from '../assets/hometown/la1.png';
 
-// x, y: resting position in the header (%); w: width; z: resting depth (px, negative is further); ry, rx: resting angle;
-// o: brightest opacity; d: seconds for one way of the loop (in, or out)
-const cards: { src: ImageMetadata | string; x: number; y: number; w: string; z: number; ry: number; rx: number; o: number; d: number }[] = [
-  { src: '/covers/collga-1280.png', x: 50, y: 4, w: 'clamp(220px, 25vw, 400px)', z: -120, ry: -18, rx: 6, o: 0.6, d: 9 },
-  { src: '/covers/luca-1280.png', x: 73, y: 18, w: 'clamp(200px, 22vw, 360px)', z: -40, ry: -24, rx: 4, o: 0.66, d: 10.5 },
-  { src: '/covers/hometown-1280.png', x: 58, y: 50, w: 'clamp(210px, 24vw, 380px)', z: 0, ry: -14, rx: -4, o: 0.6, d: 11.5 },
-  { src: newdawn, x: 85, y: 56, w: 'clamp(170px, 18vw, 300px)', z: -200, ry: -28, rx: 2, o: 0.48, d: 9.5 },
-  { src: glaze, x: 36, y: 68, w: 'clamp(180px, 20vw, 320px)', z: -260, ry: -10, rx: -6, o: 0.42, d: 12 },
-  { src: hometownLanding, x: 88, y: -4, w: 'clamp(150px, 16vw, 260px)', z: -320, ry: -30, rx: 8, o: 0.36, d: 10 },
-  { src: lucaScreens, x: 18, y: -8, w: 'clamp(150px, 16vw, 260px)', z: -420, ry: 12, rx: 6, o: 0.26, d: 13 },
-  { src: collgaAdmin, x: 42, y: 28, w: 'clamp(130px, 14vw, 230px)', z: -520, ry: -8, rx: 2, o: 0.3, d: 11 },
-];
+const cards: (ImageMetadata | string)[] = ['/covers/collga-1280.png', newdawn, '/covers/luca-1280.png', glaze, '/covers/hometown-1280.png', collgaAdmin, lucaScreens, hometownLanding];
 ---
 <div class="cards3d" id="about-cards" aria-hidden="true">
-  <div class="scene">
-    {cards.map((c) => (
-      <div class="pc" data-z={c.z} data-ry={c.ry} data-rx={c.rx} data-o={c.o} data-d={c.d} style={`left:${c.x}%;top:${c.y}%;width:${c.w}`}>
-        <div class="pc-move">
+  <div class="rig">
+    <div class="scene">
+      {cards.map((src) => (
+        <div class="pc">
           <div class="pc-in">
-            {typeof c.src === 'string'
-              ? <img src={c.src} alt="" width="1280" height="830" loading="eager" decoding="async" />
-              : <Image src={c.src} alt="" width={900} format="webp" quality={80} loading="eager" />}
+            {typeof src === 'string'
+              ? <img src={src} alt="" width="1280" height="830" loading="eager" decoding="async" />
+              : <Image src={src} alt="" width={900} format="webp" quality={80} loading="eager" />}
           </div>
         </div>
-      </div>
-    ))}
+      ))}
+    </div>
   </div>
   <i class="veil"></i>
 </div>
@@ -48,71 +36,87 @@ const cards: { src: ImageMetadata | string; x: number; y: number; w: string; z: 
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
   gsap.registerPlugin(ScrollTrigger);
   let ctl: AbortController | null = null;
+  let tick: ((t: number, dt: number) => void) | null = null;
   function init() {
     ctl?.abort(); ctl = new AbortController();
+    if (tick) { gsap.ticker.remove(tick); tick = null; }
     const root = document.getElementById('about-cards');
     if (!root || root.dataset.init) return; root.dataset.init = '1';
-    const scene = root.querySelector<HTMLElement>('.scene')!;
+    const { signal } = ctl;
+    const rig = root.querySelector<HTMLElement>('.rig')!, scene = root.querySelector<HTMLElement>('.scene')!;
     const pcs = [...root.querySelectorAll<HTMLElement>('.pc')];
-    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const loops: gsap.core.Timeline[] = [];
-    pcs.forEach((p, i) => {
-      const z = +p.dataset.z!, ry = +p.dataset.ry!, rx = +p.dataset.rx!, o = +p.dataset.o!, d = +p.dataset.d!;
-      const mv = p.querySelector<HTMLElement>('.pc-move')!;
-      gsap.set(mv, { z, rotationY: ry, rotationX: rx, opacity: o });   // the resting pose, also the reduced-motion pose
-      if (reduced) return;
-      // the loop: from far (faint, turned away, off to one side) to near (bright, turned in, across the other way), and back
-      const side = i % 2 ? 1 : -1;
-      const tl = gsap.timeline({ repeat: -1, yoyo: true, defaults: { ease: 'sine.inOut' } });
-      tl.fromTo(mv,
-        { z: z - 560, x: side * 90, y: 24, rotationY: ry - 22, rotationX: rx + 6, opacity: o * 0.32 },
-        { z: z + 160, x: -side * 50, y: -18, rotationY: ry + 10, rotationX: rx - 3, opacity: o, duration: d });
-      tl.progress((i * 0.37 + 0.13) % 1);   // each card starts at its own point, so the scene is always mid-motion
-      loops.push(tl);
-    });
-    (root as any).__loops = loops;   // lets a reviewer seek the loops to any moment
-    if (reduced) return;
+    const N = pcs.length, TILT = -12;   // the ring leans back 12 degrees, so we see it a little from above
+    let R = 0;
+    const size = () => { const w = root.clientWidth; R = w < 760 ? w * 0.5 : Math.min(560, w * 0.3); };
+    size();
+    window.addEventListener('resize', size, { passive: true, signal });
+    gsap.set(scene, { rotationX: TILT });
+
+    // place every cover for a given turn of the ring: front is bright and near, back is dim and far
+    const render = (deg: number) => {
+      pcs.forEach((p, i) => {
+        const a = ((deg + (i * 360) / N) * Math.PI) / 180;
+        const x = Math.sin(a) * R, z = Math.cos(a) * R, front = (Math.cos(a) + 1) / 2;
+        p.style.transform = `translate(-50%, -50%) translate3d(${x.toFixed(1)}px, 0, ${z.toFixed(1)}px) rotateY(${(Math.sin(a) * 28).toFixed(2)}deg)`;
+        p.style.opacity = (0.12 + 0.6 * front * front).toFixed(3);
+      });
+    };
+    let angle = 20;
+    render(angle);
+    (root as any).__ring = { render };   // lets a reviewer set the ring to any turn
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    // the turn: about one revolution a minute, faster for a moment while the page scrolls, then easing back
+    let boost = 0, running = true;
+    tick = (_t, dt) => {
+      if (!running) return;
+      boost *= 0.94;
+      angle -= ((6 + boost * 16) * dt) / 1000;
+      render(angle);
+    };
+    gsap.ticker.add(tick);
     const hero = root.parentElement!;
-    // scroll: near cards rise faster than far ones as the header leaves, and the scene dims
-    pcs.forEach((p) => {
-      const near = 1 - Math.min(1, Math.abs(+p.dataset.z!) / 600);
-      gsap.to(p, { y: -(80 + 220 * near), rotationX: -6, ease: 'none', scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: 0.8 } });
-    });
-    gsap.to(scene, { opacity: 0.35, ease: 'none', scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: true } });
-    // the loops rest while the header is off screen
-    ScrollTrigger.create({ trigger: hero, start: 'top bottom', end: 'bottom top', onToggle: (self) => loops.forEach((t) => (self.isActive ? t.resume() : t.pause())) });
-    // pointer: the scene leans toward the cursor, softly
+    ScrollTrigger.create({ trigger: hero, start: 'top bottom', end: 'bottom top',
+      onToggle: (self) => (running = self.isActive),
+      onUpdate: (self) => (boost = Math.max(boost, Math.min(3, Math.abs(self.getVelocity()) / 600))) });
+    // the ring drifts up as the header leaves; the fade sits on the outer stage, because opacity on the ring's own
+    // layers would flatten it and lose the depth
+    gsap.to(rig, { y: -140, ease: 'none', scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: true } });
+    gsap.to(root, { opacity: 0.35, ease: 'none', scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: true } });
+    // pointer: the ring tilts toward the cursor, softly
     if (matchMedia('(hover: hover)').matches) {
       const ry = gsap.quickTo(scene, 'rotationY', { duration: 1.2, ease: 'power3.out' });
       const rx = gsap.quickTo(scene, 'rotationX', { duration: 1.2, ease: 'power3.out' });
       hero.addEventListener('pointermove', (e) => {
         const r = hero.getBoundingClientRect();
-        ry(((e.clientX - r.left) / r.width - 0.5) * 8);
-        rx(-((e.clientY - r.top) / r.height - 0.5) * 6);
-      }, { signal: ctl.signal });
-      hero.addEventListener('pointerleave', () => { ry(0); rx(0); }, { signal: ctl.signal });
+        ry(((e.clientX - r.left) / r.width - 0.5) * 10);
+        rx(TILT - ((e.clientY - r.top) / r.height - 0.5) * 8);
+      }, { signal });
+      hero.addEventListener('pointerleave', () => { ry(0); rx(TILT); }, { signal });
     }
   }
   document.addEventListener('astro:page-load', init);
+  // the ring stops turning when the visitor leaves the page
+  document.addEventListener('astro:before-swap', () => { if (tick) { gsap.ticker.remove(tick); tick = null; } });
 </script>
 
 <style>
-  /* the stage fills the header, under the words; perspective gives the cards their depth */
-  .cards3d { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; perspective: 1400px; perspective-origin: 70% 40%; }
-  .scene { position: absolute; inset: 0; transform-style: preserve-3d; will-change: transform, opacity; }
-  .pc, .pc-move { transform-style: preserve-3d; will-change: transform; }
-  .pc { position: absolute; }
-  .pc-move { will-change: transform, opacity; }
+  /* the stage fills the header, under the words; the ring turns around a point to the right of the heading */
+  .cards3d { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; perspective: 1400px; perspective-origin: 66% 44%; }
+  .rig { position: absolute; inset: 0; transform-style: preserve-3d; will-change: transform; }
+  .scene { position: absolute; left: 66%; top: 46%; width: 0; height: 0; transform-style: preserve-3d; will-change: transform; }
+  .pc { position: absolute; left: 0; top: 0; width: clamp(200px, 19vw, 320px); will-change: transform, opacity; }
   .pc-in { border-radius: 14px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); background: #0C0D0F; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55); }
   .pc-in :global(img) { display: block; width: 100%; height: auto; aspect-ratio: 2400 / 1557; object-fit: cover; }
-  /* the veil: dark where the words are, lighter where the cards float, and fading into the page at the bottom */
+  /* the veil: dark where the words are, lighter where the ring turns, and fading into the page at the bottom */
   .veil { position: absolute; inset: 0; background:
-    linear-gradient(90deg, var(--ink) 0%, rgba(5, 5, 6, 0.9) 30%, rgba(5, 5, 6, 0.42) 62%, rgba(5, 5, 6, 0.5) 100%),
+    linear-gradient(90deg, var(--ink) 0%, rgba(5, 5, 6, 0.9) 28%, rgba(5, 5, 6, 0.4) 58%, rgba(5, 5, 6, 0.46) 100%),
     linear-gradient(180deg, rgba(5, 5, 6, 0.35) 0%, transparent 30%, transparent 62%, var(--ink) 100%); }
-  /* phones: fewer, fainter cards so the words always win */
+  /* phones: the ring is centred and fainter, and the words sit over a darker veil */
   @media (max-width: 760px) {
-    .pc:nth-child(n + 6) { display: none; }
-    .cards3d { opacity: 0.6; }
-    .veil { background: linear-gradient(180deg, rgba(5, 5, 6, 0.55) 0%, rgba(5, 5, 6, 0.78) 55%, var(--ink) 100%); }
+    .cards3d { opacity: 0.55; perspective-origin: 50% 34%; }
+    .scene { left: 50%; top: 34%; }
+    .pc { width: 42vw; }
+    .veil { background: linear-gradient(180deg, rgba(5, 5, 6, 0.5) 0%, rgba(5, 5, 6, 0.78) 55%, var(--ink) 100%); }
   }
 </style>
