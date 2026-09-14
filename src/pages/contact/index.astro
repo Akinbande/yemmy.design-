@@ -1,14 +1,13 @@
 ---
 /* Get in touch: a full page, and where every Get in touch link on the site goes.
-   The heading, availability and email first; then the form, with a Recent work strip under it (a slow, endless row
-   of project covers, each a link), and cards beside it for the ways to reach me (with my local time, live), what I am
-   open to, what I bring and what happens next. Light touches of interaction: a soft spotlight follows the pointer
-   over each panel, the cards lift on hover, and the light behind the heading drifts. On phones the form comes first. */
+   The heading, availability and email first; then the form card, which ends in "How this works": a small service
+   blueprint of getting in touch (your part: choose a reason, add your details, send; my part: I reply, we talk) that
+   follows the visitor through the form, lighting each step as it is done. Beside it, cards for the ways to reach me
+   (with my local time, live), what I am open to and what I bring. Light touches of interaction: a soft spotlight
+   follows the pointer over each panel, the cards lift on hover, and the light behind the heading drifts. On phones
+   the form comes first. */
 import Base from '../../layouts/Base.astro';
-import { Image } from 'astro:assets';
 import ContactForm from '../../components/ContactForm.astro';
-import newdawn from '../../assets/newdawn/h1.png';
-import glaze from '../../assets/glaze/g1.png';
 import { social } from '../../config';
 const EMAIL = 'hello@yemmy.design';
 // the same words as the About page, so the two pages never disagree
@@ -18,13 +17,13 @@ const bring: [string, string][] = [
   ['Design systems', 'Design tokens, component libraries and interaction standards'],
   ['Accessibility', 'WCAG 2.2 AA as a build constraint, not a final pass'],
 ];
-// the Recent work strip: every cover links to its project
-const reel: { src: ImageMetadata | string; org: string; kind: string; href: string }[] = [
-  { src: '/covers/collga-1280.png', org: 'Collga', kind: 'Case study', href: '/work/collga/' },
-  { src: '/covers/luca-1280.png', org: 'Luca', kind: 'Case study', href: '/work/luca/' },
-  { src: '/covers/hometown-1280.png', org: 'Hometown', kind: 'Screens', href: '/screens/hometown/' },
-  { src: newdawn, org: 'Newdawn', kind: 'Screens', href: '/screens/newdawn/' },
-  { src: glaze, org: 'Glaze Dental', kind: 'Screens', href: '/screens/glaze-dental/' },
+// the journey: the visitor's three steps, then mine
+const steps = [
+  { t: 'Choose a reason', d: 'What brings you here', lane: 'You' },
+  { t: 'Add your details', d: 'Only what I need to reply' },
+  { t: 'Send it', d: 'It comes straight to me' },
+  { t: 'I reply', d: 'By email', lane: 'Me' },
+  { t: 'We talk', d: "A call, if it's a fit" },
 ];
 ---
 <Base title="Get in touch · Oluwayemi Akinbande" description="Hiring for a role, planning a project, redesigning a product, or making an introduction. Tell me what you have in mind.">
@@ -40,37 +39,30 @@ const reel: { src: ImageMetadata | string; org: string; kind: string; href: stri
     </header>
 
     <div class="wrap body">
-      <div class="main-col">
-        <section class="panel formbox spot" aria-label="Contact form" data-reveal data-reveal-delay="0.1"><ContactForm /></section>
+      <section class="panel formbox spot" aria-label="Contact form" data-reveal data-reveal-delay="0.1">
+        <ContactForm />
 
-        <section class="panel reel spot" aria-labelledby="reel-h" data-reveal>
-          <div class="reel-head">
-            <div class="rh"><p class="eyebrow">While you are here</p><h2 id="reel-h" class="t">Recent work</h2></div>
-            <a class="all" href="/work/">See all work
-              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </a>
+        <div class="journey" id="journey" data-step="0">
+          <div class="jr-head">
+            <h2 class="t">How this works</h2>
+            <p class="jr-now" data-jr-now>Choose a reason to begin.</p>
           </div>
-          <div class="track-wrap">
-            <ul class="track">
-              {[...reel, ...reel].map((r, i) => {
-                const copy = i >= reel.length;   // the second set only makes the loop seamless: hidden from assistive tech
-                return (
-                  <li aria-hidden={copy ? 'true' : undefined}>
-                    <a href={r.href} tabindex={copy ? -1 : undefined}>
-                      <span class="thumb">
-                        {typeof r.src === 'string'
-                          ? <img src={r.src} alt="" width="1280" height="830" loading="lazy" decoding="async" />
-                          : <Image src={r.src} alt="" width={640} format="webp" quality={82} loading="lazy" />}
-                      </span>
-                      <span class="cap"><b>{r.org}</b><span class="mono">{r.kind}</span></span>
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        </section>
-      </div>
+          <div class="lanes" aria-hidden="true"><span class="lane l-you mono">Your part</span><span class="lane l-me mono">My part</span></div>
+          <ol class="jr">
+            <li class="jr-track" aria-hidden="true"><i class="jr-fill"></i><i class="jr-spark"></i></li>
+            {steps.map((s, i) => (
+              <li class="st" style={`--i:${i}`}>
+                {s.lane && <span class="lt mono" aria-hidden="true">{s.lane === 'You' ? 'Your part' : 'My part'}</span>}
+                <span class="node" aria-hidden="true">
+                  <span class="mono no">{i + 1}</span>
+                  <svg class="ck" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.2 4.2L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="st-t"><b>{s.t}</b><span>{s.d}</span></span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
 
       <aside class="side" aria-label="Other ways to reach me">
         <div class="panel card spot" data-reveal data-reveal-delay="0.16">
@@ -90,14 +82,6 @@ const reel: { src: ImageMetadata | string; org: string; kind: string; href: stri
           <h2 class="t">What I bring</h2>
           <dl class="caps">{bring.map(([k, v]) => <div><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
         </div>
-        <div class="panel card spot" data-reveal data-reveal-delay="0.28">
-          <h2 class="t">What happens next</h2>
-          <ol class="next">
-            <li><span class="mono">1</span>Your message comes straight to me.</li>
-            <li><span class="mono">2</span>I reply by email.</li>
-            <li><span class="mono">3</span>If it's a fit, we set up a call.</li>
-          </ol>
-        </div>
       </aside>
     </div>
   </article>
@@ -106,6 +90,7 @@ const reel: { src: ImageMetadata | string; org: string; kind: string; href: stri
 <script>
   let ctl: AbortController | null = null;
   let clockTimer = 0;
+  const NOW = ['Choose a reason to begin.', 'Add your details.', 'Ready to send.', "Sent. I'll reply by email."];
   function init() {
     ctl?.abort(); ctl = new AbortController();
     clearInterval(clockTimer);
@@ -121,20 +106,47 @@ const reel: { src: ImageMetadata | string; org: string; kind: string; href: stri
         }, { signal });
       });
     }
+
+    // How this works: follows the form. Step 1 is done once a reason is chosen, step 2 once every required answer
+    // is filled in, step 3 once the message is sent; then my part is next
+    const form = document.getElementById('contact-form') as HTMLFormElement | null;
+    const jr = document.getElementById('journey');
+    if (form && jr) {
+      const now = jr.querySelector<HTMLElement>('[data-jr-now]')!;
+      const sts = [...jr.querySelectorAll<HTMLElement>('.st')];
+      let sent = false, viaMail = false;
+      const detailsOk = () => [...form.querySelectorAll<HTMLInputElement>('input[required], textarea[required], select[required]')]
+        .filter((el) => el.name !== 'intent' && !el.disabled && !el.closest('[hidden]'))
+        .every((el) => el.validity.valid);
+      const update = () => {
+        const intent = !!form.querySelector('input[name="intent"]:checked');
+        const step = !intent ? 0 : !detailsOk() ? 1 : !sent || viaMail ? 2 : 3;
+        jr.dataset.step = String(step);
+        jr.style.setProperty('--p', String(step / (sts.length - 1)));
+        sts.forEach((s, i) => { s.classList.toggle('done', i < step); s.classList.toggle('now', i === step); });
+        now.textContent = sent && viaMail ? 'Press send in your email app to finish.' : NOW[step];
+      };
+      form.addEventListener('input', update, { signal });
+      form.addEventListener('change', update, { signal });
+      form.addEventListener('cf:sent', (e) => { sent = true; viaMail = !!(e as CustomEvent).detail?.viaMail; update(); }, { signal });
+      form.addEventListener('cf:reset', () => { sent = false; viaMail = false; update(); }, { signal });
+      update();
+    }
+
     // my local time, live: the time in Mountain Time, and whether it is inside working hours (weekdays, 9 to 5)
     const clock = document.querySelector<HTMLElement>('[data-clock]');
     if (clock) {
       const time = new Intl.DateTimeFormat('en-GB', { timeZone: 'America/Edmonton', hour: '2-digit', minute: '2-digit', hour12: false });
       const day = new Intl.DateTimeFormat('en-GB', { timeZone: 'America/Edmonton', weekday: 'short' });
-      const update = () => {
-        const now = new Date(), t = time.format(now), h = +t.slice(0, 2);
-        const working = !['Sat', 'Sun'].includes(day.format(now)) && h >= 9 && h < 17;
+      const tick = () => {
+        const d = new Date(), t = time.format(d), h = +t.slice(0, 2);
+        const working = !['Sat', 'Sun'].includes(day.format(d)) && h >= 9 && h < 17;
         clock.querySelector('[data-t]')!.textContent = `${t} MT`;
         clock.querySelector('[data-s]')!.textContent = working ? 'Working hours' : 'Outside working hours';
         clock.dataset.state = working ? 'on' : 'off';
       };
-      update();
-      clockTimer = window.setInterval(update, 30000);
+      tick();
+      clockTimer = window.setInterval(tick, 30000);
     }
   }
   document.addEventListener('astro:page-load', init);
@@ -162,12 +174,11 @@ const reel: { src: ImageMetadata | string; org: string; kind: string; href: stri
   @keyframes c-pulse { from { transform: scale(0.4); opacity: 0.9; } to { transform: scale(1.6); opacity: 0; } }
 
   .body { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 0.8fr); gap: clamp(20px, 3vw, 36px); align-items: start; margin-top: clamp(36px, 5vw, 64px); }
-  .main-col { display: grid; gap: 14px; align-content: start; min-width: 0; }
   .formbox { padding: clamp(22px, 3.2vw, 40px); }
   .side { display: grid; gap: 14px; position: sticky; top: calc(var(--nav-h) + 24px); }
 
-  /* the spotlight: a soft light under the content, where the pointer is */
-  /* the lift uses translate, not transform, so it never fights the scroll reveal */
+  /* the spotlight: a soft light under the content, where the pointer is; the lift uses translate, not transform,
+     so it never fights the scroll reveal */
   .spot { position: relative; isolation: isolate; transition: border-color 0.3s, translate 0.4s var(--ease); }
   .spot::after { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; border-radius: inherit; opacity: 0; transition: opacity 0.35s;
     background: radial-gradient(460px circle at var(--mx, 50%) var(--my, 0%), color-mix(in srgb, var(--accent) 10%, transparent), transparent 62%); }
@@ -193,40 +204,67 @@ const reel: { src: ImageMetadata | string; org: string; kind: string; href: stri
   .caps dd { margin: 0; font-size: 13px; line-height: 1.5; color: var(--muted); }
   .copy { background: none; border: 1px solid var(--line-a); color: var(--muted); border-radius: 999px; font: 500 12px/1 var(--sans); padding: 7px 12px; cursor: pointer; min-height: 32px; transition: color 0.2s, border-color 0.2s; }
   .copy:hover { color: var(--fg); border-color: rgba(235, 238, 245, 0.22); }
-  .next { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; color: var(--muted); font-size: 14px; }
-  .next li { display: flex; align-items: center; gap: 12px; }
-  .next .mono { display: inline-grid; place-items: center; width: 24px; height: 24px; flex: none; border-radius: 50%; border: 1px solid var(--line-a); font-size: 11px; color: var(--fg); }
 
-  /* Recent work: a slow, endless row of covers under the form; it pauses while the pointer is on it */
-  .reel { padding: 22px 0 24px; display: grid; gap: 16px; overflow: hidden; }
-  .reel-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding: 0 clamp(22px, 3.2vw, 40px); }
-  .rh { display: grid; gap: 6px; }
-  .all { display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--muted); transition: color 0.2s; }
-  .all svg { transition: transform 0.3s var(--ease); }
-  .all:hover { color: var(--fg); }
-  .all:hover svg { transform: translateX(4px); }
-  .track-wrap { overflow: hidden; padding-top: 4px; -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%); }
-  .track { list-style: none; margin: 0; padding: 0; display: flex; width: max-content; animation: c-reel 42s linear infinite; }
-  .track-wrap:hover .track, .track:focus-within { animation-play-state: paused; }
-  @keyframes c-reel { to { transform: translateX(-50%); } }
-  /* a margin, not a gap, so the second set starts exactly half-way and the loop never jumps */
-  .track li { flex: none; width: clamp(200px, 17vw, 250px); margin-right: 12px; }
-  .track a { display: grid; gap: 10px; }
-  .thumb { display: block; overflow: hidden; aspect-ratio: 2400 / 1557; border-radius: 12px; border: 1px solid var(--line-a); background: #0C0D0F; transition: border-color 0.3s, transform 0.4s var(--ease); }
-  .thumb :global(img) { display: block; width: 100%; height: 100%; object-fit: cover; }
-  .track a:hover .thumb, .track a:focus-visible .thumb { border-color: color-mix(in srgb, var(--accent) 55%, transparent); transform: translateY(-3px); }
-  .cap { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 0 2px; font-size: 13.5px; }
-  .cap b { font-weight: 500; }
-  .cap .mono { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); }
+  /* How this works: a small blueprint at the foot of the form card. Two lanes over one line of five steps; the line
+     fills to the current step, a light runs ahead of it to the next one, and each step turns into a tick when done */
+  .journey { --p: 0; margin-top: clamp(28px, 3.4vw, 40px); padding-top: clamp(24px, 3vw, 32px); border-top: 1px solid var(--line-a); display: grid; gap: 18px; }
+  .jr-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; }
+  .jr-now { font-size: 13.5px; color: var(--muted); }
+  .journey[data-step='3'] .jr-now { color: var(--ok); }
+  .lanes { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .lane { position: relative; display: block; text-align: center; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); padding-bottom: 10px; }
+  .lane::after { content: ''; position: absolute; left: 10%; right: 10%; bottom: 0; height: 5px; border: 1px solid var(--line-a); border-bottom: 0; border-radius: 3px 3px 0 0; }
+  .l-you { grid-column: 1 / 4; } .l-me { grid-column: 4 / 6; }
+  .journey[data-step='3'] .l-me, .journey:not([data-step='3']) .l-you { color: var(--fg); }
+  .jr { position: relative; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .jr-track { position: absolute; left: 10%; right: 10%; top: 15px; height: 2px; border-radius: 2px; background: var(--line-a); }
+  .jr-fill { position: absolute; inset: 0; border-radius: inherit; transform-origin: 0 50%; transform: scaleX(var(--p)); transition: transform 0.7s var(--ease);
+    background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 55%, transparent), var(--accent)); }
+  /* the light running ahead: it spans the one segment between the current step and the next */
+  .jr-spark { position: absolute; top: -1px; height: 4px; left: calc(var(--p) * 100%); width: 25%; transition: left 0.7s var(--ease); pointer-events: none;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 85%, #fff), transparent) no-repeat; background-size: 40% 100%;
+    filter: drop-shadow(0 0 4px var(--accent)); animation: jr-run 2.4s ease-in-out infinite; }
+  .journey[data-step='4'] .jr-spark, .journey[data-step='3'] .jr-spark { width: 25%; }
+  @keyframes jr-run { from { background-position: -70% 0; } to { background-position: 170% 0; } }
+  .st { position: relative; display: grid; justify-items: center; gap: 12px; text-align: center; padding: 0 4px; animation: jr-in 0.6s var(--ease) both; animation-delay: calc(var(--i) * 80ms + 300ms); }
+  @keyframes jr-in { from { opacity: 0; transform: translateY(8px); } }
+  .lt { display: none; }
+  .node { position: relative; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--surface); border: 1px solid var(--line);
+    color: var(--dim); transition: background 0.35s, border-color 0.35s, color 0.35s, box-shadow 0.35s; }
+  .node > * { grid-area: 1 / 1; transition: opacity 0.25s, transform 0.35s var(--ease); }
+  .no { font-size: 11px; }
+  .ck { opacity: 0; transform: scale(0.4); }
+  .st-t { display: grid; gap: 3px; }
+  .st-t b { font-size: 13.5px; font-weight: 500; color: var(--muted); transition: color 0.3s; }
+  .st-t span { font-size: 12.5px; line-height: 1.45; color: var(--dim); }
+  /* the current step: lit, with a soft ring breathing around it */
+  .st.now .node { border-color: var(--accent); color: var(--fg); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 16%, transparent); }
+  .st.now .node::after { content: ''; position: absolute; inset: -5px; border-radius: 50%; border: 1px solid var(--accent); animation: c-pulse 2.2s ease-out infinite; }
+  .st.now b, .st.done b { color: var(--fg); }
+  /* a finished step: filled, the number gives way to a tick */
+  .st.done .node { background: var(--accent); border-color: var(--accent); color: #fff; animation: jr-pop 0.4s var(--ease); }
+  .st.done .no { opacity: 0; transform: scale(0.4); }
+  .st.done .ck { opacity: 1; transform: none; }
+  @keyframes jr-pop { 0% { transform: scale(0.8); } 60% { transform: scale(1.12); } 100% { transform: scale(1); } }
 
   /* tablets: the cards sit in two columns under the form; phones: one column */
   @media (max-width: 960px) { .body { grid-template-columns: 1fr; } .side { position: static; grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  @media (max-width: 620px) { .side { grid-template-columns: 1fr; } }
+  /* phones: the journey runs down the card, the line on the left, each lane named where it starts */
+  @media (max-width: 620px) {
+    .side { grid-template-columns: 1fr; }
+    .lanes { display: none; }
+    .jr { grid-template-columns: 1fr; gap: 18px; }
+    .jr-track { left: 15px; right: auto; top: 16px; bottom: 16px; width: 2px; height: auto; }
+    .jr-fill { transform-origin: 50% 0; transform: scaleY(var(--p)); }
+    .jr-spark { display: none; }
+    .st { grid-template-columns: 32px 1fr; justify-items: start; align-items: center; gap: 4px 14px; text-align: left; padding: 0; }
+    .lt { display: block; grid-column: 2; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); }
+    .st:nth-child(5) { margin-top: 8px; }
+  }
   /* very narrow screens: each label sits above its value, so the email never breaks mid-word */
   @media (max-width: 400px) { .ways > div { grid-template-columns: 1fr; gap: 4px; } .ways dd a { overflow-wrap: normal; } }
   @media (prefers-reduced-motion: reduce) {
-    .contact::before, .open i::after { animation: none; }
-    .track { animation: none; } .track-wrap { overflow-x: auto; }
-    .card:hover { translate: none; } .thumb { transform: none !important; }
+    .contact::before, .open i::after, .st.now .node::after, .jr-spark, .st, .st.done .node { animation: none; }
+    .card:hover { translate: none; }
   }
 </style>

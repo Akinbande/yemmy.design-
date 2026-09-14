@@ -246,6 +246,7 @@ const length = ['Under 3 months', '3 to 6 months', '6 to 12 months', '1 year or 
           : `Your message is on its way. I'll reply to ${email}.`;
         form.querySelectorAll<HTMLElement>(':scope > :not(.done)').forEach((el) => (el.hidden = true));
         done.hidden = false; done.focus();
+        form.dispatchEvent(new CustomEvent('cf:sent', { detail: { viaMail } }));   // the page's How this works follows it
       };
       err.hidden = true;
       if (form.dataset.endpoint) {
@@ -272,6 +273,7 @@ const length = ['Under 3 months', '3 to 6 months', '6 to 12 months', '1 year or 
       form.querySelectorAll<HTMLElement>('.err').forEach((e) => clear(e));
       form.querySelectorAll('[aria-invalid]').forEach((el) => el.removeAttribute('aria-invalid'));
       form.querySelector<HTMLInputElement>('input[name="intent"]')?.focus();
+      form.dispatchEvent(new CustomEvent('cf:reset'));
     });
   }
   function initCopy() {
