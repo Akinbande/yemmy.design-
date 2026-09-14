@@ -1,23 +1,15 @@
 ---
 import Base from '../../layouts/Base.astro';
-/* Slots for the photographs. Each becomes { src, alt, place, year } when the images arrive. */
-const slots = [
-  { size: 'wide', place: 'Calgary, Alberta', year: '2025' },
-  { size: 'tall', place: 'Lagos, Nigeria', year: '2023' },
-  { size: 'sq',   place: 'Calgary, Alberta', year: '2025' },
-  { size: 'sq',   place: 'Melbourne, Victoria', year: '2024' },
-  { size: 'tall', place: 'Lagos, Nigeria', year: '2022' },
-  { size: 'wide', place: 'Banff, Alberta', year: '2025' },
-  { size: 'sq',   place: 'Melbourne, Victoria', year: '2024' },
-  { size: 'sq',   place: 'Calgary, Alberta', year: '2026' },
-];
+/* Slots for the photographs. No places or years are shown until he sends the photos and says where and when each
+   was taken; each slot then becomes { src, alt, place, year }. */
+const slots = ['wide', 'tall', 'sq', 'sq', 'tall', 'wide', 'sq', 'sq'].map((size) => ({ size }));
 ---
 <Base title="Travel · Oluwayemi Akinbande" description="Places I have worked from and visited.">
   <section class="page wrap">
     <header class="head">
       <p class="eyebrow accent" data-reveal>Travel</p>
-      <h1 data-reveal data-reveal-delay="0.1">Working from more than one place.</h1>
-      <p class="lede" data-reveal data-reveal-delay="0.2">Lagos to Calgary, with clients in Melbourne. Designing for people whose context is not your own starts with going to where they are.</p>
+      <h1 data-reveal data-reveal-delay="0.1">Places I've lived and worked.</h1>
+      <p class="lede" data-reveal data-reveal-delay="0.2">Photos from the places I have lived, worked and visited. Coming soon.</p>
     </header>
 
     <ul class="grid">
@@ -25,7 +17,7 @@ const slots = [
         <li class={`slot ${s.size}`} data-reveal data-reveal-delay={String((i % 4) * 0.06)}>
           <figure class="panel ph">
             <span class="mono idx">{String(i + 1).padStart(2, '0')}</span>
-            <figcaption class="mono cap"><span>{s.place}</span><span>{s.year}</span></figcaption>
+            <figcaption class="mono cap"><span>Photo coming soon</span></figcaption>
           </figure>
         </li>
       ))}

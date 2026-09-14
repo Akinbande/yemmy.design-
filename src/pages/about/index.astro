@@ -22,12 +22,12 @@ const facts = [
 ];
 // the story, in six short chapters (his own account: graphic designer from 2018, UI designer from 2019)
 const chapters = [
-  { y: '2018', t: 'It started with the web', d: 'I began as a graphic designer in Nigeria, designing websites for clients across many industries. I built pages in HTML, CSS and WordPress, handled SEO and Google Business listings, designed campaigns for early crypto projects, and taught web design to students.' },
-  { y: '2019', t: 'From pages to products', d: 'I moved into UI design, and the question changed from how a page looks to how a product works.' },
-  { y: '2020', t: 'The work behind the screen', d: 'In Lagos I designed the parts of software most people never see: a self-service portal, a learning management system and a real estate platform. The hard problems sat behind the screen, in the process, the rules and the staff who ran it.' },
-  { y: '2021', t: 'Where trust is the product', d: 'Fintech sharpened that. A payment flow is only as good as the trust it earns, and a dashboard is only as good as the decision it supports.' },
-  { y: '2024', t: 'Services people rely on', d: "I began designing for Australia's disability sector, where every form is a compliance document and every roster is a promise to a participant." },
-  { y: 'Now', t: 'From service model to production', d: 'Today I design services that are funded by government, bound by regulation or used by the public, from the service model down to production code.' },
+  { y: '2018', t: 'It started with the web', d: "I started as a graphic designer in Nigeria, building websites for businesses in many industries with HTML, CSS and WordPress. I also handled their SEO and Google Business listings, designed ads for early crypto projects, and taught beginners web design. It is where I learned that good design has to work for the business, not just look good." },
+  { y: '2019', t: 'From pages to products', d: "In 2019 I moved into UI design. Instead of websites that promote a business, I started designing apps and dashboards that people use every day to get things done. I learned to think about the whole task a person is trying to finish, not only the screen in front of them." },
+  { y: '2020', t: 'The work behind the screen', d: "In Lagos I designed a self-service portal, a learning management system and a real estate platform. Each product had staff and processes behind it, and that is where most problems began. So I started designing the whole flow, from the customer's first click to the team that handles the request." },
+  { y: '2021', t: 'Designing financial products', d: "From 2021 I designed financial products: a banking app and web app, and a bookkeeping app for small business owners. I worked on sign-up, identity checks, transfers, bill payments, cards, and dashboards for sales, stock and debts. People trust these apps with their money, so every step had to be clear." },
+  { y: '2024', t: 'Services people rely on', d: "In 2024 I started a project in government-funded care in Australia, where every form, record and roster has to meet strict rules. I also began building CRM systems for clients in Australia and New Zealand, so their teams can manage customers and daily work in one place." },
+  { y: 'Now', t: 'From service model to production', d: "Today I design services that are funded by government, regulated, or used by the public. I work from research and the service model through to production code, and I stay with the team until what goes live matches what was designed." },
 ];
 // three of his workstation photos from media1, the wide one in the middle
 const studio = [
@@ -44,28 +44,28 @@ const testimonials = [
   { q: 'Clear thinking and calm under pressure. He understands compliance as well as he understands users, and makes both work in one design.', n: 'Name Surname', r: 'Role, Company' },
 ];
 const principles = [
-  { t: 'Service before screen', d: 'The journey, the staff process and the policy come first. The interface is the last thing designed, not the first.', icon: line('M4 5h16v4H4zM4 11h9v8H4zM15 11h5v8h-5z') },
-  { t: 'Decisions over deliverables', d: 'A wireframe is evidence, not the work. The work is the call made under a constraint, and the reason for it.', icon: line('M12 3l7 9-7 9-7-9 7-9zM12 8v8') },
-  { t: 'Compliance is a design material', d: 'Audit trails, eligibility rules and reporting duties shape the product. Designing around them produces things that fail inspection.', icon: line('M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-3zM9 12l2 2 4-4') },
-  { t: 'Stay through to production', d: 'The spec and the shipped product should be the same thing. I stay with the work until they are.', icon: line('M8 8l-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14') },
+  { t: 'Service before screen', d: 'I start with the journey, the staff process and the policy. The screens come after, once I understand how the service really works.', icon: line('M4 5h16v4H4zM4 11h9v8H4zM15 11h5v8h-5z') },
+  { t: 'Every decision has a reason', d: 'I write down why each design decision was made, so the team can build on it with confidence and change it when the facts change.', icon: line('M12 3l7 9-7 9-7-9 7-9zM12 8v8') },
+  { t: 'Compliance is part of the design', d: 'Audit trails, eligibility rules and reporting duties shape the product from day one. Leaving them to the end leads to products that fail an audit.', icon: line('M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-3zM9 12l2 2 4-4') },
+  { t: 'I stay until it ships', d: 'I work with developers until the product goes live, so what people use matches what was designed.', icon: line('M8 8l-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14') },
 ];
 const capabilities = [
-  { t: 'Service design', d: 'The whole service, front stage and back, mapped before any screen is drawn.', tags: ['Service blueprints', 'Journey mapping', 'Service models', 'Research', 'Usability testing'] },
-  { t: 'Information architecture', d: 'Clear structure for complex, data-heavy products.', tags: ['Enterprise platforms', 'Case management', 'Operations systems', 'Admin systems'] },
-  { t: 'Design systems', d: 'Shared foundations that keep a product consistent as it grows.', tags: ['Design tokens', 'Component libraries', 'Interaction standards', 'Design governance'] },
-  { t: 'Accessibility', d: 'WCAG 2.2 AA as a build constraint, not a final pass.', tags: ['WCAG 2.2 AA', 'Built in from the start'] },
-  { t: 'Prototyping and build', d: 'Prototypes and production front-end, so the handoff is the product.', tags: ['Figma', 'Framer', 'Production front-end'] },
+  { t: 'Service design', d: 'I map the whole service, what customers see and what happens behind it, before I design a single screen.', tags: ['Service blueprints', 'Journey mapping', 'Service models', 'Research', 'Usability testing'] },
+  { t: 'Information architecture', d: 'I give complex, data-heavy products a clear structure, so people can find what they need.', tags: ['Enterprise platforms', 'Case management', 'Operations systems', 'Admin systems'] },
+  { t: 'Design systems', d: 'I build shared components and rules that keep a product consistent as it grows.', tags: ['Design tokens', 'Component libraries', 'Interaction standards', 'Design governance'] },
+  { t: 'Accessibility', d: 'I design to WCAG 2.2 AA from the start, not as a final check.', tags: ['WCAG 2.2 AA', 'Built in from the start'] },
+  { t: 'Prototyping and build', d: 'I build prototypes and front-end code, so developers get something close to the real product.', tags: ['Figma', 'Framer', 'Production front-end'] },
 ];
 ---
-<Base title="About · Oluwayemi Akinbande" description="Senior Service & UX Designer. Seven years across fintech, healthcare, energy and SaaS, specialising in government-funded, regulated and citizen-facing services.">
+<Base title="About · Oluwayemi Akinbande" description="Senior Service & UX Designer with seven years of experience across fintech, healthcare, energy and SaaS, specialising in services that are funded by government, regulated, or used by the public.">
   <article class="about">
     <header class="hero">
       <AboutHeroCards />
       <div class="wrap head">
         <div class="lead">
           <p class="eyebrow accent" data-reveal>About</p>
-          <h1 data-reveal data-reveal-delay="0.1">Regulated services are where design earns its keep.</h1>
-          <p class="sum" data-reveal data-reveal-delay="0.2">Senior Service &amp; UX Designer. Seven years across fintech, healthcare, energy and SaaS, with a specialism in services that are government-funded, regulated or used by the public.</p>
+          <h1 data-reveal data-reveal-delay="0.1">I design digital services for government, care and finance.</h1>
+          <p class="sum" data-reveal data-reveal-delay="0.2">Senior Service &amp; UX Designer with seven years of experience across fintech, healthcare, energy and SaaS. I specialise in services that are funded by government, regulated, or used by the public.</p>
           <div class="cta" data-reveal data-reveal-delay="0.26">
             <a class="btn btn-primary" href="/contact/">Get in touch
               <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -106,7 +106,7 @@ const capabilities = [
         <div class="side-head" data-reveal>
           <p class="eyebrow accent">Story</p>
           <h2 id="story-h">From web pages to public services.</h2>
-          <p class="kicker">Since 2018, one thread: the work behind the screen.</p>
+          <p class="kicker">How my work has grown since 2018.</p>
         </div>
         <ol class="chapters" id="about-chapters">
           <li class="rail" aria-hidden="true"><i class="fill"></i></li>
@@ -123,7 +123,7 @@ const capabilities = [
     </section>
 
     <section class="wrap" aria-labelledby="tm-h">
-      <div class="section-head" data-reveal><div><p class="eyebrow accent">Testimonials</p><h2 id="tm-h">What people say.</h2></div></div>
+      <div class="section-head" data-reveal><div><p class="eyebrow accent">Testimonials</p><h2 id="tm-h">From people I've worked with.</h2></div></div>
       <div class="tms">
         {testimonials.map((t, i) => (
           <figure class="tm" data-reveal data-reveal-delay={String(i * 0.08)}>
@@ -140,7 +140,7 @@ const capabilities = [
     </section>
 
     <section class="wrap" aria-labelledby="pr-h">
-      <div class="section-head" data-reveal><div><p class="eyebrow accent">How I work</p><h2 id="pr-h">Four things I hold to.</h2></div></div>
+      <div class="section-head" data-reveal><div><p class="eyebrow accent">How I work</p><h2 id="pr-h">The principles behind my work.</h2></div></div>
       <ul class="principles">
         {principles.map((p, i) => (
           <li class="pr" data-reveal data-reveal-delay={String((i % 2) * 0.08)}>
@@ -158,7 +158,7 @@ const capabilities = [
         <div class="cap-intro" data-reveal>
           <p class="eyebrow accent">Capabilities</p>
           <h2 id="cap-h">What I bring to a team.</h2>
-          <p>Five practices, used together, from the first research session to the shipped product.</p>
+          <p>Five skills I use together, from the first research session to launch.</p>
           <a class="btn btn-ghost" href="/work/">See them in the work
             <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </a>

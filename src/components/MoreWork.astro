@@ -12,8 +12,8 @@ const items = (await getCollection('work', (e) => e.data.tier >= 2)).sort((a, b)
     <div class="side">
       <div class="sticky">
         <p class="eyebrow accent">More work</p>
-        <h2 id="more-h">Earlier and smaller work.</h2>
-        <p class="sub">Screens from each project, with a short note on what it was for.</p>
+        <h2 id="more-h">Smaller projects.</h2>
+        <p class="sub">Websites and apps I designed, shown through their screens.</p>
         <ol class="index mono" id="more-index" aria-hidden="true">
           {items.map((w, i) => <li data-i={i}><span class="n">{String(i + 1).padStart(2, '0')}</span><span class="o">{w.data.org}</span><span class="y">{w.data.year}</span></li>)}
         </ol>
