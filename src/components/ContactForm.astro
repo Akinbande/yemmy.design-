@@ -3,8 +3,9 @@
    1 what brings you here (five reasons), 2 about you, 3 about the role, project, product or introduction (only the
    questions that reason needs), 4 the message. Everything after the first section opens once a reason is chosen, and
    changes with it. No budget or salary questions.
-   Choices are laid out so nothing wraps untidily: one-answer questions are segmented controls in equal parts, and
-   any-answer questions are a grid of check boxes, six to a list (three across, two on phones).
+   Layout rules, so nothing looks off: every field is a label above a 46px control, whether the control is a text box,
+   a select or a segmented choice; one-answer questions are segmented controls in equal parts; any-answer questions are
+   a grid of check boxes, six to a list. Contract length only appears when Contract is chosen.
    Sending: with PUBLIC_CONTACT_ENDPOINT set (a Formspree-style form URL) the answers are posted as JSON; without it,
    the visitor's email app opens with every answer filled in, addressed to hello@yemmy.design. */
 const endpoint = import.meta.env.PUBLIC_CONTACT_ENDPOINT ?? '';
@@ -17,7 +18,8 @@ const intents = [
   { v: 'intro', t: 'An introduction', d: 'A referral, a recommendation or an invitation', icon: line('M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3.5 20c0-3.2 2.5-5.2 5.5-5.2s5.5 2 5.5 5.2M16 11.2a2.6 2.6 0 1 0 0-5.2M17.5 14.9c1.9.6 3 2.3 3 5.1') },
   { v: 'other', t: 'Something else', d: 'A question, a talk or a quick hello', icon: line('M4 5h16v11H9l-5 4z') },
 ];
-const when = ['As soon as possible', 'In 1 to 3 months', 'Later'];
+const start = ['As soon as possible', 'In 1 to 3 months', 'In 3 to 6 months', 'Later'];
+const length = ['Under 3 months', '3 to 6 months', '6 to 12 months', '1 year or more'];
 ---
 <form class="cf" id="contact-form" data-endpoint={endpoint} data-email={EMAIL} novalidate>
   <p class="req">Fields marked <i>*</i> are required.</p>
@@ -27,8 +29,8 @@ const when = ['As soon as possible', 'In 1 to 3 months', 'Later'];
   <fieldset class="sec">
     <legend class="h"><span class="n" aria-hidden="true"></span><span>What brings you here?&nbsp;<i>*</i></span></legend>
     <div class="intents">
-      {intents.map((it) => (
-        <label class="intent">
+      {intents.map((it, i) => (
+        <label class="intent" style={`--i:${i}`}>
           <input type="radio" name="intent" value={it.v} required aria-describedby="cf-intent-err" />
           <span class="ic" set:html={it.icon} />
           <span class="txt"><b>{it.t}</b><span>{it.d}</span></span>
@@ -43,48 +45,62 @@ const when = ['As soon as possible', 'In 1 to 3 months', 'Later'];
     <fieldset class="sec">
       <legend class="h"><span class="n" aria-hidden="true"></span>About you</legend>
       <div class="grid2">
-        <div class="f"><label for="cf-name">Full name <i>*</i></label><input id="cf-name" name="name" autocomplete="name" required aria-describedby="cf-name-err" /><span class="err" id="cf-name-err" data-missing="Add your name."></span></div>
-        <div class="f"><label for="cf-email">Work email <i>*</i></label><input id="cf-email" type="email" name="email" autocomplete="email" required aria-describedby="cf-email-err" /><span class="err" id="cf-email-err" data-missing="Add an email I can reply to." data-bad="Check the email address, for example name@company.com."></span></div>
-        <div class="f"><label for="cf-company">Company <i data-company-req>*</i></label><input id="cf-company" name="company" autocomplete="organization" aria-describedby="cf-company-err" /><span class="err" id="cf-company-err" data-missing="Add your company."></span></div>
-        <div class="f"><label for="cf-title">Your job title</label><input id="cf-title" name="title" autocomplete="organization-title" placeholder="Talent partner, founder" /></div>
+        <div class="f"><label class="lab" for="cf-name">Full name <i>*</i></label><input id="cf-name" name="name" autocomplete="name" required aria-describedby="cf-name-err" /><span class="err" id="cf-name-err" data-missing="Add your name."></span></div>
+        <div class="f"><label class="lab" for="cf-email">Work email <i>*</i></label><input id="cf-email" type="email" name="email" autocomplete="email" required aria-describedby="cf-email-err" /><span class="err" id="cf-email-err" data-missing="Add an email I can reply to." data-bad="Check the email address, for example name@company.com."></span></div>
+        <div class="f"><label class="lab" for="cf-company">Company <i data-company-req>*</i></label><input id="cf-company" name="company" autocomplete="organization" aria-describedby="cf-company-err" /><span class="err" id="cf-company-err" data-missing="Add your company."></span></div>
+        <div class="f"><label class="lab" for="cf-title">Your job title</label><input id="cf-title" name="title" autocomplete="organization-title" placeholder="Talent partner, founder" /></div>
       </div>
     </fieldset>
 
     <fieldset class="sec more" data-for="hire" disabled>
       <legend class="h"><span class="n" aria-hidden="true"></span>About the role</legend>
-      <div class="f"><label for="cf-role">Role title <i>*</i></label><input id="cf-role" name="role" required placeholder="Senior Product Designer" aria-describedby="cf-role-err" /><span class="err" id="cf-role-err" data-missing="Add the role title."></span></div>
-      <fieldset class="f"><legend>Employment type</legend><div class="seg">{['Full-time', 'Contract', 'Part-time'].map((o) => <label><input type="radio" name="type" value={o} /><span>{o}</span></label>)}</div></fieldset>
+      <div class="f"><label class="lab" for="cf-role">Role title <i>*</i></label><input id="cf-role" name="role" required placeholder="Senior Product Designer" aria-describedby="cf-role-err" /><span class="err" id="cf-role-err" data-missing="Add the role title."></span></div>
+      <div class="f" role="radiogroup" aria-labelledby="cf-type-l"><span class="lab" id="cf-type-l">Employment type</span>
+        <div class="seg">{['Full-time', 'Contract', 'Part-time'].map((o) => <label><input type="radio" name="type" value={o} /><span>{o}</span></label>)}</div></div>
+      <div class="f" role="radiogroup" aria-labelledby="cf-len-l" data-contract hidden><span class="lab" id="cf-len-l">Contract length</span>
+        <div class="seg">{length.map((o) => <label><input type="radio" name="length" value={o} disabled /><span>{o}</span></label>)}</div></div>
       <div class="grid2">
-        <fieldset class="f"><legend>Work setup</legend><div class="seg">{['Remote', 'Hybrid', 'On-site'].map((o) => <label><input type="radio" name="setup" value={o} /><span>{o}</span></label>)}</div></fieldset>
-        <div class="f"><label for="cf-location">Location</label><input id="cf-location" name="location" placeholder="City, country" /></div>
+        <div class="f" role="radiogroup" aria-labelledby="cf-setup-l"><span class="lab" id="cf-setup-l">Work setup</span>
+          <div class="seg">{['Remote', 'Hybrid', 'On-site'].map((o) => <label><input type="radio" name="setup" value={o} /><span>{o}</span></label>)}</div></div>
+        <div class="f"><label class="lab" for="cf-location">Location</label><input id="cf-location" name="location" placeholder="City, country" /></div>
       </div>
-      <div class="f"><label for="cf-jobpost">Link to the job post</label><input id="cf-jobpost" name="link" type="text" inputmode="url" autocomplete="url" data-link placeholder="company.com/careers/role" aria-describedby="cf-jobpost-err" /><span class="err" id="cf-jobpost-err" data-bad="Check the link, for example company.com/careers/role."></span></div>
-      <fieldset class="f"><legend>Ideal start</legend><div class="seg">{when.map((o) => <label><input type="radio" name="start" value={o} /><span>{o}</span></label>)}</div></fieldset>
+      <div class="f" role="radiogroup" aria-labelledby="cf-start-l"><span class="lab" id="cf-start-l">Ideal start</span>
+        <div class="seg">{start.map((o) => <label><input type="radio" name="start" value={o} /><span>{o}</span></label>)}</div></div>
+      <div class="f"><label class="lab" for="cf-jobpost">Link to the job post</label><input id="cf-jobpost" name="link" type="text" inputmode="url" autocomplete="url" data-link placeholder="company.com/careers/role" aria-describedby="cf-jobpost-err" /><span class="err" id="cf-jobpost-err" data-bad="Check the link, for example company.com/careers/role."></span></div>
     </fieldset>
 
     <fieldset class="sec more" data-for="project" disabled>
       <legend class="h"><span class="n" aria-hidden="true"></span>About the project</legend>
-      <fieldset class="f"><legend>What do you need? <span class="opt">Choose any</span></legend><div class="picks">{['Service design', 'UX and UI design', 'Design system', 'Research and testing', 'Accessibility review', 'Not sure yet'].map((o) => <label class="pick"><input type="checkbox" name="needs" value={o} /><span>{o}</span></label>)}</div></fieldset>
-      <fieldset class="f"><legend>Timeline</legend><div class="seg">{when.map((o) => <label><input type="radio" name="timeline" value={o} /><span>{o}</span></label>)}</div></fieldset>
-      <div class="f"><label for="cf-brief">Link to a brief</label><input id="cf-brief" name="link" type="text" inputmode="url" data-link placeholder="docs.google.com/..." aria-describedby="cf-brief-err" /><span class="err" id="cf-brief-err" data-bad="Check the link, for example docs.google.com/your-brief."></span></div>
+      <div class="f" role="group" aria-labelledby="cf-pneeds-l"><span class="lab" id="cf-pneeds-l">What do you need? <span class="opt">Choose any</span></span>
+        <div class="picks">{['Service design', 'UX and UI design', 'Design system', 'Research and testing', 'Accessibility review', 'Not sure yet'].map((o) => <label class="pick"><input type="checkbox" name="needs" value={o} /><span>{o}</span></label>)}</div></div>
+      <div class="f" role="radiogroup" aria-labelledby="cf-pstart-l"><span class="lab" id="cf-pstart-l">When should it start?</span>
+        <div class="seg">{start.map((o) => <label><input type="radio" name="start" value={o} /><span>{o}</span></label>)}</div></div>
+      <div class="f" role="radiogroup" aria-labelledby="cf-plen-l"><span class="lab" id="cf-plen-l">How long will it run?</span>
+        <div class="seg">{length.map((o) => <label><input type="radio" name="length" value={o} /><span>{o}</span></label>)}</div></div>
+      <div class="f"><label class="lab" for="cf-brief">Link to a brief</label><input id="cf-brief" name="link" type="text" inputmode="url" data-link placeholder="docs.google.com/..." aria-describedby="cf-brief-err" /><span class="err" id="cf-brief-err" data-bad="Check the link, for example docs.google.com/your-brief."></span></div>
     </fieldset>
 
     <fieldset class="sec more" data-for="product" disabled>
       <legend class="h"><span class="n" aria-hidden="true"></span>About the product</legend>
       <div class="grid2">
-        <div class="f"><label for="cf-product">Product name <i>*</i></label><input id="cf-product" name="product" required aria-describedby="cf-product-err" /><span class="err" id="cf-product-err" data-missing="Add the product's name."></span></div>
-        <div class="f"><label for="cf-plink">Product link</label><input id="cf-plink" name="link" type="text" inputmode="url" data-link placeholder="yourproduct.com" aria-describedby="cf-plink-err" /><span class="err" id="cf-plink-err" data-bad="Check the link, for example yourproduct.com."></span></div>
+        <div class="f"><label class="lab" for="cf-product">Product name <i>*</i></label><input id="cf-product" name="product" required aria-describedby="cf-product-err" /><span class="err" id="cf-product-err" data-missing="Add the product's name."></span></div>
+        <div class="f"><label class="lab" for="cf-plink">Product link</label><input id="cf-plink" name="link" type="text" inputmode="url" data-link placeholder="yourproduct.com" aria-describedby="cf-plink-err" /><span class="err" id="cf-plink-err" data-bad="Check the link, for example yourproduct.com."></span></div>
       </div>
-      <fieldset class="f"><legend>What needs work? <span class="opt">Choose any</span></legend><div class="picks">{['Onboarding', 'Core workflows', 'Dashboard', 'Design system', 'The whole product', 'Not sure yet'].map((o) => <label class="pick"><input type="checkbox" name="needs" value={o} /><span>{o}</span></label>)}</div></fieldset>
-      <fieldset class="f"><legend>Stage</legend><div class="seg">{['In design', 'Live', 'Scaling'].map((o) => <label><input type="radio" name="stage" value={o} /><span>{o}</span></label>)}</div></fieldset>
-      <fieldset class="f"><legend>Timeline</legend><div class="seg">{when.map((o) => <label><input type="radio" name="timeline" value={o} /><span>{o}</span></label>)}</div></fieldset>
+      <div class="f" role="group" aria-labelledby="cf-rneeds-l"><span class="lab" id="cf-rneeds-l">What needs work? <span class="opt">Choose any</span></span>
+        <div class="picks">{['Onboarding', 'Core workflows', 'Dashboard', 'Design system', 'The whole product', 'Not sure yet'].map((o) => <label class="pick"><input type="checkbox" name="needs" value={o} /><span>{o}</span></label>)}</div></div>
+      <div class="f" role="radiogroup" aria-labelledby="cf-stage-l"><span class="lab" id="cf-stage-l">Where is it now?</span>
+        <div class="seg">{['In design', 'Live', 'Scaling'].map((o) => <label><input type="radio" name="stage" value={o} /><span>{o}</span></label>)}</div></div>
+      <div class="f" role="radiogroup" aria-labelledby="cf-rstart-l"><span class="lab" id="cf-rstart-l">When should it start?</span>
+        <div class="seg">{start.map((o) => <label><input type="radio" name="start" value={o} /><span>{o}</span></label>)}</div></div>
     </fieldset>
 
     <fieldset class="sec more" data-for="intro" disabled>
       <legend class="h"><span class="n" aria-hidden="true"></span>About the introduction</legend>
-      <div class="f"><label for="cf-about">What is it for? <i>*</i></label><input id="cf-about" name="about" required placeholder="A role, a project, a talk or a panel" aria-describedby="cf-about-err" /><span class="err" id="cf-about-err" data-missing="Tell me what it is for."></span></div>
-      <div class="f"><label for="cf-how">How do you know my work?</label>
-        <select id="cf-how" name="how"><option value="">Choose one</option><option>We worked together</option><option>Through someone I know</option><option>I found this site</option><option>Another way</option></select>
+      <div class="grid2">
+        <div class="f"><label class="lab" for="cf-about">What is it for? <i>*</i></label><input id="cf-about" name="about" required placeholder="A role, a project, a talk or a panel" aria-describedby="cf-about-err" /><span class="err" id="cf-about-err" data-missing="Tell me what it is for."></span></div>
+        <div class="f"><label class="lab" for="cf-how">How do you know my work?</label>
+          <select id="cf-how" name="how"><option value="">Choose one</option><option>We worked together</option><option>Through someone I know</option><option>I found this site</option><option>Another way</option></select>
+        </div>
       </div>
     </fieldset>
 
@@ -124,7 +140,7 @@ const when = ['As soon as possible', 'In 1 to 3 months', 'Later'];
   };
   const COMPANY_NEEDED = ['hire', 'project', 'product'];
   const LABELS: [string, string][] = [['name', 'Name'], ['email', 'Email'], ['company', 'Company'], ['title', 'Job title'], ['role', 'Role'], ['type', 'Employment type'],
-    ['setup', 'Work setup'], ['location', 'Location'], ['start', 'Ideal start'], ['product', 'Product'], ['stage', 'Stage'], ['needs', 'Needs'], ['timeline', 'Timeline'],
+    ['length', 'Length'], ['setup', 'Work setup'], ['location', 'Location'], ['start', 'Start'], ['product', 'Product'], ['stage', 'Stage'], ['needs', 'Needs'],
     ['about', 'For'], ['how', 'Knows my work'], ['link', 'Link'], ['message', 'Message']];
   // links are accepted as people paste them; a missing https:// is added, and a link needs at least a dot
   const fixLink = (v: string) => (v && !/^https?:\/\//i.test(v) ? `https://${v}` : v);
@@ -136,9 +152,19 @@ const when = ['As soon as possible', 'In 1 to 3 months', 'Later'];
     const rest = form.querySelector<HTMLElement>('.rest')!, done = form.querySelector<HTMLElement>('.done')!, summary = form.querySelector<HTMLElement>('.summary')!;
     let intent = '';
 
+    // contract length only appears (and only counts) when the role is a contract
+    const contract = form.querySelector<HTMLElement>('[data-contract]')!;
+    const syncContract = () => {
+      const on = (form.querySelector<HTMLInputElement>('input[name="type"]:checked')?.value ?? '') === 'Contract';
+      contract.hidden = !on;
+      contract.querySelectorAll<HTMLInputElement>('input').forEach((i) => { i.disabled = !on; if (!on) i.checked = false; });
+    };
+    form.querySelectorAll<HTMLInputElement>('input[name="type"]').forEach((r) => r.addEventListener('change', syncContract));
+
     const choose = (v: string) => {
       intent = v;
       form.querySelectorAll<HTMLFieldSetElement>('.more').forEach((f) => (f.disabled = f.dataset.for !== v));
+      syncContract();
       const [label, help, needed] = MSG[v];
       form.querySelector('[data-msg-label]')!.textContent = label;
       form.querySelector('[data-msg-help]')!.textContent = help;
@@ -221,6 +247,7 @@ const when = ['As soon as possible', 'In 1 to 3 months', 'Later'];
       form.reset(); intent = '';
       form.querySelectorAll<HTMLElement>(':scope > .req, :scope > fieldset').forEach((el) => (el.hidden = false));
       rest.hidden = true; done.hidden = true; summary.hidden = true;
+      syncContract();
       form.querySelectorAll<HTMLElement>('.err').forEach((e) => clear(e));
       form.querySelectorAll('[aria-invalid]').forEach((el) => el.removeAttribute('aria-invalid'));
       form.querySelector<HTMLInputElement>('input[name="intent"]')?.focus();
@@ -240,29 +267,32 @@ const when = ['As soon as possible', 'In 1 to 3 months', 'Later'];
 <style>
   .cf { display: grid; gap: 30px; counter-reset: sec; }
   .req { font-size: 13px; color: var(--dim); }
-  .req i, .h i, label i { font-style: normal; color: var(--accent); }
+  .req i, .h i, .lab i { font-style: normal; color: var(--accent); }
   .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
   .summary { padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255, 138, 122, 0.45); background: rgba(255, 138, 122, 0.08); color: #FFB3A8; font-size: 14px; outline: none; }
   fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
-  legend { padding: 0; }
+  /* a floated legend becomes an ordinary grid item, so section headings keep the same spacing as everything else */
+  .sec > legend { float: left; width: 100%; padding: 0; }
 
   /* numbered sections: 01, 02, 03... counted only when shown */
-  .sec { display: grid; gap: 18px; counter-increment: sec; }
-  .rest { display: grid; gap: 34px; padding-top: 30px; border-top: 1px solid var(--line-a); }
+  .sec { display: grid; gap: 20px; counter-increment: sec; }
+  .rest { display: grid; gap: 36px; padding-top: 30px; border-top: 1px solid var(--line-a); }
   .rest[hidden] { display: none; }
   .more[disabled] { display: none; }
-  .h { display: flex; align-items: baseline; gap: 12px; font-size: 18px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 2px; color: var(--fg); }
+  .h { display: flex; align-items: baseline; gap: 12px; font-size: 18px; font-weight: 600; letter-spacing: -0.02em; color: var(--fg); }
   .n::before { content: counter(sec, decimal-leading-zero); font-family: var(--mono); font-size: 11px; font-weight: 400; letter-spacing: 0.1em; color: var(--accent); }
-  .help { margin-top: -8px; font-size: 13.5px; color: var(--muted); }
+  .help { margin-top: -10px; font-size: 13.5px; color: var(--muted); }
 
-  /* the reasons: five cards in two columns, each a radio */
+  /* the reasons: five cards in two columns, each a radio; they rise in one after another */
   .intents { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .intent { position: relative; display: grid; grid-template-columns: 40px 1fr 20px; align-items: center; gap: 12px; padding: 14px 14px 14px 12px; border-radius: 14px; cursor: pointer;
-    border: 1px solid var(--line-a); background: rgba(235, 238, 245, 0.025); transition: border-color 0.2s, background 0.2s; }
+    border: 1px solid var(--line-a); background: rgba(235, 238, 245, 0.025); transition: border-color 0.2s, background 0.2s, transform 0.25s var(--ease);
+    animation: cf-rise 0.6s var(--ease) both; animation-delay: calc(var(--i) * 70ms + 250ms); }
+  @keyframes cf-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
   .intent:last-child { grid-column: 1 / -1; }
-  .intent:hover { border-color: rgba(235, 238, 245, 0.22); background: rgba(235, 238, 245, 0.05); }
+  .intent:hover { border-color: rgba(235, 238, 245, 0.22); background: rgba(235, 238, 245, 0.05); transform: translateY(-1px); }
   .intent input { position: absolute; opacity: 0; pointer-events: none; }
-  .intent .ic { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 11px; background: rgba(235, 238, 245, 0.05); color: var(--fg); }
+  .intent .ic { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 11px; background: rgba(235, 238, 245, 0.05); color: var(--fg); transition: background 0.2s; }
   .intent .ic :global(svg) { width: 19px; height: 19px; }
   .txt { display: grid; gap: 2px; min-width: 0; }
   .txt b { font-size: 14.5px; font-weight: 600; letter-spacing: -0.01em; }
@@ -274,16 +304,17 @@ const when = ['As soon as possible', 'In 1 to 3 months', 'Later'];
   .intent:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
   .intent:has(input[aria-invalid]) { border-color: rgba(255, 138, 122, 0.6); }
 
-  .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 14px; align-items: start; }
+  .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 14px; align-items: start; }
 
-  /* fields: the label above, a helper or error below */
+  /* fields: the label above, a 46px control, a helper or error below; every control shares the height */
   .f { display: grid; gap: 8px; min-width: 0; align-content: start; }
-  .f > label, .f > legend { font-size: 13.5px; color: var(--muted); }
+  .f[hidden] { display: none; }
+  .lab { display: block; font-size: 13.5px; line-height: 1.4; color: var(--muted); }
   .opt { margin-left: 6px; font-size: 12px; color: var(--dim); }
   input:not([type=radio]):not([type=checkbox]), select, textarea {
     width: 100%; font: 400 15px/1.4 var(--sans); color: var(--fg); background: rgba(235, 238, 245, 0.04); border: 1px solid var(--line-a); border-radius: 10px;
-    padding: 12px 14px; min-height: 46px; transition: border-color 0.2s, background 0.2s; }
-  textarea { resize: vertical; min-height: 150px; line-height: 1.55; }
+    padding: 0 14px; height: 46px; transition: border-color 0.2s, background 0.2s; }
+  textarea { height: auto; padding: 12px 14px; resize: vertical; min-height: 150px; line-height: 1.55; }
   select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%23A8ACB6' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 14px; padding-right: 36px; }
   select option { color: #09090A; }
   input::placeholder, textarea::placeholder { color: var(--dim); }
@@ -292,12 +323,12 @@ const when = ['As soon as possible', 'In 1 to 3 months', 'Later'];
   .err { font-size: 12.5px; color: #FF9D8F; }
   .err[hidden] { display: none; }
 
-  /* one answer: a segmented control in equal parts, the chosen part lit */
-  .seg { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 4px; padding: 4px; border-radius: 12px; border: 1px solid var(--line-a); background: rgba(235, 238, 245, 0.03); }
+  /* one answer: a segmented control in equal parts, exactly as tall as a text box */
+  .seg { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 3px; padding: 3px; height: 46px; border-radius: 10px; border: 1px solid var(--line-a); background: rgba(235, 238, 245, 0.03); }
   .seg label { position: relative; cursor: pointer; min-width: 0; }
   .seg input { position: absolute; opacity: 0; pointer-events: none; }
-  .seg span { display: flex; align-items: center; justify-content: center; text-align: center; height: 100%; min-height: 42px; padding: 8px 10px; border-radius: 9px;
-    font-size: 13.5px; line-height: 1.25; color: var(--muted); transition: background 0.2s, color 0.2s, box-shadow 0.2s; }
+  .seg span { display: flex; align-items: center; justify-content: center; text-align: center; height: 100%; padding: 0 8px; border-radius: 7px;
+    font-size: 13.5px; line-height: 1.2; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: background 0.2s, color 0.2s, box-shadow 0.2s; }
   .seg label:hover span { color: var(--fg); background: rgba(235, 238, 245, 0.05); }
   .seg input:checked + span { color: #fff; background: color-mix(in srgb, var(--accent) 20%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 65%, transparent); }
   .seg input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 1px; }
@@ -306,7 +337,7 @@ const when = ['As soon as possible', 'In 1 to 3 months', 'Later'];
   .picks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
   .pick { position: relative; cursor: pointer; min-width: 0; }
   .pick input { position: absolute; opacity: 0; pointer-events: none; }
-  .pick span { display: flex; align-items: center; gap: 10px; height: 100%; min-height: 46px; padding: 10px 14px; border-radius: 12px; font-size: 13.5px; line-height: 1.3;
+  .pick span { display: flex; align-items: center; gap: 10px; height: 46px; padding: 0 14px; border-radius: 10px; font-size: 13.5px; line-height: 1.25;
     color: var(--muted); border: 1px solid var(--line-a); background: rgba(235, 238, 245, 0.03); transition: border-color 0.2s, background 0.2s, color 0.2s; }
   .pick span::before { content: ''; flex: none; width: 16px; height: 16px; border-radius: 5px; border: 1px solid var(--line); transition: all 0.2s; }
   .pick:hover span { border-color: rgba(235, 238, 245, 0.22); color: var(--fg); }
@@ -325,7 +356,9 @@ const when = ['As soon as possible', 'In 1 to 3 months', 'Later'];
   .done h2 { font-size: 26px; }
   .done p { color: var(--muted); font-size: 15px; line-height: 1.6; max-width: 46ch; }
 
+  /* narrower forms: four-part choices wrap into two rows of two, still equal */
+  @media (max-width: 720px) { .seg:has(> label:nth-child(4)) { grid-auto-flow: row; grid-template-columns: repeat(2, minmax(0, 1fr)); height: auto; } .seg:has(> label:nth-child(4)) span { height: 38px; } }
   @media (max-width: 620px) { .intents, .grid2 { grid-template-columns: 1fr; } .picks { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  /* very narrow: long one-answer labels stack instead of squeezing */
-  @media (max-width: 420px) { .seg { grid-auto-flow: row; } }
+  @media (max-width: 420px) { .seg { grid-auto-flow: row; grid-template-columns: 1fr; height: auto; } .seg span { height: 38px; } }
+  @media (prefers-reduced-motion: reduce) { .intent { animation: none; } }
 </style>

@@ -1,16 +1,12 @@
 ---
 /* About: who I am and how I work.
-   Header over his project covers floating in 3D; a band of four facts; "Where the work happens", a big three-photo
-   section from media1; the story as six short chapters on a line that fills as you scroll; how I work; four portraits;
-   what I bring; availability. No job-by-job experience list (his call), and no mention of the city he lives in. */
+   Header over his project covers on a turning 3D ring; a band of four facts; three workstation photos; the story as
+   six short chapters on a line that fills as you scroll; how I work; what I bring; availability. No job-by-job
+   experience list and no photo-of-me section for now (his calls), and no mention of the city he lives in. */
 import Base from '../../layouts/Base.astro';
 import { Image } from 'astro:assets';
 import AboutHeroCards from '../../components/AboutHeroCards.astro';
 import portrait from '../../assets/portrait.jpg';
-import inOffice from '../../assets/about/in-office.jpg';
-import atWork from '../../assets/about/at-work.jpg';
-import atDesk from '../../assets/about/at-desk.jpg';
-import portraitSoft from '../../assets/about/portrait-soft.jpg';
 import studioWide from '../../assets/about/studio-wide.webp';
 import studioTall from '../../assets/about/studio-tall.webp';
 import studioPortrait from '../../assets/about/studio-portrait.webp';
@@ -20,44 +16,45 @@ const line = (d: string) => `<svg viewBox="0 0 24 24" fill="none" stroke="curren
 // the facts band: each one already said on the site or in his story
 const facts = [
   { k: 'Designing since', v: '2018', d: 'Web design first, UI from 2019, then services', icon: line('M12 7v5l3 2M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z') },
-  { k: 'Specialism', v: 'Regulated and public services', d: 'Government-funded care, digital government, fintech', icon: line('M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-3z') },
+  { k: 'Specialism', v: 'Regulated and public services', d: 'Government-funded care, digital government and fintech', icon: line('M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-3z') },
   { k: 'Craft', v: 'Service and UX design', d: 'From the service model to the shipped screen', icon: line('M12 3 3 8l9 5 9-5-9-5zM3 13l9 5 9-5') },
   { k: 'Standard', v: 'WCAG 2.2 AA', d: 'Accessibility built in, not added at the end', icon: line('M12 5.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM5 8l7 1.5L19 8M12 9.5V14l-3 6M12 14l3 6') },
 ];
-// the story, in six short chapters (his own account: graphic designer in 2018, UI designer in 2019)
+// the story, in six short chapters (his own account: graphic designer from 2018, UI designer from 2019)
 const chapters = [
-  { y: '2018', t: 'It started with the web', d: 'I began as a graphic designer in Nigeria, making websites for clients across many industries. I designed the pages, built them in HTML, CSS and WordPress, looked after their search rankings and Google listings, made ads for early crypto ventures, and taught web design to students.' },
-  { y: '2019', t: 'From pages to products', d: 'I moved into UI design. The question changed from how a page looks to how a product works.' },
-  { y: '2020', t: 'The work behind the screen', d: 'In Lagos I designed the parts of software most people never see: a self-service portal, a learning management system, a real estate platform. The hard problems sat behind the screen, in the process, the rules and the staff who ran it.' },
-  { y: '2021', t: 'Where trust is the product', d: 'Fintech sharpened that. A payment flow is only as good as the trust it earns, and a dashboard only as good as the decision it supports.' },
+  { y: '2018', t: 'It started with the web', d: 'I began as a graphic designer in Nigeria, designing websites for clients across many industries. I built pages in HTML, CSS and WordPress, handled SEO and Google Business listings, designed campaigns for early crypto projects, and taught web design to students.' },
+  { y: '2019', t: 'From pages to products', d: 'I moved into UI design, and the question changed from how a page looks to how a product works.' },
+  { y: '2020', t: 'The work behind the screen', d: 'In Lagos I designed the parts of software most people never see: a self-service portal, a learning management system and a real estate platform. The hard problems sat behind the screen, in the process, the rules and the staff who ran it.' },
+  { y: '2021', t: 'Where trust is the product', d: 'Fintech sharpened that. A payment flow is only as good as the trust it earns, and a dashboard is only as good as the decision it supports.' },
   { y: '2024', t: 'Services people rely on', d: "I began designing for Australia's disability sector, where every form is a compliance document and every roster is a promise to a participant." },
-  { y: 'Now', t: 'From service model to production', d: 'Services funded by government, bound by regulation, or used by the public, designed from the service model down to production code.' },
+  { y: 'Now', t: 'From service model to production', d: 'Today I design services that are funded by government, bound by regulation or used by the public, from the service model down to production code.' },
 ];
-// the big photo section: three of his workstation photos from media1, the wide one in the middle
+// three of his workstation photos from media1, the wide one in the middle
 const studio = [
   { src: studioPortrait, cls: 'side', pos: '72% 50%', dir: 1, widths: [480, 760, 1086], sizes: '(max-width: 760px) 50vw, 24vw', alt: 'Oluwayemi at his desk, working on a curved monitor' },
   { src: studioWide, cls: 'main', pos: '50% 55%', dir: -1, widths: [800, 1300, 1900, 2600], sizes: '(max-width: 760px) 100vw, 52vw', alt: 'His workstation: a curved monitor, a laptop in a vertical stand and a desk chair beside the curtains' },
   { src: studioTall, cls: 'side', pos: '50% 62%', dir: 1, widths: [480, 760, 1100], sizes: '(max-width: 760px) 50vw, 24vw', alt: 'A desk and monitor facing a wide arched window, with green hills outside' },
 ];
-// four portraits from Photo/PH, chosen with his permission; `pos` keeps each face in frame
-const photos = [
-  { src: inOffice, pos: '50% 18%', alt: 'Oluwayemi in a white agbada and a red cap, standing in an office' },
-  { src: atDesk, pos: '50% 26%', alt: 'Oluwayemi at a desk, with headphones and a lanyard' },
-  { src: atWork, pos: '50% 30%', alt: 'Oluwayemi at work in a studio, wearing headphones' },
-  { src: portraitSoft, pos: '50% 26%', alt: 'A portrait of Oluwayemi in glasses and a white top' },
+// SAMPLE testimonials, for the layout only: he asked for a demo until he sends real quotes. The names are placeholders
+// and every card is labelled Sample. Replace all three with real quotes (and permission to name the person) before v2
+// goes live; never present these as real.
+const testimonials = [
+  { q: 'He took a messy, regulated process and made it feel simple for the people who use it. He asked the questions nobody else asked, and the product was better for it.', n: 'Name Surname', r: 'Role, Company' },
+  { q: 'He does not stop at the screen. He maps the whole service, then stays with the team until what ships matches what was designed.', n: 'Name Surname', r: 'Role, Company' },
+  { q: 'Clear thinking, calm under pressure, and a designer who understands compliance as well as he understands users.', n: 'Name Surname', r: 'Role, Company' },
 ];
 const principles = [
-  { t: 'Service before screen', d: 'The journey, the staff process and the policy come first. The interface is the last thing designed, not the first.' },
-  { t: 'Decisions over deliverables', d: 'A wireframe is evidence, not the work. The work is the call made under a constraint, and why.' },
-  { t: 'Compliance is a design material', d: 'Audit trails, eligibility rules and reporting obligations shape the product. Designing around them produces things that fail inspection.' },
-  { t: 'Stay through to production', d: 'The spec and the shipped product should be the same thing. I stay until they are.' },
+  { t: 'Service before screen', d: 'The journey, the staff process and the policy come first. The interface is the last thing designed, not the first.', icon: line('M4 5h16v4H4zM4 11h9v8H4zM15 11h5v8h-5z') },
+  { t: 'Decisions over deliverables', d: 'A wireframe is evidence, not the work. The work is the call made under a constraint, and the reason for it.', icon: line('M12 3l7 9-7 9-7-9 7-9zM12 8v8') },
+  { t: 'Compliance is a design material', d: 'Audit trails, eligibility rules and reporting duties shape the product. Designing around them produces things that fail inspection.', icon: line('M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-3zM9 12l2 2 4-4') },
+  { t: 'Stay through to production', d: 'The spec and the shipped product should be the same thing. I stay with the work until they are.', icon: line('M8 8l-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14') },
 ];
 const capabilities = [
-  ['Service design', 'Service blueprints, journey mapping, service models, research and usability testing'],
-  ['Information architecture', 'Enterprise platforms, case management, operations and admin systems'],
-  ['Design systems', 'Design tokens, component libraries, interaction standards, design governance'],
-  ['Accessibility', 'WCAG 2.2 AA as a build constraint, not a final pass'],
-  ['Prototyping and build', 'Figma, Framer, and production front-end so the handoff is the product'],
+  { t: 'Service design', d: 'The whole service, front stage and back, mapped before any screen is drawn.', tags: ['Service blueprints', 'Journey mapping', 'Service models', 'Research', 'Usability testing'] },
+  { t: 'Information architecture', d: 'Clear structure for complex, data-heavy products.', tags: ['Enterprise platforms', 'Case management', 'Operations systems', 'Admin systems'] },
+  { t: 'Design systems', d: 'Shared foundations that keep a product consistent as it grows.', tags: ['Design tokens', 'Component libraries', 'Interaction standards', 'Design governance'] },
+  { t: 'Accessibility', d: 'WCAG 2.2 AA as a build constraint, not a final pass.', tags: ['WCAG 2.2 AA', 'Built in from the start'] },
+  { t: 'Prototyping and build', d: 'Prototypes and production front-end, so the handoff is the product.', tags: ['Figma', 'Framer', 'Production front-end'] },
 ];
 ---
 <Base title="About · Oluwayemi Akinbande" description="Senior Service & UX Designer. Seven years across fintech, healthcare, energy and SaaS, specialising in government-funded, regulated and citizen-facing services.">
@@ -68,7 +65,7 @@ const capabilities = [
         <div class="lead">
           <p class="eyebrow accent" data-reveal>About</p>
           <h1 data-reveal data-reveal-delay="0.1">Regulated services are where design earns its keep.</h1>
-          <p class="sum" data-reveal data-reveal-delay="0.2">Senior Service &amp; UX Designer. Seven years across fintech, healthcare, energy and SaaS, with a specialism in services that are government-funded, regulated, or used by the public.</p>
+          <p class="sum" data-reveal data-reveal-delay="0.2">Senior Service &amp; UX Designer. Seven years across fintech, healthcare, energy and SaaS, with a specialism in services that are government-funded, regulated or used by the public.</p>
           <div class="cta" data-reveal data-reveal-delay="0.26">
             <a class="btn btn-primary" href="/contact/">Get in touch
               <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -94,8 +91,7 @@ const capabilities = [
       </ul>
     </section>
 
-    <section class="wrap studio" aria-labelledby="st-h">
-      <div class="section-head" data-reveal><div><p class="eyebrow accent">Studio</p><h2 id="st-h">Where the work happens.</h2></div></div>
+    <section class="wrap studio" aria-label="Where the work happens">
       <div class="trip" id="about-trip">
         {studio.map((p, i) => (
           <figure class={`t ${p.cls}`} data-reveal data-reveal-delay={String(i * 0.08)}>
@@ -110,7 +106,7 @@ const capabilities = [
         <div class="side-head" data-reveal>
           <p class="eyebrow accent">Story</p>
           <h2 id="story-h">From web pages to public services.</h2>
-          <p class="kicker">Eight years, one thread: the work behind the screen.</p>
+          <p class="kicker">Since 2018, one thread: the work behind the screen.</p>
         </div>
         <ol class="chapters" id="about-chapters">
           <li class="rail" aria-hidden="true"><i class="fill"></i></li>
@@ -126,34 +122,60 @@ const capabilities = [
       </div>
     </section>
 
-    <section class="wrap" aria-labelledby="pr-h">
-      <div class="section-head" data-reveal><div><p class="eyebrow accent">How I work</p><h2 id="pr-h">Four things I hold to.</h2></div></div>
-      <ul class="principles">
-        {principles.map((p, i) => (
-          <li class="panel" data-reveal data-reveal-delay={String((i % 2) * 0.08)}>
-            <span class="mono n">{String(i + 1).padStart(2, '0')}</span>
-            <h3>{p.t}</h3><p>{p.d}</p>
-          </li>
-        ))}
-      </ul>
-    </section>
-
-    <section class="wrap" aria-labelledby="ph-h">
-      <div class="section-head" data-reveal><div><p class="eyebrow accent">In person</p><h2 id="ph-h">The person behind the work.</h2></div></div>
-      <div class="gallery">
-        {photos.map((p, i) => (
-          <figure class="g" data-reveal data-reveal-delay={String(i * 0.07)}>
-            <Image src={p.src} alt={p.alt} widths={[400, 640, 960]} sizes="(max-width: 860px) 46vw, 24vw" format="webp" quality={88} loading="lazy" style={`object-position:${p.pos}`} />
+    <section class="wrap" aria-labelledby="tm-h">
+      <div class="section-head" data-reveal><div><p class="eyebrow accent">Testimonials</p><h2 id="tm-h">What it is like to work with me.</h2></div></div>
+      <div class="tms">
+        {testimonials.map((t, i) => (
+          <figure class={`tm${i === 0 ? ' big' : ''}`} data-reveal data-reveal-delay={String(i * 0.08)}>
+            <span class="tm-mark" aria-hidden="true">&ldquo;</span>
+            <blockquote><p>{t.q}</p></blockquote>
+            <figcaption>
+              <span class="av" aria-hidden="true">{t.n.split(' ').map((w) => w[0]).join('')}</span>
+              <span class="who"><b>{t.n}</b><span>{t.r}</span></span>
+              <span class="sample mono">Sample</span>
+            </figcaption>
           </figure>
         ))}
       </div>
     </section>
 
+    <section class="wrap" aria-labelledby="pr-h">
+      <div class="section-head" data-reveal><div><p class="eyebrow accent">How I work</p><h2 id="pr-h">Four things I hold to.</h2></div></div>
+      <ul class="principles">
+        {principles.map((p, i) => (
+          <li class="pr" data-reveal data-reveal-delay={String((i % 2) * 0.08)}>
+            <span class="pr-top"><span class="num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span><span class="pr-ic" set:html={p.icon} /></span>
+            <h3>{p.t}</h3>
+            <p>{p.d}</p>
+            <i class="bar" aria-hidden="true"></i>
+          </li>
+        ))}
+      </ul>
+    </section>
+
     <section class="wrap" aria-labelledby="cap-h">
-      <div class="section-head" data-reveal><div><p class="eyebrow accent">Capabilities</p><h2 id="cap-h">What I bring to a team.</h2></div></div>
-      <dl class="panel caps" data-reveal>
-        {capabilities.map(([k, v]) => <div><dt>{k}</dt><dd>{v}</dd></div>)}
-      </dl>
+      <div class="cap-grid">
+        <div class="cap-intro" data-reveal>
+          <p class="eyebrow accent">Capabilities</p>
+          <h2 id="cap-h">What I bring to a team.</h2>
+          <p>Five practices, used together, from the first research session to the shipped product.</p>
+          <a class="btn btn-ghost" href="/work/">See them in the work
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+        <ol class="caps">
+          {capabilities.map((c, i) => (
+            <li class="cap" data-reveal data-reveal-delay={String(i * 0.05)}>
+              <span class="mono ci">{String(i + 1).padStart(2, '0')}</span>
+              <div class="cb">
+                <h3>{c.t}</h3>
+                <p>{c.d}</p>
+                <ul class="tags">{c.tags.map((t) => <li>{t}</li>)}</ul>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
     </section>
 
     <section class="wrap" aria-labelledby="av-h">
@@ -170,9 +192,9 @@ const capabilities = [
           </div>
         </div>
         <dl class="panel card facts" data-reveal data-reveal-delay="0.12">
-          <div><dt>Sectors</dt><dd>Government-funded care, digital government, healthcare, fintech, energy, SaaS</dd></div>
-          <div><dt>Standards</dt><dd>WCAG 2.2 AA, design tokens, component libraries, design governance</dd></div>
-          <div><dt>Tools</dt><dd>Figma, Framer, and production front-end</dd></div>
+          <div><dt>Sectors</dt><dd>Government-funded care, digital government, healthcare, fintech, energy and SaaS</dd></div>
+          <div><dt>Standards</dt><dd>WCAG 2.2 AA, design tokens, component libraries and design governance</dd></div>
+          <div><dt>Tools</dt><dd>Figma, Framer and production front-end</dd></div>
         </dl>
       </div>
     </section>
@@ -204,7 +226,7 @@ const capabilities = [
   .about { padding-bottom: clamp(72px, 10vw, 140px); }
   .about > section { padding-top: clamp(64px, 9vw, 120px); }
 
-  /* header: over the floating project cards, the words on the left and the portrait on the right */
+  /* header: over the turning ring of project covers, the words on the left and the portrait on the right */
   .hero { position: relative; isolation: isolate; min-height: min(86vh, 800px); display: grid; align-items: end;
     padding-top: calc(var(--nav-h) + clamp(56px, 10vw, 128px)); padding-bottom: clamp(72px, 9vw, 120px); }
   .head { position: relative; z-index: 1; width: 100%; display: grid; grid-template-columns: minmax(0, 1.3fr) auto; gap: clamp(28px, 5vw, 72px); align-items: end; }
@@ -234,7 +256,7 @@ const capabilities = [
   .fv { font-size: clamp(19px, 1.7vw, 24px); font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; color: var(--fg); }
   .fd { align-self: end; font-size: 13.5px; line-height: 1.5; color: var(--muted); }
 
-  /* the big photo section: the wide photo in the middle, a portrait either side, all one height */
+  /* the photos: the wide one in the middle, a portrait either side, all one height */
   .trip { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2.2fr) minmax(0, 1fr); gap: 12px; height: clamp(320px, 40vw, 580px); }
   .t { margin: 0; position: relative; overflow: hidden; border-radius: 18px; border: 1px solid var(--line-a); background: var(--surface); }
   .par { position: absolute; left: 0; right: 0; top: -7%; bottom: -7%; will-change: transform; }
@@ -255,24 +277,57 @@ const capabilities = [
   .ch h3 { font-size: clamp(18px, 1.6vw, 21px); letter-spacing: -0.02em; }
   .ch p { color: var(--muted); font-size: 15.5px; line-height: 1.7; max-width: 60ch; }
 
-  .principles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-  .principles li { padding: clamp(22px, 2.6vw, 30px); display: grid; gap: 10px; align-content: start; }
-  .principles .n { font-size: 11px; color: var(--accent); letter-spacing: 0.1em; }
-  .principles h3 { font-size: 19px; letter-spacing: -0.02em; }
-  .principles p { color: var(--muted); font-size: 14.5px; line-height: 1.6; }
+  /* testimonials: one featured quote beside two, glass cards with a large accent quote mark; a light passes on hover */
+  .tms { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); grid-template-rows: auto auto; gap: 14px; }
+  .tm { position: relative; overflow: hidden; margin: 0; display: grid; grid-template-rows: auto 1fr auto; gap: 14px; padding: clamp(24px, 2.8vw, 34px); border-radius: 18px;
+    border: 1px solid var(--line-a); background: linear-gradient(160deg, rgba(97, 144, 255, 0.07), var(--surface) 60%); transition: border-color 0.3s, transform 0.4s var(--ease); }
+  .tm::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(115deg, transparent 20%, rgba(255, 255, 255, 0.05) 50%, transparent 80%); transform: translateX(-100%); transition: transform 1s var(--ease); }
+  .tm:hover { border-color: rgba(235, 238, 245, 0.2); transform: translateY(-3px); }
+  .tm:hover::after { transform: translateX(100%); }
+  .tm.big { grid-row: 1 / 3; }
+  .tm-mark { font-size: 72px; line-height: 0.6; height: 30px; font-weight: 600; color: color-mix(in srgb, var(--accent) 75%, transparent); }
+  .tm blockquote { margin: 0; }
+  .tm blockquote p { font-size: clamp(16px, 1.35vw, 18px); line-height: 1.6; color: rgba(235, 238, 245, 0.9); letter-spacing: -0.01em; }
+  .tm.big blockquote p { font-size: clamp(20px, 2vw, 27px); line-height: 1.45; letter-spacing: -0.02em; color: var(--fg); }
+  .tm figcaption { display: flex; align-items: center; gap: 12px; padding-top: 14px; border-top: 1px solid var(--line-a); }
+  .av { display: grid; place-items: center; width: 40px; height: 40px; flex: none; border-radius: 50%; font-size: 13px; font-weight: 600; color: #fff;
+    background: color-mix(in srgb, var(--accent) 22%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent); }
+  .who { display: grid; gap: 2px; min-width: 0; }
+  .who b { font-size: 14.5px; font-weight: 600; }
+  .who span { font-size: 13px; color: var(--muted); }
+  .sample { margin-left: auto; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); border: 1px dashed var(--line); border-radius: 999px; padding: 4px 9px; }
 
-  /* the portraits: four in a row, the second and fourth set a little lower; the offset is a margin, not a transform,
-     because the scroll-in animation owns each photo's transform. No hover zoom (it softens photos) */
-  .gallery { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; align-items: start; }
-  .g { margin: 0; overflow: hidden; aspect-ratio: 3 / 4; border-radius: 16px; border: 1px solid var(--line-a); background: var(--surface); }
-  .g:nth-child(even) { margin-top: 36px; }
-  .g :global(img) { display: block; width: 100%; height: 100%; object-fit: cover; }
+  /* how I work: four equal cards, an outlined number and an icon on top, an accent line that grows on hover */
+  .principles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  .pr { position: relative; overflow: hidden; display: grid; grid-template-rows: auto auto 1fr auto; gap: 14px; padding: clamp(24px, 2.8vw, 34px); border-radius: 18px;
+    border: 1px solid var(--line-a); background: radial-gradient(120% 90% at 0% 0%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 55%), var(--surface);
+    transition: border-color 0.3s, transform 0.4s var(--ease), box-shadow 0.4s var(--ease); }
+  .pr:hover { transform: translateY(-3px); border-color: rgba(235, 238, 245, 0.2); box-shadow: 0 24px 60px -30px color-mix(in srgb, var(--accent) 45%, transparent); }
+  .pr-top { display: flex; align-items: center; justify-content: space-between; }
+  .num { font-size: clamp(42px, 4.2vw, 58px); font-weight: 600; letter-spacing: -0.04em; line-height: 1; color: transparent; -webkit-text-stroke: 1px color-mix(in srgb, var(--accent) 70%, transparent); }
+  .pr-ic { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; color: #fff; background: color-mix(in srgb, var(--accent) 14%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent); }
+  .pr-ic :global(svg) { width: 20px; height: 20px; }
+  .pr h3 { font-size: clamp(19px, 1.7vw, 22px); letter-spacing: -0.02em; }
+  .pr p { color: var(--muted); font-size: 15px; line-height: 1.65; max-width: 48ch; }
+  .bar { height: 2px; border-radius: 2px; background: linear-gradient(90deg, var(--accent), transparent); transform-origin: 0 50%; transform: scaleX(0.16); transition: transform 0.7s var(--ease); }
+  .pr:hover .bar { transform: scaleX(1); }
 
-  .caps { margin: 0; padding: 4px 0; }
-  .caps > div { display: grid; grid-template-columns: 220px 1fr; gap: 16px; padding: 18px 24px; border-bottom: 1px solid var(--line-a); }
-  .caps > div:last-child { border-bottom: 0; }
-  .caps dt { font-weight: 600; font-size: 15px; letter-spacing: -0.01em; }
-  .caps dd { margin: 0; color: var(--muted); font-size: 14.5px; line-height: 1.55; }
+  /* capabilities: the intro on the left, a numbered list with method tags on the right; a row lights on hover */
+  .cap-grid { display: grid; grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr); gap: clamp(28px, 5vw, 80px); align-items: start; }
+  .cap-intro { display: grid; gap: 16px; justify-items: start; position: sticky; top: calc(var(--nav-h) + 32px); }
+  .cap-intro h2 { font-size: clamp(28px, 3.6vw, 44px); max-width: 12ch; }
+  .cap-intro p { color: var(--muted); font-size: 15.5px; line-height: 1.6; max-width: 34ch; }
+  .caps { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line-a); }
+  .cap { position: relative; display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 14px; padding: 24px 16px 24px 8px; border-bottom: 1px solid var(--line-a); }
+  .cap::before { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 0.35s;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 11%, transparent), transparent 75%); box-shadow: inset 2px 0 0 var(--accent); }
+  .cap:hover::before { opacity: 1; }
+  .ci { position: relative; font-size: 11px; letter-spacing: 0.1em; color: var(--accent); padding-top: 7px; }
+  .cb { position: relative; display: grid; gap: 6px; }
+  .cb h3 { font-size: clamp(19px, 1.8vw, 24px); letter-spacing: -0.02em; }
+  .cb p { color: var(--muted); font-size: 15px; line-height: 1.6; }
+  .tags { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  .tags li { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.06em; color: var(--muted); border: 1px solid var(--line-a); border-radius: 6px; padding: 5px 9px; background: rgba(235, 238, 245, 0.02); }
 
   .avail-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: 14px; }
   .card { padding: clamp(24px, 3vw, 36px); }
@@ -293,17 +348,16 @@ const capabilities = [
   @media (max-width: 860px) {
     .hero { min-height: 0; }
     .head { grid-template-columns: 1fr; align-items: start; } .pic { justify-items: start; order: -1; }
-    .split, .principles, .avail-grid { grid-template-columns: 1fr; }
-    .side-head { position: static; }
-    .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .g:nth-child(even) { margin-top: 24px; }
-    .caps > div, .facts > div { grid-template-columns: 1fr; gap: 6px; }
+    .split, .principles, .avail-grid, .cap-grid, .tms { grid-template-columns: 1fr; }
+    .tm.big { grid-row: auto; }
+    .side-head, .cap-intro { position: static; }
+    .facts > div { grid-template-columns: 1fr; gap: 6px; }
   }
   @media (max-width: 760px) {
     .trip { grid-template-columns: repeat(2, minmax(0, 1fr)); height: auto; }
     .t.main { grid-column: 1 / -1; order: -1; aspect-ratio: 4 / 3; }
     .t.side { aspect-ratio: 3 / 4; }
   }
-  @media (max-width: 520px) { .band { grid-template-columns: 1fr; } }
+  @media (max-width: 520px) { .band { grid-template-columns: 1fr; } .cap { grid-template-columns: 36px minmax(0, 1fr); } }
   @media (prefers-reduced-motion: reduce) { .pulse::after { animation: none; opacity: 0.5; transform: scale(1.2); } .fc::after { display: none; } }
 </style>

@@ -64,7 +64,11 @@ const bring: [string, string][] = [
   .contact { position: relative; padding-top: calc(var(--nav-h) + clamp(40px, 8vw, 96px)); padding-bottom: clamp(72px, 10vw, 140px); }
   /* a faint light of the site's accent behind the heading */
   .contact::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 560px; pointer-events: none;
-    background: radial-gradient(55% 80% at 18% 0%, color-mix(in srgb, var(--accent) 13%, transparent), transparent 70%); }
+    background: radial-gradient(55% 80% at 18% 0%, color-mix(in srgb, var(--accent) 13%, transparent), transparent 70%);
+    animation: c-glow 16s ease-in-out infinite alternate; }
+  /* the light behind the heading drifts slowly, left to right and back */
+  @keyframes c-glow { from { transform: translate3d(-4%, 0, 0); opacity: 0.85; } to { transform: translate3d(8%, 3%, 0); opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .contact::before { animation: none; } }
   .head, .body { position: relative; }
   .head { display: grid; gap: 16px; }
   .crumbs { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); }
@@ -74,7 +78,10 @@ const bring: [string, string][] = [
   .direct a { color: var(--fg); border-bottom: 1px solid var(--line); }
   .open { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line-a); background: rgba(235, 238, 245, 0.03);
     font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--fg); }
-  .open i { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 25%, transparent); }
+  .open i { position: relative; width: 7px; height: 7px; border-radius: 50%; background: var(--ok); }
+  .open i::after { content: ''; position: absolute; inset: -5px; border-radius: 50%; border: 1px solid var(--ok); animation: c-pulse 2.2s ease-out infinite; }
+  @keyframes c-pulse { from { transform: scale(0.4); opacity: 0.9; } to { transform: scale(1.6); opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .open i::after { animation: none; opacity: 0.5; } }
 
   .body { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 0.8fr); gap: clamp(20px, 3vw, 36px); align-items: start; margin-top: clamp(36px, 5vw, 64px); }
   .formbox { padding: clamp(22px, 3.2vw, 40px); }

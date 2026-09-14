@@ -66,12 +66,12 @@ const cards: (ImageMetadata | string)[] = ['/covers/collga-1280.png', newdawn, '
     (root as any).__ring = { render };   // lets a reviewer set the ring to any turn
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    // the turn: about one revolution a minute, faster for a moment while the page scrolls, then easing back
+    // the turn: about one revolution every 33 seconds, faster for a moment while the page scrolls, then easing back
     let boost = 0, running = true;
     tick = (_t, dt) => {
       if (!running) return;
       boost *= 0.94;
-      angle -= ((6 + boost * 16) * dt) / 1000;
+      angle -= ((11 + boost * 18) * dt) / 1000;
       render(angle);
     };
     gsap.ticker.add(tick);
