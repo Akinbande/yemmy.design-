@@ -18,7 +18,7 @@ const SITE = 'https://yemmy.design';
 const {
   title = 'Oluwayemi Akinbande · Senior Service & UX Designer | Government Digital Services, Enterprise Platforms, Design Systems',
   description = 'Senior Service & UX Designer specialising in government-funded, regulated and citizen-facing digital services. Service blueprints, enterprise platforms and design systems, from research to production.',
-  ogImage = '/og.jpg?v=3',
+  ogImage = '/og.jpg?v=4',
   ogTitle,
 } = Astro.props;
 const canonical = new URL(Astro.url.pathname, SITE).toString();
@@ -46,8 +46,9 @@ const ogImg = new URL(ogImage, SITE).toString();
   <meta property="og:title" content={ogTitle ?? title} />
   <meta property="og:description" content={description} />
   <meta property="og:image" content={ogImg} />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
+  <meta property="og:image:width" content="2400" />
+  <meta property="og:image:height" content="1260" />
+  <meta property="og:image:alt" content="Oluwayemi Akinbande, Senior Service and UX Designer: designing the systems behind public services" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={ogTitle ?? title} />
   <meta name="twitter:description" content={description} />
