@@ -69,7 +69,6 @@ h1 .sel s:nth-of-type(3) { left: -4px; bottom: -6px } h1 .sel s:nth-of-type(4) {
   transform: rotateY(-16deg) rotateX(4deg); transform-origin: 50% 50%; }
 .phone .screen { position: relative; border-radius: 29px; overflow: hidden; background: #F8F8F8; aspect-ratio: 1125 / 2436; }
 .phone .screen img { width: 100%; height: 100%; display: block; }
-.phone .island { position: absolute; left: 50%; top: 7px; width: 58px; height: 17px; margin-left: -29px; border-radius: 10px; background: #0E0F12; }
 .phone .btn { position: absolute; width: 3px; border-radius: 2px; background: #22252B; }
 .phone .btn.p { right: -3px; top: 120px; height: 56px; }
 .phone .btn.v1 { left: -3px; top: 96px; height: 34px; } .phone .btn.v2 { left: -3px; top: 140px; height: 34px; }
@@ -80,7 +79,7 @@ h1 .sel s:nth-of-type(3) { left: -4px; bottom: -6px } h1 .sel s:nth-of-type(4) {
     <div class="win back"><img src="${collga}"></div>
     <div class="win front"><img src="${orbit}"></div>
     <div class="fade"></div>
-    <div class="phone"><i class="btn p"></i><i class="btn v1"></i><i class="btn v2"></i><div class="screen"><img src="${luca}"><span class="island"></span></div></div>
+    <div class="phone"><i class="btn p"></i><i class="btn v1"></i><i class="btn v2"></i><div class="screen"><img src="${luca}"></div></div>
   </div>
   <div class="copy">
     <div class="id"><span class="face"></span><span class="mark">yemmy<i>.</i></span></div>
