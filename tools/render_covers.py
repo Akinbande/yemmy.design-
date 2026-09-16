@@ -53,6 +53,11 @@ RASTER = {'hometown': os.path.join('case studies', 'hometown', 'h1.png'),
           'orbitform': os.path.join('case studies', 'Orbitform', 'cover.png'),
           'nexorbit': os.path.join('case studies', 'nexorbit', 'nexorbit.png')}
 
+# A raw screen grab, unlike his cover artboards, carries almost no margin: NexOrbit's is 7.8% at the top, and the Work
+# card crops 9.3% off the top (the image card anchors to the bottom edge), which cut the window's own header off.
+# These are drawn smaller on their own ground first, so the whole window survives the crop with air around it.
+PAD = {'nexorbit': 0.84}
+
 
 def main():
     for name, rel in RASTER.items():
@@ -62,6 +67,12 @@ def main():
             ground = Image.new('RGBA', src.size, (255, 255, 255, 255))
             src = Image.alpha_composite(ground, src.convert('RGBA'))
         src = src.convert('RGB')
+        if name in PAD:
+            s = PAD[name]
+            board = Image.new('RGB', src.size, src.getpixel((4, 4)))   # his own ground colour, read from a corner
+            shot = src.resize((round(src.width * s), round(src.height * s)), Image.LANCZOS)
+            board.paste(shot, ((src.width - shot.width) // 2, (src.height - shot.height) // 2))
+            src = board
         for W in WIDTHS:
             path = os.path.join(ROOT, 'public', 'covers', f'{name}-{W}.png')
             src.resize((W, round(src.height * W / src.width)), Image.LANCZOS).save(path, optimize=True)
