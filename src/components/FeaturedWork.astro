@@ -61,7 +61,7 @@ const films: Record<string, { src: string; poster: string }> = {
             </div>
           </div>
           {films[w.id]
-            ? <div class="visual cover"><video poster={films[w.id].poster} muted loop playsinline preload="none" data-film={films[w.id].src} aria-label={`${w.data.org}: the system flow, playing on a loop`}></video></div>
+            ? <div class="visual cover"><video poster={films[w.id].poster} muted loop playsinline preload="none" data-src={films[w.id].src} aria-label={`${w.data.org}: the system flow, playing on a loop`}></video></div>
             : cover(w.data.coverImage)
             ? <div class="visual cover"><img src={coverSrc(cover(w.data.coverImage)!)} srcset={coverSrcset(cover(w.data.coverImage)!)} sizes={coverSizes} alt={`${w.data.org} cover`} width="2400" height="1557" loading="lazy" decoding="async" /></div>
             : shot(w.data.coverImage)
@@ -74,19 +74,9 @@ const films: Record<string, { src: string; poster: string }> = {
 </section>
 
 <script>
-  // a card's film plays only while it is on screen, and its file is fetched the first time it gets there
-  function cardFilms() {
-    document.querySelectorAll<HTMLVideoElement>('.featured video[data-film]').forEach((v) => {
-      if (v.dataset.init) return; v.dataset.init = '1';
-      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;   // the poster frame stands on its own
-      new IntersectionObserver((es) => es.forEach((e) => {
-        if (!e.isIntersecting) { v.pause(); return; }
-        if (!v.src) v.src = v.dataset.film!;
-        v.play().catch(() => {});
-      }), { threshold: 0.25 }).observe(v);
-    });
-  }
-  document.addEventListener('astro:page-load', cardFilms);
+  // a card's film is fetched a screen before it arrives, plays while on screen and recovers on its own if it stalls
+  import { films } from '../scripts/films';
+  document.addEventListener('astro:page-load', () => films('.featured video[data-src]'));
 </script>
 
 <style>

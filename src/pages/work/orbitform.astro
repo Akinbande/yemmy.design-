@@ -103,7 +103,7 @@ const noteColors = { build: '#FFD3B6', collect: '#FFE6C7', process: '#FFC4A3', r
     <div class="wrap body">
       <section class="sec">
         <figure class="wide film flow" data-reveal>
-          <video poster="/orbitform/orbitform-flow.jpg" autoplay muted loop playsinline preload="auto"
+          <video poster="/orbitform/orbitform-flow.jpg" data-src="/orbitform/orbitform-flow.mp4" muted loop playsinline preload="auto"
             aria-label="The system flow: build a form, collect a response, process it, review it, with each part connecting to the next"></video>
         </figure>
         <p class="cap mono" data-reveal>Build, collect, process, review</p>
@@ -221,7 +221,7 @@ const noteColors = { build: '#FFD3B6', collect: '#FFE6C7', process: '#FFC4A3', r
 
       <section class="sec">
         <figure class="wide film demo" data-reveal>
-          <video poster="/orbitform/orbitform-demo.jpg" muted loop playsinline preload="none"
+          <video poster="/orbitform/orbitform-demo.jpg" data-src="/orbitform/orbitform-demo.mp4" muted loop playsinline preload="none"
             aria-label="A recorded walk through OrbitForm on the web and on a phone"></video>
         </figure>
       </section>
@@ -283,6 +283,7 @@ const noteColors = { build: '#FFD3B6', collect: '#FFE6C7', process: '#FFC4A3', r
 
 <script>
   import gsap from 'gsap';
+  import { films as loadFilms } from '../../scripts/films';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
   gsap.registerPlugin(ScrollTrigger);
   const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -324,20 +325,7 @@ const noteColors = { build: '#FFD3B6', collect: '#FFE6C7', process: '#FFC4A3', r
     gsap.fromTo(bars, { scaleX: 0 }, { scaleX: 1, duration: 1.1, ease: 'power2.out', stagger: 0.12,
       scrollTrigger: { trigger: el, start: 'top 80%', once: true } });
   }
-  // each film plays while it is on screen; the 25 MB walkthrough is only fetched if someone scrolls to it
-  function films() {
-    document.querySelectorAll<HTMLVideoElement>('.film video').forEach((v) => {
-      if (v.dataset.init) return; v.dataset.init = '1';
-      const src = v.closest('.flow') ? '/orbitform/orbitform-flow.mp4' : '/orbitform/orbitform-demo.mp4';
-      if (reduced()) { v.controls = true; v.src = src; return; }
-      new IntersectionObserver((es) => es.forEach((e) => {
-        if (!e.isIntersecting) { v.pause(); return; }
-        if (!v.src) v.src = src;
-        v.play().catch(() => {});
-      }), { threshold: 0.25 }).observe(v);
-    });
-  }
-  document.addEventListener('astro:page-load', () => { sweep('glance', '.bd', 0.35); sweep('of-probs', '.prob', 0.5); pipe(); meters(); films(); });
+  document.addEventListener('astro:page-load', () => { sweep('glance', '.bd', 0.35); sweep('of-probs', '.prob', 0.5); pipe(); meters(); loadFilms('.film video'); });
 </script>
 
 <style>

@@ -83,16 +83,9 @@ const shots = (names: [string, string][]) => names.map(([n, alt]) => ({ src: img
 </Base>
 
 <script>
-  // every video on the page loops while it is on screen and rests when it is not; reduced motion gets the poster and controls instead
-  function videos() {
-    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    document.querySelectorAll<HTMLVideoElement>('.screens video').forEach((v) => {
-      if (v.dataset.init) return; v.dataset.init = '1';
-      if (reduced) { v.removeAttribute('autoplay'); v.pause(); v.controls = true; return; }
-      new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) v.play().catch(() => {}); else v.pause(); }), { threshold: 0.2 }).observe(v);
-    });
-  }
-  document.addEventListener('astro:page-load', videos);
+  // every film loads a screen ahead, loops while on screen, rests when not and recovers on its own if it stalls
+  import { films } from '../../scripts/films';
+  document.addEventListener('astro:page-load', () => films('.screens video', { threshold: 0.2 }));
 </script>
 
 <style>

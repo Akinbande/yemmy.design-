@@ -52,11 +52,12 @@ const intro = `${words[studies]} case studies and ${words[smaller].toLowerCase()
       </div>
     </header>
 
-    <!-- the films start at 4 s on these cards, past their blank opening frames; the files themselves are untouched -->
+    <!-- the films start past their blank opening frames. These cards play card copies (1920 wide, more than the largest card
+         draws on a 2x screen); the case study pages keep his 4K originals. OrbitForm's copy: same frames, rate and colour, scaled only -->
     <section class="wrap bento" aria-label="Projects">
       <div class="r">
         <WorkTile e={by('orbitform')} line={line.orbitform} variant="video" accent={mark.orbitform}
-          video={{ src: '/orbitform/orbitform-flow.mp4#t=9', poster: '/orbitform/orbitform-flow.jpg' }} />
+          video={{ src: '/orbitform/orbitform-flow-card.mp4#t=9', poster: '/orbitform/orbitform-flow.jpg' }} />
         <WorkTile e={by('nexorbit')} line={line.nexorbit} variant="image" image="/covers/nexorbit" accent={mark.nexorbit} ground="#FFF6F2" />
       </div>
       <div class="r full">
@@ -65,7 +66,7 @@ const intro = `${words[studies]} case studies and ${words[smaller].toLowerCase()
       <div class="r flip">
         <WorkTile e={by('luca')} line={line.luca} variant="image" image="/covers/luca" accent={mark.luca} />
         <WorkTile e={by('newdawn')} line={line.newdawn} variant="video" accent={mark.newdawn}
-          video={{ wide: '/newdawn/newdawn-website-preview-uhd.mp4#t=4', src: '/newdawn/newdawn-website-preview.mp4#t=4', poster: '/newdawn/newdawn-website-preview.jpg' }} />
+          video={{ src: '/newdawn/newdawn-website-preview.mp4#t=4', poster: '/newdawn/newdawn-website-preview.jpg' }} />
       </div>
       <div class="r">
         <WorkTile e={by('glaze-dental')} line={line['glaze-dental']} variant="video" accent={mark['glaze-dental']}
@@ -126,6 +127,7 @@ const intro = `${words[studies]} case studies and ${words[smaller].toLowerCase()
 <script>
   import gsap from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import { films } from '../../scripts/films';
   gsap.registerPlugin(ScrollTrigger);
 
   function init() {
@@ -133,10 +135,8 @@ const intro = `${words[studies]} case studies and ${words[smaller].toLowerCase()
     if (!root || root.dataset.init) return; root.dataset.init = '1';
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // films load when first seen, play while on screen, rest when not; reduced motion keeps the poster
-    if (!reduced) root.querySelectorAll<HTMLVideoElement>('video').forEach((v) => {
-      new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) v.play().catch(() => {}); else v.pause(); }), { threshold: 0.35 }).observe(v);
-    });
+    // films start loading a screen ahead, play while on screen and recover on their own if they stall (scripts/films.ts)
+    films('#work-page video', { threshold: 0.35 });
     if (reduced) return;
 
     // the counts tick up once; the real number stays in place until the count starts, so a paused tab never shows 0
