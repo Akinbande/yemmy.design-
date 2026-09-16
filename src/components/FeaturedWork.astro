@@ -5,7 +5,12 @@ import Glyph from './Glyph.astro';
 import { coverSrc, coverSrcset, coverSizes } from '../scripts/cover';
 const shots = import.meta.glob<{ default: ImageMetadata }>('/src/assets/**/*.png', { eager: true });
 const shot = (name?: string) => { if (!name) return null; const k = Object.keys(shots).find((p) => p.endsWith(`/${name}.png`)); return k ? shots[k].default : null; };
-const items = (await getCollection('work', (e) => e.data.tier === 1)).sort((a, b) => a.data.order - b.data.order);
+// the home page's own order (Collga before NexOrbit); anything not listed falls in after, by its usual order
+const homeOrder = ['orbitform', 'collga', 'nexorbit', 'luca'];
+const rank = (id: string) => (homeOrder.includes(id) ? homeOrder.indexOf(id) : 99);
+const items = (await getCollection('work', (e) => e.data.tier === 1)).sort((a, b) => rank(a.id) - rank(b.id) || a.data.order - b.data.order);
+// studies not written yet: the button says so, with a padlock that opens and closes instead of the arrow
+const soon = new Set(['nexorbit']);
 const label: Record<string, string> = { live: 'Live', 'early-access': 'Early access', shipped: 'Shipped', concept: 'Concept' };
 // per project: the hover edge, the ground behind the cover, and where the cover anchors (Collga keeps the default edge)
 const edge: Record<string, string> = { luca: 'rgba(1,181,236,0.3)', orbitform: 'rgba(255,81,1,0.3)', nexorbit: 'rgba(255,81,1,0.3)' };
@@ -42,9 +47,17 @@ const films: Record<string, { src: string; poster: string }> = {
             <p class="sum">{w.data.summary}</p>
             <ul class="tags">{w.data.tags.map((t) => <li>{t}</li>)}</ul>
             <div class="actions">
-              <a class="btn btn-ghost" href={`/work/${w.id}/`}>Read the case study
-                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </a>
+              {soon.has(w.id)
+                ? <a class="btn btn-ghost soon" href={`/work/${w.id}/`}>Coming soon
+                    <svg class="lock" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path class="shackle" d="M5.2 7.2V5.1a2.8 2.8 0 0 1 5.6 0v2.1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                      <rect class="body" x="3" y="7.2" width="10" height="7" rx="1.8" stroke="currentColor" stroke-width="1.5"/>
+                      <circle class="body" cx="8" cy="10.7" r="0.9" fill="currentColor"/>
+                    </svg>
+                  </a>
+                : <a class="btn btn-ghost" href={`/work/${w.id}/`}>Read the case study
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </a>}
             </div>
           </div>
           {films[w.id]
@@ -99,6 +112,24 @@ const films: Record<string, { src: string; poster: string }> = {
   .tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
   .tags li { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.06em; color: var(--muted); border: 1px solid var(--line-a); border-radius: 5px; padding: 4px 8px; }
   .actions { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-top: auto; padding-top: 8px; }
+  /* the coming-soon padlock: the shackle lifts and swings open, pauses, swings shut, and the lock bounces as it clicks */
+  .lock { overflow: visible; animation: lock-bounce 3.2s var(--ease) infinite; }
+  .lock .shackle { transform-box: fill-box; transform-origin: 100% 100%; animation: lock-open 3.2s var(--ease) infinite; }
+  @keyframes lock-open {
+    0%, 18% { transform: none; }
+    30% { transform: translateY(-2.4px); }
+    42%, 60% { transform: translateY(-2.4px) rotate(-32deg); }
+    72% { transform: translateY(-2.4px); }
+    80%, 100% { transform: none; }
+  }
+  @keyframes lock-bounce {
+    0%, 80% { transform: none; }
+    85% { transform: translateY(-3px); }
+    90% { transform: translateY(0); }
+    94% { transform: translateY(-1.2px); }
+    98%, 100% { transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) { .lock, .lock .shackle { animation: none; } }
   /* the tinted card: a real screen on the right at full strength, a deep wash of the project's colour rising under the copy on hover
      (Collga green, Luca navy) */
   .body { position: relative; }
