@@ -1,43 +1,62 @@
 ---
 /* Testimonials, shared by the home page and the About page so the two never disagree.
    SAMPLE content: he asked for a demo until he sends real quotes. The names are placeholders and every card is
-   labelled Sample. Replace all three with real quotes (and permission to name the person) before v2 goes live;
-   never present these as real. Renders the heading and the cards; the page supplies the section around them. */
+   labelled Sample. Replace all five with real quotes (and permission to name the person) before v2 goes live;
+   never present these as real.
+   The cards glide sideways on an endless loop (the set is drawn twice so the seam never shows), pause while the
+   pointer or keyboard focus is on them, and sit still in a scrollable row for reduced motion.
+   Renders the heading and the row; the page supplies the section around them. */
 interface Props { headingId: string }
 const { headingId } = Astro.props;
 const testimonials = [
   { q: 'He took a messy, regulated process and made it feel simple for the people who use it. He asked the questions nobody else asked.', n: 'Name Surname', r: 'Role, Company' },
   { q: 'He does not stop at the screen. He maps the whole service, then stays with the team until what ships matches what was designed.', n: 'Name Surname', r: 'Role, Company' },
   { q: 'Clear thinking and calm under pressure. He understands compliance as well as he understands users, and makes both work in one design.', n: 'Name Surname', r: 'Role, Company' },
+  { q: 'He turns a long list of requirements into a flow people can actually finish, and he explains every choice in plain words.', n: 'Name Surname', r: 'Role, Company' },
+  { q: 'Honest about trade-offs and easy to work with. He tells you what a decision will cost before you make it, not after.', n: 'Name Surname', r: 'Role, Company' },
 ];
+const loop = [...testimonials, ...testimonials];
 ---
 <div class="section-head" data-reveal><div><p class="eyebrow accent">Testimonials</p><h2 id={headingId}>From people I've worked with.</h2></div></div>
-<div class="tms">
-  {testimonials.map((t, i) => (
-    <figure class="tm" data-reveal data-reveal-delay={String(i * 0.08)}>
-      <span class="tm-mark" aria-hidden="true">&ldquo;</span>
-      <blockquote><p>{t.q}</p></blockquote>
-      <figcaption>
-        <span class="av" aria-hidden="true">{t.n.split(' ').map((w) => w[0]).join('')}</span>
-        <span class="who"><b>{t.n}</b><span>{t.r}</span></span>
-        <span class="sample mono">Sample</span>
-      </figcaption>
-    </figure>
-  ))}
+<div class="tm-row" data-reveal>
+  <ul class="tm-track">
+    {loop.map((t, i) => {
+      const copy = i >= testimonials.length;   // the second set only closes the loop: hidden from assistive tech
+      return (
+        <li aria-hidden={copy ? 'true' : undefined}>
+          <figure class="tm">
+            <span class="tm-mark" aria-hidden="true">&ldquo;</span>
+            <blockquote><p>{t.q}</p></blockquote>
+            <figcaption>
+              <span class="av" aria-hidden="true">{t.n.split(' ').map((w) => w[0]).join('')}</span>
+              <span class="who"><b>{t.n}</b><span>{t.r}</span></span>
+              <span class="sample mono">Sample</span>
+            </figcaption>
+          </figure>
+        </li>
+      );
+    })}
+  </ul>
 </div>
 
 <style>
-  /* three equal glass cards in a row, names lined up along the bottom; a large accent quote mark on each, and a light
-     passes on hover. The lift uses translate, because the scroll reveal writes transform inline */
-  .tms { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
-  .tm { position: relative; overflow: hidden; margin: 0; display: grid; grid-template-rows: auto 1fr auto; gap: 14px; padding: clamp(24px, 2.8vw, 34px); border-radius: 18px;
+  /* the row bleeds to the edges of the wrap and fades out at both ends */
+  .tm-row { overflow: hidden; margin: 0 calc(-1 * clamp(0px, 2vw, 24px));
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%); }
+  .tm-track { list-style: none; margin: 0; padding: 6px 0 10px; display: flex; width: max-content; animation: tm-glide 60s linear infinite; }
+  .tm-row:hover .tm-track, .tm-row:focus-within .tm-track { animation-play-state: paused; }
+  @keyframes tm-glide { to { transform: translateX(-50%); } }
+  /* a margin, not a gap, so the second set starts exactly half-way and the loop never jumps */
+  .tm-track li { flex: none; width: clamp(290px, 30vw, 400px); margin-right: 14px; display: flex; }
+
+  .tm { position: relative; overflow: hidden; margin: 0; width: 100%; display: grid; grid-template-rows: auto 1fr auto; gap: 14px; padding: clamp(24px, 2.6vw, 32px); border-radius: 18px;
     border: 1px solid var(--line-a); background: linear-gradient(160deg, rgba(97, 144, 255, 0.07), var(--surface) 60%); transition: border-color 0.3s, translate 0.4s var(--ease); }
   .tm::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(115deg, transparent 20%, rgba(255, 255, 255, 0.05) 50%, transparent 80%); transform: translateX(-100%); transition: transform 1s var(--ease); }
   .tm:hover { border-color: rgba(235, 238, 245, 0.2); translate: 0 -3px; }
   .tm:hover::after { transform: translateX(100%); }
   .tm-mark { font-size: 72px; line-height: 0.6; height: 30px; font-weight: 600; color: color-mix(in srgb, var(--accent) 75%, transparent); }
   .tm blockquote { margin: 0; }
-  .tm blockquote p { font-size: clamp(16px, 1.35vw, 18.5px); line-height: 1.6; color: var(--fg); letter-spacing: -0.01em; }
+  .tm blockquote p { font-size: clamp(15.5px, 1.25vw, 17.5px); line-height: 1.6; color: var(--fg); letter-spacing: -0.01em; }
   .tm figcaption { display: flex; align-items: center; gap: 12px; padding-top: 14px; border-top: 1px solid var(--line-a); }
   .av { display: grid; place-items: center; width: 40px; height: 40px; flex: none; border-radius: 50%; font-size: 13px; font-weight: 600; color: #fff;
     background: color-mix(in srgb, var(--accent) 22%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent); }
@@ -45,6 +64,11 @@ const testimonials = [
   .who b { font-size: 14.5px; font-weight: 600; }
   .who span { font-size: 13px; color: var(--muted); }
   .sample { margin-left: auto; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); border: 1px dashed var(--line); border-radius: 999px; padding: 4px 9px; }
-  @media (max-width: 1060px) { .tms { grid-template-columns: 1fr; } }
-  @media (prefers-reduced-motion: reduce) { .tm:hover { translate: none; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tm-track { animation: none; }
+    .tm-row { overflow-x: auto; -webkit-mask-image: none; mask-image: none; }
+    .tm-track li[aria-hidden='true'] { display: none; }
+    .tm:hover { translate: none; }
+  }
 </style>
