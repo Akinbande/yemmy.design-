@@ -21,7 +21,7 @@ const lockup = lockupSvg.replace('<svg ', '<svg class="lockup" ');
 
 const breakdown = [
   { k: 'Who it serves', v: 'Citizens, businesses and administrators', s: 'Three account types behind one login' },
-  { k: 'What it covers', v: 'Sixteen systems across four tiers of government', s: 'Federal, state, local government and platform' },
+  { k: 'What it covers', v: 'Sixteen systems across three tiers of government', s: 'Federal, state and local, on one shared platform' },
   { k: 'Services', v: 'Twenty-one e-services in nine categories', s: 'Each with its fee, requirements and generated form' },
   { k: 'Channels', v: 'Web, USSD, a ward agent and voice', s: 'English, Yoruba, Hausa, Igbo and Nigerian Pidgin' },
   { k: 'Identity', v: 'Six credentials in a consent wallet', s: 'Agencies ask before they read, and every read is logged' },
@@ -33,9 +33,9 @@ const tiers = [
   ['Local government', ['Citizen and Business Portal', 'Admin Control Panel', 'E-Services Catalogue', 'Land and Property Registry', 'Business Registry']],
   ['Platform', ['Assisted Digital and Inclusion', 'Design System', 'Government Data Exchange']],
 ];
-const rules = [['Enter data once', 'A detail is typed once, and every step that needs it reuses it in plain sight.'], ['Share only with consent', 'An agency asks first, naming the fields, the duration and the legal basis.'], ['Log every access', 'Every time an agency opens a record, it is logged where the citizen can see it.'], ['Check claims against measurement', 'What an agency reports is shown next to what was measured on site.']];
+const rules = [['Enter data once', 'A detail is typed once, and every step that needs it reuses it in plain sight.'], ['Share only with consent', 'An agency asks first, naming the fields, the duration and the legal basis.'], ['Log every access', 'Every time an agency opens a record, it is logged where the citizen can see it.'], ['Check claims against measurements', 'What an agency reports is shown next to what was measured on site.']];
 const decisions = [
-  { t: 'Enter once, re-use with consent', p: 'Citizens type a detail once, and every later step can reuse it where they can see it. Each reuse needs their consent, and they can withdraw it at any time.' },
+  { t: 'Enter once, reuse with consent', p: 'Citizens type a detail once, and every later step can reuse it where they can see it. Each reuse needs their consent, and they can withdraw it at any time.' },
   { t: 'Privacy people can see', img: 'id-1', alt: 'Six credentials with their numbers masked, verified at source', p: 'ID numbers stay masked, and officers see only what they need. Someone checking age sees over 18, not a date of birth. The screen shows what was shared and what was held back.' },
   { t: 'One notice, every authority', img: 'consolidated', alt: 'A consolidated demand notice assessing state taxes and local levies together', p: 'State taxes and local levies on one notice. A business pays once and each authority gets its share automatically, instead of being assessed twice for the same year.' },
   { t: 'Fairness built into the flow', img: 'public-evaluation', alt: 'Evaluation room with bidders anonymised A to E and financial scores computed', p: 'Bids stay sealed until the public opening, bidders are anonymised, financial scores are computed, and the award button stays off until every evaluator has submitted.' },
@@ -78,7 +78,7 @@ const swatches = [['#4C9C40', 'Collga Green', 'Primary actions, active nav, bran
       <section class="sec">
         <div class="copy" data-reveal>
           <h2>The real problem: agencies that do not share records</h2>
-          <p>Most services involve several agencies, and they do not share records. To register a business, you deal with three of them, each with its own form, its own queue and its own copy of your details. Collga was designed to bring them together, and the board below shows how many services it had to cover.</p>
+          <p>Most services involve several agencies, each with its own records. To register a business, you deal with three of them, each with its own form, its own queue and its own copy of your details. Collga was designed to bring them together, and the board below shows how many services it had to cover.</p>
         </div>
         <div class="wide"><SystemBoard /></div>
       </section>
@@ -171,8 +171,8 @@ const swatches = [['#4C9C40', 'Collga Green', 'Primary actions, active nav, bran
       <section class="sec">
         <div class="close wide" data-reveal>
           <div class="close-l">
-            <span class="eyebrow">Scope</span>
-            <h2>A concept, presented in 2020</h2>
+            <span class="eyebrow">Status</span>
+            <h2>Concept, designed in 2020</h2>
             <p>The data on every screen is invented but realistic, modelled on how Nigerian state and local government operate: LGA identification numbers, CAC registration, PAYE and tenement rates, governor's consent on land transfers, open-contracting rules.</p>
             <a class="btn btn-ghost" href="/work/">All work
               <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>

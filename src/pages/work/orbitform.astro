@@ -35,7 +35,7 @@ const breakdown = [
 // what was going wrong before
 const problems = [
   ['Answers were typed twice', 'A referral arrives in a form tool, then somebody copies it into the care system by hand. Two records, two chances to get it wrong.'],
-  ['Agreements sat unfiled', 'A signed service agreement is only useful when it reaches the participant record and the service can start.'],
+  ['Agreements sat unfiled', 'Signed agreements stayed in inboxes, so the participant record was not updated and the service could not start.'],
   ['Risk waited in an inbox', 'A serious incident looks the same as a feedback note until someone opens it.'],
   ['Audits meant rebuilding the past', 'Evidence was gathered after the fact, from inboxes and folders, weeks before a review.'],
 ];
@@ -43,7 +43,7 @@ const problems = [
 const pipeline = [
   ['Scoring', 'The rules run, then the AI reads the response'],
   ['Team alert', 'The right people are emailed straight away'],
-  ['Automations', 'The team rules run and signed webhooks go out'],
+  ['Automations', 'The team\'s rules run and signed webhooks go out'],
   ['Copy to the participant', 'Their answers, as a PDF, if the form asks for it'],
   ['Documents', 'PDF, Word or Excel, attached to the response'],
   ['Routing', 'A referral, client, incident or agreement in the care platform'],
@@ -59,9 +59,9 @@ const scores = [
 // what the product had to carry, because the work is legal and confidential
 const trust = [
   ['Consent, recorded', 'Signing opens with a versioned electronic records consent, naming the Electronic Transactions Act 1999.'],
-  ['Identity, checked', 'An email link, an access code or an SMS code before anyone signs. Codes are only stored as hashes.'],
+  ['Identity, checked', 'An email link, an access code or an SMS code before anyone signs. Codes are stored only as hashes.'],
   ['Documents that fail closed', 'Content is hashed when it is sent and checked again before each signature. If an answer changed, the envelope stops itself.'],
-  ['A trail nobody can edit', 'Signing events are hash chained, and the audit log is written by the database. Even an administrator cannot alter it.'],
+  ['A trail nobody can edit', 'Signing events are hash-chained, and the audit log is written by the database. Even an administrator cannot alter it.'],
   ['Separated by organisation', 'Every table is row-level secured, so a workspace only sees its own data. The platform console shows counts, never details.'],
   ['Versioned forever', 'Each publish freezes a version, and every response stays tied to the exact version it was filled in on.'],
 ];
@@ -69,7 +69,7 @@ const numbers: [string, string][] = [
   ['43', 'field types, in five groups'],
   ['6', 'jobs run after every submit'],
   ['5', 'scores on every response'],
-  ['0 to 30', 'risk the AI can add, and never subtract'],
+  ['0 to 30', 'risk points the AI can add, never subtract'],
   ['7', 'signer roles recognised'],
   ['5 min', 'safety sweep for anything stuck'],
 ];
@@ -175,7 +175,7 @@ const noteColors = { build: '#FFD3B6', collect: '#FFE6C7', process: '#FFC4A3', r
       <section class="sec">
         <div class="copy" data-reveal>
           <h2>Six jobs run the moment a response lands</h2>
-          <p>This is the part competitors leave to the team. A response is scored, the right people are told, the documents are written, and the record is created in the care platform. Staff can watch it happen in the response, so the work is visible rather than assumed. Every five minutes a sweep picks up anything that failed and tries it again, which means nothing waits for someone to notice.</p>
+          <p>This is the part competitors leave to the team. A response is scored, the right people are told, the documents are written, and the record is created in the care platform. Staff can watch each job run in the response. Every five minutes a sweep picks up anything that failed and tries it again.</p>
         </div>
         <div class="wide pipe-wrap" id="of-pipe" data-reveal>
           <i class="pipe-rail" aria-hidden="true"><i class="pipe-fill"></i><i class="pipe-spark"></i></i>
@@ -241,7 +241,7 @@ const noteColors = { build: '#FFD3B6', collect: '#FFE6C7', process: '#FFC4A3', r
       <section class="sec">
         <div class="copy" data-reveal>
           <h2>Signing data, not just documents</h2>
-          <p>An e-signature tool knows where the boxes are, but not what is in them. OrbitSign reads the document, finds every place that needs a signature, pairs it with its date, and works out who should sign it from seven roles, following the NDIS supported decision making model. When the last person signs, the agreement does not just get filed. It goes live in the care platform, and the service can start.</p>
+          <p>An e-signature tool knows where the boxes are, but not what is in them. OrbitSign reads the document, finds every place that needs a signature, pairs it with its date, and works out who should sign it from seven roles, following the NDIS supported decision-making model. When the last person signs, the agreement is filed and goes live in the care platform, and the service can start.</p>
         </div>
         <ul class="trust wide">
           {trust.map(([t, p], i) => <li class="panel" data-reveal data-reveal-delay={String((i % 3) * 0.06)}><h3>{t}</h3><p>{p}</p></li>)}
@@ -251,7 +251,7 @@ const noteColors = { build: '#FFD3B6', collect: '#FFE6C7', process: '#FFC4A3', r
       <section class="sec">
         <div class="copy" data-reveal>
           <h2>What the provider gets back</h2>
-          <p>The value is not the form. It is the hour nobody spends retyping a referral, the agreement that reaches the right file on its own, the incident that is seen the same day, and the audit that is already assembled because the evidence was captured as the work happened. Legal wording, identity, consent, confidentiality and the record all live in one tool, so there is no gap between them for something to fall through.</p>
+          <p>Nobody spends an hour retyping a referral. Agreements reach the right file on their own, incidents are seen the same day, and the audit evidence is already collected because it was captured as the work happened. Legal wording, identity, consent, confidentiality and the record all live in one tool, so there is no gap between them for something to fall through.</p>
         </div>
         <ul class="nums wide" data-reveal>
           {numbers.map(([n, s]) => <li><b>{n}</b><span>{s}</span></li>)}

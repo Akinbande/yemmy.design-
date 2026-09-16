@@ -9,7 +9,7 @@ const all = await getCollection('work');
 const items = ids.map((id) => all.find((e) => e.id === id)!).filter(Boolean);
 const label: Record<string, string> = { live: 'Live', 'early-access': 'Early access', shipped: 'Shipped', concept: 'Concept' };
 ---
-<section class="proof" aria-label="Shipped work">
+<section class="proof" aria-label="Selected work">
   <div class="wrap">
     <div class="panel grid">
       {items.map((w, i) => (
