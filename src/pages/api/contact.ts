@@ -1,5 +1,5 @@
 /* POST /api/contact: the contact form's only server code. Runs on demand (not prerendered) on Vercel.
-   It checks the submission, then sends two emails in one Resend batch: the enquiry to Oluwayemi (reply-to the
+   It checks the submission, then sends two emails through Resend: the enquiry to Oluwayemi (reply-to the
    visitor) and a confirmation to the visitor (reply-to Oluwayemi).
    Secrets live only in environment variables, never in the repo:
      RESEND_API_KEY   the Resend key (sending access, yemmy.design domain)
@@ -8,6 +8,7 @@
    Spam defences, all quiet: a hidden field bots fill in, a minimum time on the page, and hard size limits. */
 import type { APIRoute } from 'astro';
 import { ownerEmail, confirmEmail } from '../../lib/contact-email.mjs';
+import { AVATAR_CID, AVATAR_PNG_BASE64 } from '../../lib/email-avatar.mjs';
 import { social } from '../../config';
 
 export const prerender = false;
@@ -43,18 +44,23 @@ export const POST: APIRoute = async ({ request }) => {
 
   const owner = ownerEmail({ intent, name, email, company, rows, site });
   const confirm = confirmEmail({ intent, name, email, rows, site });
+  // his round photo travels inside each email as an inline attachment, so the header never depends on a web image.
+  // Resend's batch endpoint does not take attachments, so the two emails go as two calls, side by side.
+  const avatar = [{ filename: 'oluwayemi.png', content: AVATAR_PNG_BASE64, content_id: AVATAR_CID }];
+  const send = (mail: Record<string, unknown>) => fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...mail, attachments: avatar }),
+  });
   try {
-    const r = await fetch('https://api.resend.com/emails/batch', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify([
-        { from, to: [to], reply_to: email, subject: owner.subject, html: owner.html, text: owner.text },
-        { from, to: [email], reply_to: to, subject: confirm.subject, html: confirm.html, text: confirm.text },
-      ]),
-    });
-    if (!r.ok) {
-      console.error('resend', r.status, await r.text().catch(() => ''));
-      return json(502, { ok: false, error: 'send-failed' });
+    const [a, b] = await Promise.all([
+      send({ from, to: [to], reply_to: email, subject: owner.subject, html: owner.html, text: owner.text }),
+      send({ from, to: [email], reply_to: to, subject: confirm.subject, html: confirm.html, text: confirm.text }),
+    ]);
+    if (!a.ok || !b.ok) {
+      for (const r of [a, b]) if (!r.ok) console.error('resend', r.status, await r.text().catch(() => ''));
+      // the enquiry reaching him is what matters; a failed confirmation alone still counts as sent
+      if (!a.ok) return json(502, { ok: false, error: 'send-failed' });
     }
     return json(200, { ok: true });
   } catch (e) {

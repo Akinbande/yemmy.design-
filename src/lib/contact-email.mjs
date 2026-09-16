@@ -19,7 +19,7 @@ const para = (s) => esc(s).replace(/\r?\n/g, '<br>');
 const first = (name) => String(name || '').trim().split(/\s+/)[0] || 'there';
 
 /* the frame both emails share: a dark header with the wordmark, a blue rule, the white card, a quiet footer */
-function frame({ preheader, tag, inner, footer }) {
+function frame({ preheader, tag, inner, footer, avatar }) {
   return `<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -44,8 +44,13 @@ function frame({ preheader, tag, inner, footer }) {
   <table role="presentation" class="card" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;background:${C.card};border:1px solid ${C.line};border-radius:16px;overflow:hidden;">
     <tr><td class="pad" style="background:${C.ink};padding:26px 36px;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-        <td style="font-family:${SANS};font-size:21px;font-weight:700;letter-spacing:-0.5px;color:#FFFFFF;">yemmy<span style="color:${C.dot};">.</span></td>
-        <td align="right" style="font-family:${MONO};font-size:10.5px;letter-spacing:1.6px;text-transform:uppercase;color:#9AA3B5;">${esc(tag)}</td>
+        <td valign="middle">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+            <td valign="middle" style="padding-right:12px;"><img src="${avatar}" width="36" height="36" alt="Oluwayemi Akinbande" style="display:block;width:36px;height:36px;border-radius:50%;border:2px solid #23262E;"></td>
+            <td valign="middle" style="font-family:${SANS};font-size:21px;font-weight:700;letter-spacing:-0.5px;line-height:1;color:#FFFFFF;">yemmy<span style="color:${C.dot};">.</span></td>
+          </tr></table>
+        </td>
+        <td align="right" valign="middle" style="font-family:${MONO};font-size:10.5px;letter-spacing:1.6px;text-transform:uppercase;color:#9AA3B5;">${esc(tag)}</td>
       </tr></table>
     </td></tr>
     <tr><td style="height:3px;line-height:3px;font-size:0;background:${C.brand};">&nbsp;</td></tr>
@@ -91,7 +96,7 @@ function split(rows) {
 }
 
 /* 1. to Oluwayemi */
-export function ownerEmail({ intent, name, email, company, rows, site }) {
+export function ownerEmail({ intent, name, email, company, rows, site, avatar = 'cid:yemmy-avatar' }) {
   const { table, message } = split(rows);
   const who = `${name}${company ? ` at ${company}` : ''}`;
   const replyHref = `mailto:${email}?subject=${encodeURIComponent(`Re: ${intent}`)}`;
@@ -111,13 +116,13 @@ export function ownerEmail({ intent, name, email, company, rows, site }) {
   const footer = `This came from the contact form on <a href="${esc(site.url)}" style="color:${C.label};">${esc(site.host)}</a>. The sender also received a confirmation copy.`;
   return {
     subject: `${intent}: ${who}`,
-    html: frame({ preheader: `${who} · ${message ? message.slice(0, 90) : intent}`, tag: 'New enquiry', inner, footer }),
+    html: frame({ preheader: `${who} · ${message ? message.slice(0, 90) : intent}`, tag: 'New enquiry', inner, footer, avatar }),
     text: [`New enquiry: ${intent}`, `From: ${who} <${email}>`, '', ...table.map(([k, v]) => `${k}: ${v}`), ...(message ? ['', 'Message:', message] : []), '', `Reply to this email to answer ${first(name)}.`].join('\n'),
   };
 }
 
 /* 2. to the visitor */
-export function confirmEmail({ intent, name, email, rows, site }) {
+export function confirmEmail({ intent, name, email, rows, site, avatar = 'cid:yemmy-avatar' }) {
   const { table, message } = split(rows);
   const steps = [
     ['Your message is with me', 'It comes straight to my inbox, not a shared queue.'],
@@ -165,7 +170,7 @@ export function confirmEmail({ intent, name, email, rows, site }) {
   const footer = `You are receiving this because you sent a message through the contact form on <a href="${esc(site.url)}" style="color:${C.label};">${esc(site.host)}</a>. It is a one-off confirmation: your details are used only to reply to you, and you are not on any mailing list.`;
   return {
     subject: `Thanks, ${first(name)}. I've got your message`,
-    html: frame({ preheader: `Your message about "${intent}" arrived. I'll reply to ${email}.`, tag: 'Confirmation', inner, footer }),
+    html: frame({ preheader: `Your message about "${intent}" arrived. I'll reply to ${email}.`, tag: 'Confirmation', inner, footer, avatar }),
     text: [`Thank you, ${first(name)}. Your message is with me.`, '', 'I read every enquiry myself and reply personally by email. Here is a copy of what you sent.', '', ...table.map(([k, v]) => `${k}: ${v}`), ...(message ? ['', 'Your message:', message] : []), '', 'What happens next', `1. Your message is with me.`, `2. I reply by email, to ${email}.`, `3. If it's a fit, we set up a call.`, '', 'Oluwayemi Akinbande', 'Senior Service & UX Designer', site.url, site.linkedin].join('\n'),
   };
 }
