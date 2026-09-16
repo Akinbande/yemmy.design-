@@ -3,6 +3,7 @@ import { getCollection, getEntry } from 'astro:content';
 import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import Facts from '../../components/Facts.astro';
+import NextStudy from '../../components/NextStudy.astro';
 import Stack from '../../components/Stack.astro';
 import Marquee from '../../components/Marquee.astro';
 import SystemBoard from '../../components/SystemBoard.astro';
@@ -177,12 +178,8 @@ const swatches = [['#4C9C40', 'Collga Green', 'Primary actions, active nav, bran
               <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </a>
           </div>
-          <a class="close-r" href={`/work/${next.id}/`}>
-            <span class="eyebrow">Next study</span>
-            <span class="t">{next.data.title}</span>
-            <span class="mono o">{next.data.org} &middot; {next.data.year}</span>
-            <span class="go"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-          </a>
+          <NextStudy entry={next} href={`/work/${next.id}/`} eyebrow="Next study" title={next.data.title}
+            sub={`${next.data.org} · ${next.data.year}`} />
         </div>
       </section>
     </div>
@@ -305,13 +302,7 @@ const swatches = [['#4C9C40', 'Collga Green', 'Primary actions, active nav, bran
   .close-l h2 { font-size: clamp(24px, 2.8vw, 34px); letter-spacing: -0.03em; }
   .close-l p { color: var(--muted); font-size: 15px; line-height: 1.65; max-width: 56ch; }
   .close-l .btn { margin-top: 8px; }
-  .close-r { position: relative; padding: clamp(28px, 4vw, 48px); border-left: 1px solid var(--line-a); display: grid; gap: 10px; align-content: center; transition: background 0.25s; }
-  .close-r:hover { background: rgba(235,238,245,0.03); }
-  .close-r .t { font-size: clamp(20px, 2.4vw, 30px); font-weight: 600; letter-spacing: -0.03em; max-width: 16ch; }
-  .close-r .o { font-size: 11px; color: var(--dim); letter-spacing: 0.08em; text-transform: uppercase; }
-  .close-r .go { position: absolute; right: clamp(20px, 3vw, 32px); bottom: clamp(20px, 3vw, 32px); width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line-a); display: grid; place-items: center; color: var(--fg); transition: transform 0.3s var(--ease), border-color 0.2s; }
-  .close-r:hover .go { transform: translateX(4px); border-color: var(--accent); color: var(--accent); }
 
-  @media (max-width: 860px) { .head, .sysgrid, .rules, .tiers, .swatches, .close { grid-template-columns: 1fr; } .close-r { border-left: 0; border-top: 1px solid var(--line-a); } .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 860px) { .head, .sysgrid, .rules, .tiers, .swatches, .close { grid-template-columns: 1fr; } .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (max-width: 480px) { .cards { grid-template-columns: 1fr; } .art :global(svg.lockup) { width: 80%; } }
 </style>

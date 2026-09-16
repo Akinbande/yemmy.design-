@@ -1,0 +1,70 @@
+---
+/* The next project, at the foot of a case study or a screens page. Resting, it is just the name on the panel.
+   On hover or keyboard focus the project's own cover rises behind it under a wash of its colour, so the link
+   previews where it goes. A project with no cover (a glyph card) simply washes in its colour. */
+import { Image } from 'astro:assets';
+import { coverSrc, coverSrcset, coverSizes } from '../scripts/cover';
+const shots = import.meta.glob<{ default: ImageMetadata }>('/src/assets/**/*.png', { eager: true });
+const shot = (name?: string) => { if (!name) return null; const k = Object.keys(shots).find((p) => p.endsWith(`/${name}.png`)); return k ? shots[k].default : null; };
+interface Props {
+  entry: any;
+  href: string;
+  eyebrow: string;
+  title: string;
+  sub: string;
+  accent?: string;   // the arrow's colour on hover, so each study keeps its own
+}
+const { entry, href, eyebrow, title, sub, accent } = Astro.props;
+const d = entry.data;
+// a cover under /public is one of his rendered artboards; anything else is a screen under src/assets
+const pub = d.coverImage?.startsWith('/') ? d.coverImage : null;
+const asset = pub ? null : shot(d.coverImage);
+const style = [d.hoverTint && `--tint:${d.hoverTint}`, accent && `--go:${accent}`].filter(Boolean).join(';') || undefined;
+---
+<a class="close-r" href={href} style={style}>
+  <span class="cov" aria-hidden="true">
+    {pub
+      ? <img src={coverSrc(pub)} srcset={coverSrcset(pub)} sizes={coverSizes} alt="" width="2400" height="1557" loading="lazy" decoding="async" />
+      : asset && <Image src={asset} alt="" width={1400} format="webp" quality={78} loading="lazy" />}
+    <i class="wash"></i>
+  </span>
+  <span class="eyebrow">{eyebrow}</span>
+  <span class="t">{title}</span>
+  <span class="mono o">{sub}</span>
+  <span class="go"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+</a>
+
+<style>
+  .close-r { --tint: #16233F; position: relative; isolation: isolate; overflow: hidden; padding: clamp(28px, 4vw, 48px);
+    border-left: 1px solid var(--line-a); display: grid; gap: 10px; align-content: center; transition: background 0.25s; }
+  .close-r:hover { background: rgba(235, 238, 245, 0.03); }
+  /* the words lift above the cover one by one; the arrow is left alone, or it loses its corner (a blanket rule here
+     outranks .go's own position and drops it back into the grid flow) */
+  .close-r > .eyebrow, .close-r > .t, .close-r > .o { position: relative; z-index: 1; }
+
+  /* the cover and its wash: both rest hidden, and come up together, the picture settling out of a slight zoom */
+  .cov { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+  .cov :global(img) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%;
+    opacity: 0; transform: scale(1.06); transition: opacity 0.55s var(--ease), transform 1.1s var(--ease); }
+  .wash { position: absolute; inset: 0; opacity: 0; transition: opacity 0.55s var(--ease);
+    background: linear-gradient(90deg, color-mix(in srgb, var(--tint) 94%, transparent) 0%, color-mix(in srgb, var(--tint) 68%, transparent) 46%, color-mix(in srgb, var(--tint) 34%, transparent) 100%); }
+  .close-r:hover .cov :global(img), .close-r:focus-visible .cov :global(img) { opacity: 0.55; transform: scale(1); }
+  .close-r:hover .wash, .close-r:focus-visible .wash { opacity: 1; }
+  /* with a cover showing, the words need a little more weight behind them */
+  .close-r:hover { background: rgba(9, 9, 10, 0.12); }
+
+  .t { font-size: clamp(20px, 2.4vw, 30px); font-weight: 600; letter-spacing: -0.03em; max-width: 16ch; }
+  .o { font-size: 11px; color: var(--dim); letter-spacing: 0.08em; text-transform: uppercase; transition: color 0.3s; }
+  .close-r:hover .o { color: rgba(235, 238, 245, 0.72); }
+  .go { position: absolute; right: clamp(20px, 3vw, 32px); bottom: clamp(20px, 3vw, 32px); z-index: 1; width: 40px; height: 40px; border-radius: 50%;
+    border: 1px solid var(--line-a); display: grid; place-items: center; color: var(--fg); background: rgba(9, 9, 10, 0.35);
+    transition: transform 0.3s var(--ease), border-color 0.2s, color 0.2s; }
+  .close-r:hover .go { transform: translateX(4px); border-color: var(--go, var(--accent)); color: var(--go, var(--accent)); }
+
+  @media (max-width: 860px) { .close-r { border-left: 0; border-top: 1px solid var(--line-a); } }
+  @media (prefers-reduced-motion: reduce) {
+    .cov :global(img) { transition: opacity 0.2s; transform: none; }
+    .close-r:hover .cov :global(img), .close-r:focus-visible .cov :global(img) { transform: none; }
+    .close-r:hover .go { transform: none; }
+  }
+</style>
