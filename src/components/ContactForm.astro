@@ -6,9 +6,9 @@
    Layout rules, so nothing looks off: every field is a label above a 46px control, whether the control is a text box,
    a select or a segmented choice; one-answer questions are segmented controls in equal parts; any-answer questions are
    a grid of check boxes in full rows (an odd list ends on a full-width option on phones). Contract length only appears when Contract is chosen.
-   Sending: with PUBLIC_CONTACT_ENDPOINT set (a Formspree-style form URL) the answers are posted as JSON; without it,
-   the visitor's email app opens with every answer filled in, addressed to hello@yemmy.design. */
-const endpoint = import.meta.env.PUBLIC_CONTACT_ENDPOINT ?? '';
+   Sending: the answers are posted as JSON to /api/contact, which emails them to Oluwayemi and sends the visitor a
+   confirmation through Resend. If that fails, the form says so and shows the email address. */
+const endpoint = import.meta.env.PUBLIC_CONTACT_ENDPOINT || '/api/contact';   // our own route, which sends through Resend
 const EMAIL = 'hello@yemmy.design';
 const line = (d: string) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`;
 const intents = [
@@ -46,7 +46,7 @@ const length = ['Under 3 months', '3 to 6 months', '6 to 12 months', '1 year or 
       <legend class="h"><span class="n" aria-hidden="true"></span>About you</legend>
       <div class="grid2">
         <div class="f"><label class="lab" for="cf-name">Full name <i>*</i></label><input id="cf-name" name="name" autocomplete="name" required aria-describedby="cf-name-err" /><span class="err" id="cf-name-err" data-missing="Add your name."></span></div>
-        <div class="f"><label class="lab" for="cf-email">Work email <i>*</i></label><input id="cf-email" type="email" name="email" autocomplete="email" required aria-describedby="cf-email-err" /><span class="err" id="cf-email-err" data-missing="Add an email I can reply to." data-bad="Check the email address, for example name@company.com."></span></div>
+        <div class="f"><label class="lab" for="cf-email">Email <i>*</i></label><input id="cf-email" type="email" name="email" autocomplete="email" required aria-describedby="cf-email-err" /><span class="err" id="cf-email-err" data-missing="Add an email I can reply to." data-bad="Check the email address, for example name@company.com."></span></div>
         <div class="f"><label class="lab" for="cf-company">Company <i data-company-req>*</i></label><input id="cf-company" name="company" autocomplete="organization" aria-describedby="cf-company-err" /><span class="err" id="cf-company-err" data-missing="Add your company."></span></div>
         <div class="f"><label class="lab" for="cf-title">Your job title</label><input id="cf-title" name="title" autocomplete="organization-title" placeholder="Talent partner, founder" /></div>
       </div>
@@ -150,6 +150,7 @@ const length = ['Under 3 months', '3 to 6 months', '6 to 12 months', '1 year or 
     const form = document.getElementById('contact-form') as HTMLFormElement | null;
     if (!form || form.dataset.init) return; form.dataset.init = '1';
     const rest = form.querySelector<HTMLElement>('.rest')!, done = form.querySelector<HTMLElement>('.done')!, summary = form.querySelector<HTMLElement>('.summary')!;
+    const opened = Date.now();   // sent with the form: a submission faster than a person can type is treated as a bot
     let intent = '';
 
     // contract length only appears (and only counts) when the role is a contract
@@ -243,7 +244,7 @@ const length = ['Under 3 months', '3 to 6 months', '6 to 12 months', '1 year or 
         form.querySelector('[data-done-title]')!.textContent = `Thank you, ${name.split(' ')[0]}.`;
         form.querySelector('[data-done-text]')!.textContent = viaMail
           ? `Your email app should now be open with your message ready. Press send there to finish. If nothing opened, write to ${form.dataset.email}.`
-          : `Your message is on its way. I'll reply to ${email}.`;
+          : `Your message is on its way, and a confirmation is heading to ${email}. I'll reply there.`;
         form.querySelectorAll<HTMLElement>(':scope > :not(.done)').forEach((el) => (el.hidden = true));
         done.hidden = false; done.focus();      };
       err.hidden = true;
@@ -251,7 +252,7 @@ const length = ['Under 3 months', '3 to 6 months', '6 to 12 months', '1 year or 
         send.disabled = true;
         try {
           const r = await fetch(form.dataset.endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-            body: JSON.stringify({ ...Object.fromEntries(rows), _replyto: email, _subject: subject }) });
+            body: JSON.stringify({ intent: TITLES[intent], name, email, company, subject, rows, _gotcha: '', _t: Date.now() - opened }) });
           if (!r.ok) throw new Error(String(r.status));
           finish(false);
         } catch { err.hidden = false; }

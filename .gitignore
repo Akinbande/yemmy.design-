@@ -31,3 +31,9 @@ npm-debug.log*
 
 # unused 22 MB full-page export from the Luca landing design; the site uses the PNG screens
 case studies/luca/video-stream/Home.svg
+
+# Secrets: Resend key and contact addresses live in .env locally and in Vercel's environment settings
+.env
+.env.*
+!.env.example
+.vercel/
