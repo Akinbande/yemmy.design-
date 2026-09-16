@@ -8,8 +8,8 @@ const shot = (name?: string) => { if (!name) return null; const k = Object.keys(
 const items = (await getCollection('work', (e) => e.data.tier === 1)).sort((a, b) => a.data.order - b.data.order);
 const label: Record<string, string> = { live: 'Live', 'early-access': 'Early access', shipped: 'Shipped', concept: 'Concept' };
 // per project: the hover edge, the ground behind the cover, and where the cover anchors (Collga keeps the default edge)
-const edge: Record<string, string> = { luca: 'rgba(1,181,236,0.3)', orbitform: 'rgba(255,81,1,0.3)' };
-const ground: Record<string, string> = { collga: '#F2F8F0', luca: '#DFF4FF', orbitform: '#FFF6F2' };
+const edge: Record<string, string> = { luca: 'rgba(1,181,236,0.3)', orbitform: 'rgba(255,81,1,0.3)', nexorbit: 'rgba(255,81,1,0.3)' };
+const ground: Record<string, string> = { collga: '#F2F8F0', luca: '#DFF4FF', orbitform: '#FFF6F2', nexorbit: '#FFF6F2' };
 // Luca's phone runs off the bottom of its artboard, so its cover sits on the card's bottom edge
 const pos: Record<string, string> = { luca: '50% 100%' };
 const vars = (id: string, tint?: string) => [tint && `--tint:${tint}`, edge[id] && `--edge:${edge[id]}`, ground[id] && `--ground:${ground[id]}`, pos[id] && `--pos:${pos[id]}`].filter(Boolean).join(';') || undefined;

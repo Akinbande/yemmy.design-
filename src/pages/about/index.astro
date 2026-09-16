@@ -6,6 +6,7 @@
 import Base from '../../layouts/Base.astro';
 import { Image } from 'astro:assets';
 import AboutHeroCards from '../../components/AboutHeroCards.astro';
+import Testimonials from '../../components/Testimonials.astro';
 import portrait from '../../assets/portrait.jpg';
 import studioWide from '../../assets/about/studio-wide.webp';
 import studioTall from '../../assets/about/studio-tall.webp';
@@ -34,14 +35,6 @@ const studio = [
   { src: studioPortrait, cls: 'side', pos: '72% 50%', dir: 1, widths: [480, 760, 1086], sizes: '(max-width: 760px) 50vw, 24vw', alt: 'Oluwayemi at his desk, working on a curved monitor' },
   { src: studioWide, cls: 'main', pos: '50% 55%', dir: -1, widths: [800, 1300, 1900, 2600], sizes: '(max-width: 760px) 100vw, 52vw', alt: 'His workstation: a curved monitor, a laptop in a vertical stand and a desk chair beside the curtains' },
   { src: studioTall, cls: 'side', pos: '50% 62%', dir: 1, widths: [480, 760, 1100], sizes: '(max-width: 760px) 50vw, 24vw', alt: 'A desk and monitor facing a wide arched window, with green hills outside' },
-];
-// SAMPLE testimonials, for the layout only: he asked for a demo until he sends real quotes. The names are placeholders
-// and every card is labelled Sample. Replace all three with real quotes (and permission to name the person) before v2
-// goes live; never present these as real.
-const testimonials = [
-  { q: 'He took a messy, regulated process and made it feel simple for the people who use it. He asked the questions nobody else asked.', n: 'Name Surname', r: 'Role, Company' },
-  { q: 'He does not stop at the screen. He maps the whole service, then stays with the team until what ships matches what was designed.', n: 'Name Surname', r: 'Role, Company' },
-  { q: 'Clear thinking and calm under pressure. He understands compliance as well as he understands users, and makes both work in one design.', n: 'Name Surname', r: 'Role, Company' },
 ];
 const principles = [
   { t: 'Service before screen', d: 'I start with the journey, the staff process and the policy. The screens come after, once I understand how the service really works.', icon: line('M4 5h16v4H4zM4 11h9v8H4zM15 11h5v8h-5z') },
@@ -123,20 +116,7 @@ const capabilities = [
     </section>
 
     <section class="wrap" aria-labelledby="tm-h">
-      <div class="section-head" data-reveal><div><p class="eyebrow accent">Testimonials</p><h2 id="tm-h">From people I've worked with.</h2></div></div>
-      <div class="tms">
-        {testimonials.map((t, i) => (
-          <figure class="tm" data-reveal data-reveal-delay={String(i * 0.08)}>
-            <span class="tm-mark" aria-hidden="true">&ldquo;</span>
-            <blockquote><p>{t.q}</p></blockquote>
-            <figcaption>
-              <span class="av" aria-hidden="true">{t.n.split(' ').map((w) => w[0]).join('')}</span>
-              <span class="who"><b>{t.n}</b><span>{t.r}</span></span>
-              <span class="sample mono">Sample</span>
-            </figcaption>
-          </figure>
-        ))}
-      </div>
+      <Testimonials headingId="tm-h" />
     </section>
 
     <section class="wrap" aria-labelledby="pr-h">
@@ -277,25 +257,6 @@ const capabilities = [
   .ch h3 { font-size: clamp(18px, 1.6vw, 21px); letter-spacing: -0.02em; }
   .ch p { color: var(--muted); font-size: 15.5px; line-height: 1.7; max-width: 60ch; }
 
-  /* testimonials: three equal glass cards in a row, quotes of a similar length, names lined up along the bottom;
-     a large accent quote mark on each, and a light passes on hover */
-  .tms { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
-  .tm { position: relative; overflow: hidden; margin: 0; display: grid; grid-template-rows: auto 1fr auto; gap: 14px; padding: clamp(24px, 2.8vw, 34px); border-radius: 18px;
-    border: 1px solid var(--line-a); background: linear-gradient(160deg, rgba(97, 144, 255, 0.07), var(--surface) 60%); transition: border-color 0.3s, transform 0.4s var(--ease); }
-  .tm::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(115deg, transparent 20%, rgba(255, 255, 255, 0.05) 50%, transparent 80%); transform: translateX(-100%); transition: transform 1s var(--ease); }
-  .tm:hover { border-color: rgba(235, 238, 245, 0.2); transform: translateY(-3px); }
-  .tm:hover::after { transform: translateX(100%); }
-  .tm-mark { font-size: 72px; line-height: 0.6; height: 30px; font-weight: 600; color: color-mix(in srgb, var(--accent) 75%, transparent); }
-  .tm blockquote { margin: 0; }
-  .tm blockquote p { font-size: clamp(16px, 1.35vw, 18.5px); line-height: 1.6; color: var(--fg); letter-spacing: -0.01em; }
-  .tm figcaption { display: flex; align-items: center; gap: 12px; padding-top: 14px; border-top: 1px solid var(--line-a); }
-  .av { display: grid; place-items: center; width: 40px; height: 40px; flex: none; border-radius: 50%; font-size: 13px; font-weight: 600; color: #fff;
-    background: color-mix(in srgb, var(--accent) 22%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent); }
-  .who { display: grid; gap: 2px; min-width: 0; }
-  .who b { font-size: 14.5px; font-weight: 600; }
-  .who span { font-size: 13px; color: var(--muted); }
-  .sample { margin-left: auto; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); border: 1px dashed var(--line); border-radius: 999px; padding: 4px 9px; }
-
   /* how I work: four equal cards, an outlined number and an icon on top, an accent line that grows on hover */
   .principles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
   .pr { position: relative; overflow: hidden; display: grid; grid-template-rows: auto auto 1fr auto; gap: 14px; padding: clamp(24px, 2.8vw, 34px); border-radius: 18px;
@@ -343,7 +304,7 @@ const capabilities = [
   .facts dt { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); padding-top: 3px; }
   .facts dd { margin: 0; font-size: 14.5px; line-height: 1.55; }
 
-  @media (max-width: 1060px) { .band { grid-template-columns: repeat(2, minmax(0, 1fr)); } .tms { grid-template-columns: 1fr; } }
+  @media (max-width: 1060px) { .band { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (max-width: 860px) {
     .hero { min-height: 0; }
     .head { grid-template-columns: 1fr; align-items: start; } .pic { justify-items: start; order: -1; }
