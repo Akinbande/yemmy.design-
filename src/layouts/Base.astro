@@ -34,7 +34,11 @@ const ogImg = new URL(ogImage, SITE).toString();
   <meta name="description" content={description} />
   <meta name="author" content="Oluwayemi Akinbande" />
   <link rel="canonical" href={canonical} />
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <!-- his portrait (media1/IMG_9450.jpeg), cropped to his face; the .ico carries 16, 32 and 48 for every browser -->
+  <link rel="icon" href="/favicon.ico" sizes="48x48" />
+  <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="yemmy.design" />
   <meta property="og:locale" content="en_CA" />
