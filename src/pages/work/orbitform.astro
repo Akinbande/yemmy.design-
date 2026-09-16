@@ -2,12 +2,16 @@
 /* OrbitForm: the case study. Built like Collga and Luca, with his own media at full quality and the product's orange
    as the atmosphere behind the header. The system flow film opens the page, because the whole product is about what
    happens after Submit. Ground rules from his product brief: never name the launch provider, claim only what is live
-   (no WCAG claim, no roadmap), and keep the copy plain. Screens come from case studies/Orbitform. */
+   (no WCAG claim, no roadmap), and keep the copy plain. Screens come from case studies/Orbitform.
+   Motion: the glance cards carry a slow light, the problem cards are scanned by one, the six jobs run on a loop with a
+   spark travelling the rail, the scores fill their meters in view, and the journey slides sideways by itself. */
 import { getCollection, getEntry } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Facts from '../../components/Facts.astro';
 import Stack from '../../components/Stack.astro';
 import Marquee from '../../components/Marquee.astro';
+import StickyBoard from '../../components/StickyBoard.astro';
+import OrbitJourney from '../../components/OrbitJourney.astro';
 
 const entry = (await getEntry('work', 'orbitform'))!;
 const d = entry.data;
@@ -45,19 +49,19 @@ const pipeline = [
 ];
 // the five scores, and what each one answers
 const scores = [
-  ['Completion', 'How much of the form was actually answered, with required questions counting double.'],
-  ['Risk', 'Points from the rules the team wrote. Bands at 15, 40 and 70, so attention goes where it is needed.'],
-  ['Compliance', 'Starts at 100 and drops for missing consents, declarations and signatures.'],
+  ['Completion', 'How much of the form was answered, with required questions counting double.'],
+  ['Risk', 'Points from the rules the team wrote, banded so attention goes where it is needed.'],
+  ['Compliance', 'Starts at 100 and drops for a missing consent, declaration or signature.'],
   ['Evidence', 'Falls when a required signature or attachment is not there.'],
-  ['Confidence', 'Falls as required answers go missing, so a thin response is never read as a complete one.'],
+  ['Confidence', 'Falls as required answers go missing, so a thin response is never read as a full one.'],
 ];
-// what the product had to carry because the work is legal and confidential
+// what the product had to carry, because the work is legal and confidential
 const trust = [
-  ['Consent, recorded', 'Signing opens with a versioned electronic records consent that names the Electronic Transactions Act 1999.'],
-  ['Identity, checked', 'An email link, an access code or an SMS code before anyone signs. Codes are only ever stored as hashes.'],
-  ['Documents that fail closed', 'The content is hashed when it is sent and checked again before every signature. If an answer changed, the envelope stops itself and says why.'],
-  ['A trail nobody can edit', 'Signing events are hash chained, and the audit log is written by the database itself. Even an administrator cannot alter it.'],
-  ['Separated by organisation', 'Every table is row-level secured, so a workspace only ever sees its own data. The platform console shows counts, never participant details.'],
+  ['Consent, recorded', 'Signing opens with a versioned electronic records consent, naming the Electronic Transactions Act 1999.'],
+  ['Identity, checked', 'An email link, an access code or an SMS code before anyone signs. Codes are only stored as hashes.'],
+  ['Documents that fail closed', 'Content is hashed when it is sent and checked again before each signature. If an answer changed, the envelope stops itself.'],
+  ['A trail nobody can edit', 'Signing events are hash chained, and the audit log is written by the database. Even an administrator cannot alter it.'],
+  ['Separated by organisation', 'Every table is row-level secured, so a workspace only sees its own data. The platform console shows counts, never details.'],
   ['Versioned forever', 'Each publish freezes a version, and every response stays tied to the exact version it was filled in on.'],
 ];
 const numbers: [string, string][] = [
@@ -68,6 +72,20 @@ const numbers: [string, string][] = [
   ['7', 'signer roles recognised'],
   ['5 min', 'safety sweep for anything stuck'],
 ];
+// the board: twenty-eight things the product handles, in five groups
+const notes: [string, string, string][] = [
+  ['Draft a form from a sentence', 'Build', 'build'], ['Import a paper form', 'Build', 'build'], ['43 field types', 'Build', 'build'],
+  ['Costed line items', 'Build', 'build'], ['Body chart to draw on', 'Build', 'build'],
+  ['Public link or QR code', 'Collect', 'collect'], ['Personal tracked links', 'Collect', 'collect'], ['One question at a time', 'Collect', 'collect'],
+  ['Autosave from the first keystroke', 'Collect', 'collect'], ['Fill it with no signal', 'Collect', 'collect'], ['Email and SMS codes', 'Collect', 'collect'],
+  ['Score the risk', 'Process', 'process'], ['Flag a missing consent', 'Process', 'process'], ['Email the right people', 'Process', 'process'],
+  ['Write the PDF, Word or Excel', 'Process', 'process'], ['Create the care record', 'Process', 'process'], ['Retry anything stuck', 'Process', 'process'],
+  ['One inbox for every form', 'Review', 'review'], ['Correct an answer, rescore it', 'Review', 'review'], ['Risk monitor', 'Review', 'review'],
+  ['Where people stop', 'Review', 'review'], ['Export, with a log entry', 'Review', 'review'],
+  ['Send any document to sign', 'Sign', 'sign'], ['Check identity first', 'Sign', 'sign'], ['Seven signer roles', 'Sign', 'sign'],
+  ['Seal and timestamp', 'Sign', 'sign'], ['Certificate of completion', 'Sign', 'sign'], ['Signing starts the service', 'Sign', 'sign'],
+];
+const noteColors = { build: '#FFD3B6', collect: '#FFE6C7', process: '#FFC4A3', review: '#FFF0DC', sign: '#FFB088' };
 ---
 <Base title={`${d.title} · Oluwayemi Akinbande`} ogTitle={d.title} description={d.summary}>
   <article class="study">
@@ -95,8 +113,15 @@ const numbers: [string, string][] = [
           <h2>Most form tools stop at Submit</h2>
           <p>For a disability provider, Submit is where the work starts. A referral has to become a client record. An incident has to reach the right person today. An agreement has to be signed before support can begin, and all of it has to stand up years later, in an audit. OrbitForm was designed around that gap.</p>
         </div>
-        <ul class="rules wide">
-          {problems.map(([t, p], i) => <li class="panel" data-reveal data-reveal-delay={String((i % 2) * 0.07)}><h3>{t}</h3><p>{p}</p></li>)}
+        <ul class="probs wide" id="of-probs">
+          {problems.map(([t, p], i) => (
+            <li class="prob" data-reveal data-reveal-delay={String((i % 2) * 0.07)} style={`--i:${i}`}>
+              <span class="mono pn">{String(i + 1).padStart(2, '0')}</span>
+              <h3>{t}</h3>
+              <p>{p}</p>
+              <i class="line" aria-hidden="true"></i>
+            </li>
+          ))}
         </ul>
       </section>
 
@@ -107,6 +132,14 @@ const numbers: [string, string][] = [
             <li class="bd" data-reveal data-reveal-delay={String((i % 3) * 0.08)} style={`--i:${i}`}><span class="mono k">{b.k}</span><b>{b.v}</b><span class="s">{b.s}</span></li>
           ))}
         </ul>
+      </section>
+
+      <section class="sec">
+        <div class="copy" data-reveal>
+          <h2>From a link to a signed agreement</h2>
+          <p>The same journey seen from three sides: what the person filling the form does, what OrbitForm does for them, and what the provider gets back. It moves on by itself, and stops while you read.</p>
+        </div>
+        <div class="wide" data-reveal><OrbitJourney /></div>
       </section>
 
       <section class="sec">
@@ -143,11 +176,14 @@ const numbers: [string, string][] = [
           <h2>Six jobs run the moment a response lands</h2>
           <p>This is the part competitors leave to the team. A response is scored, the right people are told, the documents are written, and the record is created in the care platform. Staff can watch it happen in the response, so the work is visible rather than assumed. Every five minutes a sweep picks up anything that failed and tries it again, which means nothing waits for someone to notice.</p>
         </div>
-        <ol class="pipe wide" data-reveal>
-          {pipeline.map(([t, s], i) => (
-            <li><span class="mono n">{String(i + 1).padStart(2, '0')}</span><b>{t}</b><span class="s">{s}</span></li>
-          ))}
-        </ol>
+        <div class="wide pipe-wrap" id="of-pipe" data-reveal>
+          <i class="pipe-rail" aria-hidden="true"><i class="pipe-fill"></i><i class="pipe-spark"></i></i>
+          <ol class="pipe">
+            {pipeline.map(([t, s], i) => (
+              <li><span class="mono n">{String(i + 1).padStart(2, '0')}</span><b>{t}</b><span class="s">{s}</span></li>
+            ))}
+          </ol>
+        </div>
       </section>
 
       <section class="sec">
@@ -155,9 +191,19 @@ const numbers: [string, string][] = [
           <h2>Rules first, AI second</h2>
           <p>Where vulnerable people are involved, a score has to be explainable. Every point traces back to a specific answer, and the reason sits beside the number. Claude then reads the whole response the way an intake coordinator would, and writes a short summary, a suggested next step and up to four concerns. It can raise risk by up to thirty points, never lower it, and it cannot clear a flag or close anything. The rule-only scores are kept separately, so its influence is always visible. If it is unavailable, the rules simply stand.</p>
         </div>
-        <ul class="rules wide">
-          {scores.map(([t, p], i) => <li class="panel" data-reveal data-reveal-delay={String((i % 2) * 0.07)}><h3>{t}</h3><p>{p}</p></li>)}
-        </ul>
+        <ol class="scores wide" id="of-scores">
+          {scores.map(([t, p], i) => (
+            <li class="sc" data-reveal data-reveal-delay={String(i * 0.06)}>
+              <span class="sc-top"><span class="mono n">{String(i + 1).padStart(2, '0')}</span><h3>{t}</h3></span>
+              <p>{p}</p>
+              <span class="meter" aria-hidden="true">
+                <i class="bar"></i>
+                {i === 1 && <><i class="tick" style="left:15%"></i><i class="tick" style="left:40%"></i><i class="tick" style="left:70%"></i></>}
+              </span>
+              {i === 1 && <span class="bands mono" aria-hidden="true"><span>15 medium</span><span>40 high</span><span>70 critical</span></span>}
+            </li>
+          ))}
+        </ol>
       </section>
 
       <section class="sec">
@@ -173,14 +219,22 @@ const numbers: [string, string][] = [
       </section>
 
       <section class="sec">
-        <div class="copy" data-reveal>
-          <h2>See it working</h2>
-          <p>A short walk through the product, on the web and on a phone.</p>
-        </div>
         <figure class="wide film demo" data-reveal>
           <video poster="/orbitform/orbitform-demo.jpg" muted loop playsinline preload="none"
             aria-label="A recorded walk through OrbitForm on the web and on a phone"></video>
         </figure>
+      </section>
+
+      <section class="sec">
+        <div class="copy" data-reveal>
+          <h2>Everything it handles</h2>
+          <p>One tool covers the whole of it, from drafting a form to starting a service.</p>
+        </div>
+        <div class="wide" data-reveal>
+          <StickyBoard id="of-board" label="Everything OrbitForm handles" eyebrow="The work it takes off a team"
+            sub="Twenty-eight everyday jobs, from drafting a form to starting a service" notes={notes}
+            legend={[['build', 'Build'], ['collect', 'Collect'], ['process', 'Process'], ['review', 'Review'], ['sign', 'Sign']]} colors={noteColors} />
+        </div>
       </section>
 
       <section class="sec">
@@ -196,7 +250,7 @@ const numbers: [string, string][] = [
       <section class="sec">
         <div class="copy" data-reveal>
           <h2>What the provider gets back</h2>
-          <p>The value is not the form. It is the hour that nobody spends retyping a referral, the agreement that reaches the right file on its own, the incident that is seen the same day, and the audit that is already assembled because the evidence was captured as the work happened. Legal wording, identity, consent, confidentiality and the record all live in one tool, so there is no gap between them for something to fall through.</p>
+          <p>The value is not the form. It is the hour nobody spends retyping a referral, the agreement that reaches the right file on its own, the incident that is seen the same day, and the audit that is already assembled because the evidence was captured as the work happened. Legal wording, identity, consent, confidentiality and the record all live in one tool, so there is no gap between them for something to fall through.</p>
         </div>
         <ul class="nums wide" data-reveal>
           {numbers.map(([n, s]) => <li><b>{n}</b><span>{s}</span></li>)}
@@ -231,13 +285,54 @@ const numbers: [string, string][] = [
 </Base>
 
 <script>
-  // each film plays while it is on screen and rests when it is not; the source is attached only when it is needed,
-  // so the 25 MB walkthrough is never fetched by someone who does not scroll to it
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  gsap.registerPlugin(ScrollTrigger);
+  const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const inView = (t: Element) => ({ trigger: t, start: 'top 88%', end: 'bottom 12%', toggleActions: 'play pause resume pause' });
+
+  // a slow light passing over the glance cards and the problem cards
+  function sweep(id: string, sel: string, each: number) {
+    const el = document.getElementById(id);
+    if (!el || el.dataset.init) return; el.dataset.init = '1';
+    if (reduced()) return;
+    gsap.to(el.querySelectorAll(sel), { '--sweep': '220%', duration: 5, ease: 'none', repeat: -1,
+      stagger: { each, repeat: -1 }, scrollTrigger: inView(el) });
+  }
+  // the six jobs: the rail fills, a spark runs ahead of it, and each stage lights as the spark reaches it
+  function pipe() {
+    const el = document.getElementById('of-pipe');
+    if (!el || el.dataset.init) return; el.dataset.init = '1';
+    const nodes = [...el.querySelectorAll<HTMLElement>('.pipe .n')];
+    const fill = el.querySelector('.pipe-fill'), spark = el.querySelector('.pipe-spark');
+    if (reduced()) { gsap.set(fill, { scaleX: 1 }); gsap.set(spark, { opacity: 0 }); nodes.forEach((n) => n.classList.add('on')); return; }
+    const step = 0.55, run = nodes.length * step;
+    const tl = gsap.timeline({ repeat: -1, repeatDelay: 1.4, scrollTrigger: inView(el) });
+    tl.set(nodes, { className: 'mono n' })
+      .fromTo(fill, { scaleX: 0 }, { scaleX: 1, duration: run, ease: 'none' }, 0)
+      .fromTo(spark, { xPercent: 0, opacity: 0 }, { opacity: 1, duration: 0.2 }, 0)
+      .to(spark, { xPercent: 100 * (nodes.length - 1), duration: run, ease: 'none' }, 0)
+      .to(spark, { opacity: 0, duration: 0.3 }, run)
+      .to({}, { duration: 1.2 })
+      .to([fill], { opacity: 0, duration: 0.4 })
+      .set(fill, { opacity: 1, scaleX: 0 });
+    nodes.forEach((n, i) => tl.add(() => n.classList.add('on'), i * step).add(() => n.classList.remove('on'), run + 1.4));
+  }
+  // the score meters fill once, when the row comes into view
+  function meters() {
+    const el = document.getElementById('of-scores');
+    if (!el || el.dataset.init) return; el.dataset.init = '1';
+    const bars = el.querySelectorAll('.bar');
+    if (reduced()) { gsap.set(bars, { scaleX: 1 }); return; }
+    gsap.fromTo(bars, { scaleX: 0 }, { scaleX: 1, duration: 1.1, ease: 'power2.out', stagger: 0.12,
+      scrollTrigger: { trigger: el, start: 'top 80%', once: true } });
+  }
+  // each film plays while it is on screen; the 25 MB walkthrough is only fetched if someone scrolls to it
   function films() {
     document.querySelectorAll<HTMLVideoElement>('.film video').forEach((v) => {
       if (v.dataset.init) return; v.dataset.init = '1';
       const src = v.closest('.flow') ? '/orbitform/orbitform-flow.mp4' : '/orbitform/orbitform-demo.mp4';
-      if (matchMedia('(prefers-reduced-motion: reduce)').matches) { v.controls = true; v.src = src; return; }
+      if (reduced()) { v.controls = true; v.src = src; return; }
       new IntersectionObserver((es) => es.forEach((e) => {
         if (!e.isIntersecting) { v.pause(); return; }
         if (!v.src) v.src = src;
@@ -245,7 +340,7 @@ const numbers: [string, string][] = [
       }), { threshold: 0.25 }).observe(v);
     });
   }
-  document.addEventListener('astro:page-load', films);
+  document.addEventListener('astro:page-load', () => { sweep('glance', '.bd', 0.35); sweep('of-probs', '.prob', 0.5); pipe(); meters(); films(); });
 </script>
 
 <style>
@@ -287,6 +382,19 @@ const numbers: [string, string][] = [
   .demo video { aspect-ratio: 16 / 9; }
   .cap { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); }
 
+  /* the problem cards: a number, a rule that draws itself on hover, and a light that passes across them on a loop */
+  .probs { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .prob { --sweep: -60%; position: relative; overflow: hidden; padding: 24px 26px 26px; border-radius: 16px; display: grid; gap: 8px; align-content: start;
+    border: 1px solid var(--line-a); background: linear-gradient(160deg, rgba(122,38,0,0.14), var(--surface) 60%); transition: border-color 0.35s, translate 0.45s var(--ease); }
+  .prob::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(115deg, transparent 0%, rgba(255,150,100,0.09) 50%, transparent 100%); transform: translateX(var(--sweep)); }
+  .prob:hover { border-color: rgba(255,81,1,0.4); translate: 0 -3px; }
+  .pn { font-size: 10.5px; letter-spacing: 0.14em; color: #FF8A4C; }
+  .prob h3 { font-size: 18px; letter-spacing: -0.02em; }
+  .prob p { color: var(--muted); font-size: 14.5px; line-height: 1.6; }
+  .prob .line { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; transform: scaleX(0); transform-origin: 0 50%; transition: transform 0.6s var(--ease);
+    background: linear-gradient(90deg, #FF5101, transparent); }
+  .prob:hover .line { transform: scaleX(1); }
+
   /* what was designed: six dark cards in the product's burnt orange, with a slow light passing over them */
   .cards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
   .bd { --sweep: -60%; position: relative; overflow: hidden; padding: clamp(22px, 2.6vw, 30px); display: grid; gap: 10px; align-content: start; border-radius: 16px;
@@ -296,22 +404,39 @@ const numbers: [string, string][] = [
   .bd b { font-size: clamp(17px, 1.6vw, 20px); font-weight: 600; letter-spacing: -0.02em; line-height: 1.3; color: #FDF4EF; }
   .bd .s { color: rgba(253,244,239,0.66); font-size: 13.5px; line-height: 1.5; }
 
-  .rules, .trust { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
-  .rules { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .trust { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .rules li, .trust li { padding: 22px 24px; display: grid; gap: 8px; align-content: start; transition: border-color 0.3s, translate 0.4s var(--ease); }
-  .rules li:hover, .trust li:hover { border-color: rgba(255,81,1,0.35); translate: 0 -2px; }
-  .rules h3, .trust h3 { font-size: 17.5px; letter-spacing: -0.02em; }
-  .rules p, .trust p { color: var(--muted); font-size: 14.5px; line-height: 1.6; }
-
-  /* the six jobs, on one line that runs through them */
+  /* the six jobs on one rail: it fills, a spark runs ahead, and each number lights as the spark reaches it */
+  .pipe-wrap { position: relative; }
+  .pipe-rail { position: absolute; left: 8.33%; right: 8.33%; top: 17px; height: 2px; border-radius: 2px; background: rgba(255,138,76,0.16); }
+  .pipe-fill { position: absolute; inset: 0; border-radius: inherit; transform-origin: 0 50%; transform: scaleX(0); background: linear-gradient(90deg, #FF5101, rgba(255,81,1,0.35)); }
+  .pipe-spark { position: absolute; top: -3px; left: 0; width: 16.66%; height: 8px; pointer-events: none;
+    background: radial-gradient(closest-side, rgba(255,150,100,0.9), transparent 70%); }
   .pipe { position: relative; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
-  .pipe::before { content: ''; position: absolute; left: 8%; right: 8%; top: 17px; height: 2px; border-radius: 2px; background: linear-gradient(90deg, rgba(255,81,1,0.65), rgba(255,81,1,0.12)); }
   .pipe li { position: relative; display: grid; gap: 8px; justify-items: center; text-align: center; }
   .pipe .n { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; font-size: 11px; color: #FFD9C7;
-    border: 1px solid rgba(255,81,1,0.5); background: #1C0B02; }
+    border: 1px solid rgba(255,81,1,0.5); background: #1C0B02; transition: background 0.35s, color 0.35s, box-shadow 0.35s, transform 0.35s var(--ease); }
+  .pipe .n.on { background: #FF5101; color: #fff; transform: scale(1.12); box-shadow: 0 0 0 6px rgba(255,81,1,0.14); }
   .pipe b { font-size: 14.5px; letter-spacing: -0.01em; }
   .pipe .s { font-size: 12.5px; line-height: 1.45; color: var(--muted); }
+
+  /* the five scores in one row, each with a meter that fills when the row arrives; risk also shows its three bands */
+  .scores { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+  .sc { display: grid; gap: 10px; align-content: start; padding: 22px 20px 20px; border-radius: 16px; border: 1px solid var(--line-a); background: var(--surface);
+    transition: border-color 0.3s, translate 0.4s var(--ease); }
+  .sc:hover { border-color: rgba(255,81,1,0.35); translate: 0 -3px; }
+  .sc-top { display: flex; align-items: baseline; gap: 8px; }
+  .sc .n { font-size: 10.5px; letter-spacing: 0.12em; color: #FF8A4C; }
+  .sc h3 { font-size: 16px; letter-spacing: -0.02em; }
+  .sc p { color: var(--muted); font-size: 13px; line-height: 1.55; }
+  .meter { position: relative; display: block; height: 4px; border-radius: 2px; background: rgba(255,138,76,0.14); overflow: hidden; }
+  .bar { position: absolute; inset: 0; border-radius: inherit; transform-origin: 0 50%; background: linear-gradient(90deg, #FF5101, rgba(255,81,1,0.3)); }
+  .tick { position: absolute; top: -2px; width: 1px; height: 8px; background: rgba(253,244,239,0.55); }
+  .bands { display: flex; justify-content: space-between; font-size: 9.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--dim); }
+
+  .trust { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .trust li { padding: 22px 24px; display: grid; gap: 8px; align-content: start; transition: border-color 0.3s, translate 0.4s var(--ease); }
+  .trust li:hover { border-color: rgba(255,81,1,0.35); translate: 0 -2px; }
+  .trust h3 { font-size: 17.5px; letter-spacing: -0.02em; }
+  .trust p { color: var(--muted); font-size: 14.5px; line-height: 1.6; }
 
   .nums { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
   .nums li { display: grid; gap: 4px; padding: 20px 16px; border: 1px solid var(--line-a); border-radius: 14px; background: var(--surface); text-align: center; }
@@ -330,7 +455,12 @@ const numbers: [string, string][] = [
   .close-r .go { position: absolute; right: clamp(20px, 3vw, 32px); bottom: clamp(20px, 3vw, 32px); width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line-a); display: grid; place-items: center; color: var(--fg); transition: transform 0.3s var(--ease), border-color 0.2s; }
   .close-r:hover .go { transform: translateX(4px); border-color: #FF5101; color: #FF8A4C; }
 
-  @media (max-width: 1060px) { .pipe { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 26px; } .pipe::before { display: none; } .nums { grid-template-columns: repeat(3, minmax(0, 1fr)); } .trust { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  @media (max-width: 860px) { .head, .rules, .close { grid-template-columns: 1fr; } .close-r { border-left: 0; border-top: 1px solid var(--line-a); } .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 1160px) { .scores { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 1060px) {
+    .pipe { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 26px; } .pipe-rail { display: none; }
+    .nums { grid-template-columns: repeat(3, minmax(0, 1fr)); } .trust { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 860px) { .head, .probs, .close { grid-template-columns: 1fr; } .close-r { border-left: 0; border-top: 1px solid var(--line-a); } .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 620px) { .scores { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (max-width: 560px) { .cards, .trust { grid-template-columns: 1fr; } .pipe, .nums { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 </style>

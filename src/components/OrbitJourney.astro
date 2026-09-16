@@ -1,0 +1,159 @@
+---
+/* The OrbitForm journey, as a slide that moves sideways: eight stages from the link a person receives to the moment
+   support can start. Each stage says what the person does, what OrbitForm does, and what the provider sees.
+   In view it advances on its own, with a light running along the rail; hovering, focusing or dragging stops it, and
+   the arrows and dots move it by hand. Every line comes from his product brief, and only from what is live. */
+const stages = [
+  { n: '01', t: 'The link', short: 'No account',
+    you: 'A link, a QR code or a personal link arrives, by email or text.',
+    of: 'The form opens on any phone, with no sign-up and nothing to install.',
+    them: 'The view is counted once per visitor, so the numbers mean something.' },
+  { n: '02', t: 'Filling it in', short: 'Saves itself',
+    you: 'Questions come one at a time, and only the ones that apply.',
+    of: 'Every keystroke is saved, and the form keeps working with no signal.',
+    them: 'The drop-off report shows the question where people stop.' },
+  { n: '03', t: 'Submit', short: 'One press',
+    you: 'One press, and a copy of the answers by email if the form offers it.',
+    of: 'The response is verified, stored, and six jobs are queued at once.',
+    them: 'The bell rings the moment it lands.' },
+  { n: '04', t: 'Scored', short: 'Reasons, not guesses',
+    you: 'Nothing more to do.',
+    of: 'Rules score risk, compliance, evidence and confidence, then AI reads it.',
+    them: 'Every point shows the answer it came from.' },
+  { n: '05', t: 'Filed', short: 'Never retyped',
+    you: 'Nothing more to do.',
+    of: 'The documents are written and the record is created in the care platform.',
+    them: 'A referral, client, incident or agreement, already in the right place.' },
+  { n: '06', t: 'Reviewed', short: 'Corrected in place',
+    you: 'Nothing more to do.',
+    of: 'Correcting an answer rescores the response and keeps the old version.',
+    them: 'Mark reviewed, edit, or send it for signature without leaving the drawer.' },
+  { n: '07', t: 'Signed', short: 'Sealed',
+    you: 'Identity is checked, consent is given, and the signature is typed or drawn.',
+    of: 'The content is hashed, the document sealed and timestamped, the certificate issued.',
+    them: 'If an answer changed after sending, the envelope stops itself.' },
+  { n: '08', t: 'Support starts', short: 'The point of it all',
+    you: 'The signed copy arrives.',
+    of: 'Signing fires the routing job.',
+    them: 'The agreement is live in the care platform, and the service can begin.' },
+];
+---
+<div class="jr" id="of-journey">
+  <div class="jr-top">
+    <span class="rail" aria-hidden="true"><i class="pulse"></i></span>
+    <div class="ctrl">
+      <button type="button" class="nav" data-prev aria-label="Previous stage">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M13 8H4M7.5 4.5 4 8l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button type="button" class="nav" data-next aria-label="Next stage">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="view" tabindex="0" role="group" aria-label="The journey, stage by stage. Scroll sideways to see every stage.">
+    <ol class="track">
+      {stages.map((s, i) => (
+        <li class="st" data-i={i}>
+          <span class="head"><i class="dot" aria-hidden="true"></i><span class="mono n">{s.n}</span><b>{s.t}</b></span>
+          <span class="short">{s.short}</span>
+          <dl class="lanes">
+            <div><dt class="mono">The person</dt><dd>{s.you}</dd></div>
+            <div><dt class="mono">OrbitForm</dt><dd class="of">{s.of}</dd></div>
+            <div><dt class="mono">The provider</dt><dd>{s.them}</dd></div>
+          </dl>
+        </li>
+      ))}
+    </ol>
+  </div>
+  <div class="dots" aria-hidden="true">{stages.map((_, i) => <button type="button" class="d" data-go={i} tabindex="-1"></button>)}</div>
+</div>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  gsap.registerPlugin(ScrollTrigger);
+  let timer = 0;
+  function init() {
+    const jr = document.getElementById('of-journey');
+    if (!jr || jr.dataset.init) return; jr.dataset.init = '1';
+    const view = jr.querySelector<HTMLElement>('.view')!;
+    const cards = [...jr.querySelectorAll<HTMLElement>('.st')];
+    const dots = [...jr.querySelectorAll<HTMLElement>('.d')];
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let at = 0, live = false, held = false;
+
+    // one stage plus its gap: measured from the cards themselves, so nothing depends on where the track sits
+    const step = () => cards[0].getBoundingClientRect().width + 12;
+    // the stage being read lights up, along with its dot
+    const paint = (i: number) => {
+      at = i;
+      cards.forEach((c, n) => c.classList.toggle('on', n === i));
+      dots.forEach((d, n) => d.classList.toggle('on', n === i));
+    };
+    // the stage nearest the left edge is the one being read
+    const mark = () => paint(Math.min(cards.length - 1, Math.max(0, Math.round(view.scrollLeft / step()))));
+    const go = (i: number) => {
+      const n = (i + cards.length) % cards.length;
+      paint(n);   // painted straight away, so the arrows and dots never wait on the scroll to finish
+      view.scrollTo({ left: n * step(), behavior: reduced ? 'auto' : 'smooth' });
+    };
+    view.addEventListener('scroll', mark, { passive: true });
+    jr.querySelector('[data-prev]')!.addEventListener('click', () => go(at - 1));
+    jr.querySelector('[data-next]')!.addEventListener('click', () => go(at + 1));
+    dots.forEach((d, i) => d.addEventListener('click', () => go(i)));
+    mark();
+
+    if (reduced) return;
+    // it moves on by itself while it is on screen, and waits while someone is reading or dragging it
+    const tick = () => { if (live && !held) go(at + 1); };
+    clearInterval(timer);
+    timer = window.setInterval(tick, 4200);
+    ['pointerenter', 'pointerdown', 'focusin'].forEach((e) => jr.addEventListener(e, () => (held = true)));
+    ['pointerleave', 'focusout'].forEach((e) => jr.addEventListener(e, () => (held = false)));
+    ScrollTrigger.create({ trigger: jr, start: 'top 80%', end: 'bottom 20%', onToggle: (self) => (live = self.isActive) });
+    // the light that runs along the rail above the stages
+    gsap.fromTo(jr.querySelector('.pulse'), { xPercent: -100 }, { xPercent: 900, duration: 6, ease: 'none', repeat: -1,
+      scrollTrigger: { trigger: jr, start: 'top 85%', end: 'bottom 15%', toggleActions: 'play pause resume pause' } });
+  }
+  document.addEventListener('astro:page-load', init);
+  document.addEventListener('astro:before-swap', () => clearInterval(timer));
+</script>
+
+<style>
+  .jr { border: 1px solid rgba(255,81,1,0.18); border-radius: 18px; overflow: hidden; padding: clamp(18px, 2.4vw, 26px);
+    background: linear-gradient(160deg, #2A0F02 0%, #170A03 55%, #100702 100%); display: grid; gap: 14px; }
+  .jr-top { display: flex; align-items: center; gap: 16px; }
+  .rail { position: relative; flex: 1; height: 2px; border-radius: 2px; overflow: hidden; background: rgba(255,138,76,0.18); }
+  .pulse { position: absolute; inset: 0 auto 0 0; width: 12%; background: linear-gradient(90deg, transparent, #FF5101, transparent); }
+  .ctrl { display: flex; gap: 8px; flex: none; }
+  .nav { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; cursor: pointer; color: #FFD9C7;
+    border: 1px solid rgba(255,81,1,0.35); background: rgba(255,81,1,0.08); transition: background 0.2s, color 0.2s, border-color 0.2s; }
+  .nav:hover { background: rgba(255,81,1,0.2); color: #fff; border-color: rgba(255,81,1,0.6); }
+
+  /* the slide itself: stages side by side, snapping as it moves */
+  .view { position: relative; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; padding: 2px 0 6px; }
+  .view::-webkit-scrollbar { display: none; }
+  .view:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 12px; }
+  .track { list-style: none; margin: 0; padding: 0; display: flex; gap: 12px; }
+  .st { scroll-snap-align: start; flex: none; width: clamp(250px, 27vw, 310px); padding: 18px 18px 20px; border-radius: 14px; display: grid; gap: 12px; align-content: start;
+    border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.03); transition: border-color 0.4s, background 0.4s, transform 0.5s var(--ease); }
+  .st.on { border-color: rgba(255,81,1,0.45); background: rgba(255,81,1,0.07); transform: translateY(-3px); }
+  .head { display: flex; align-items: center; gap: 9px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; background: rgba(255,138,76,0.35); transition: background 0.4s, box-shadow 0.4s; }
+  .st.on .dot { background: #FF5101; box-shadow: 0 0 0 4px rgba(255,81,1,0.18); }
+  .head .n { font-size: 10.5px; letter-spacing: 0.12em; color: rgba(253,244,239,0.5); }
+  .head b { font-size: 16px; font-weight: 600; letter-spacing: -0.02em; color: #FDF4EF; }
+  .short { justify-self: start; font-size: 11.5px; padding: 4px 10px; border-radius: 999px; color: #FFB894;
+    background: rgba(255,81,1,0.12); border: 1px solid rgba(255,81,1,0.25); }
+  .lanes { margin: 0; display: grid; gap: 10px; }
+  .lanes > div { display: grid; gap: 3px; }
+  dt { font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,138,76,0.75); }
+  dd { margin: 0; font-size: 13px; line-height: 1.5; color: rgba(253,244,239,0.7); }
+  dd.of { color: #FDF4EF; }
+
+  .dots { display: flex; justify-content: center; gap: 6px; }
+  .d { width: 18px; height: 4px; border-radius: 2px; border: 0; padding: 0; cursor: pointer; background: rgba(255,138,76,0.22); transition: background 0.3s, width 0.3s; }
+  .d.on { width: 30px; background: #FF5101; }
+  @media (prefers-reduced-motion: reduce) { .pulse { display: none; } .st { transition: none; } }
+</style>
