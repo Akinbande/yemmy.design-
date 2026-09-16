@@ -49,7 +49,8 @@ def render(src, sp, W, S=4):
 
 
 # covers that are already raster artboards (4800 x 3114, the same shape): resized only, same widths, same Lanczos, lossless
-RASTER = {'hometown': os.path.join('case studies', 'hometown', 'h1.png')}
+RASTER = {'hometown': os.path.join('case studies', 'hometown', 'h1.png'),
+          'orbitform': os.path.join('case studies', 'Orbitform', 'cover.png')}
 
 
 def main():

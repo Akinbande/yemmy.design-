@@ -11,7 +11,7 @@ const by = (id: string) => all.find((e) => e.id === id)!;
 
 // one plain line per project, shared by the cards and the index
 const line: Record<string, string> = {
-  orbitform: 'Compliant intake, incident and feedback forms for NDIS providers',
+  orbitform: 'Forms, submissions and e-signature for NDIS providers',
   nexorbit: 'One operations platform for a government-funded care provider',
   collga: 'An e-government platform for state and local governments in Nigeria',
   luca: 'Bookkeeping for small business owners who are not accountants',
@@ -20,7 +20,7 @@ const line: Record<string, string> = {
   hometown: 'Everyday banking on the phone and the web',
 };
 // each project's own colour: the card stroke and glow, the index row on hover
-const mark: Record<string, string> = { collga: '#6CB460', newdawn: '#FF5101', 'glaze-dental': '#5B86D6', luca: '#01B5EC', hometown: '#FF6600' };
+const mark: Record<string, string> = { collga: '#6CB460', newdawn: '#FF5101', 'glaze-dental': '#5B86D6', luca: '#01B5EC', hometown: '#FF6600', orbitform: '#FF5101' };
 
 const studies = all.filter((e) => e.data.tier === 1).length;
 const smaller = all.length - studies;
@@ -55,7 +55,7 @@ const intro = `${words[studies]} case studies and ${words[smaller].toLowerCase()
     <!-- the films start at 4 s on these cards, past their blank opening frames; the files themselves are untouched -->
     <section class="wrap bento" aria-label="Projects">
       <div class="r">
-        <WorkTile e={by('orbitform')} line={line.orbitform} />
+        <WorkTile e={by('orbitform')} line={line.orbitform} variant="image" image="/covers/orbitform" accent={mark.orbitform} ground="#FFF6F2" />
         <WorkTile e={by('nexorbit')} line={line.nexorbit} />
       </div>
       <div class="r full">

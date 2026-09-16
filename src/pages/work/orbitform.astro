@@ -1,0 +1,336 @@
+---
+/* OrbitForm: the case study. Built like Collga and Luca, with his own media at full quality and the product's orange
+   as the atmosphere behind the header. The system flow film opens the page, because the whole product is about what
+   happens after Submit. Ground rules from his product brief: never name the launch provider, claim only what is live
+   (no WCAG claim, no roadmap), and keep the copy plain. Screens come from case studies/Orbitform. */
+import { getCollection, getEntry } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Facts from '../../components/Facts.astro';
+import Stack from '../../components/Stack.astro';
+import Marquee from '../../components/Marquee.astro';
+
+const entry = (await getEntry('work', 'orbitform'))!;
+const d = entry.data;
+const all = (await getCollection('work', (e) => e.data.tier === 1)).sort((a, b) => a.data.order - b.data.order);
+const next = all[(all.findIndex((e) => e.id === 'orbitform') + 1) % all.length];
+
+const files = import.meta.glob<{ default: ImageMetadata }>('/src/assets/orbitform/*.png', { eager: true });
+const img = (name: string) => { const k = Object.keys(files).find((p) => p.endsWith(`/${name}.png`)); if (!k) throw new Error('missing ' + name); return files[k].default; };
+const shots = (names: [string, string][]) => names.map(([n, alt]) => ({ src: img(n), alt }));
+
+// what the product is, at a glance
+const breakdown = [
+  { k: 'For', v: 'NDIS providers in Australia', s: 'Intake coordinators, compliance leads and support workers' },
+  { k: 'Covers', v: 'Forms, submissions and signing', s: 'One tool from the first question to the sealed agreement' },
+  { k: 'Platforms', v: 'A studio for staff, phone forms for everyone else', s: 'Forms keep working with no connection' },
+  { k: 'Intelligence', v: 'Five scores on every response', s: 'Rules first, with an AI reading on top' },
+  { k: 'Signing', v: 'OrbitSign, built in', s: 'Identity checks, sealed documents and a signing certificate' },
+  { k: 'Built in', v: 'About four weeks', s: 'Designed and built, then launched with a provider' },
+];
+// what was going wrong before
+const problems = [
+  ['Answers were typed twice', 'A referral arrives in a form tool, then somebody copies it into the care system by hand. Two records, two chances to get it wrong.'],
+  ['Agreements sat unfiled', 'A signed service agreement is only useful when it reaches the participant record and the service can start.'],
+  ['Risk waited in an inbox', 'A serious incident looks the same as a feedback note until someone opens it.'],
+  ['Audits meant rebuilding the past', 'Evidence was gathered after the fact, from inboxes and folders, weeks before a review.'],
+];
+// the six jobs that run after Submit
+const pipeline = [
+  ['Scoring', 'The rules run, then the AI reads the response'],
+  ['Team alert', 'The right people are emailed straight away'],
+  ['Automations', 'The team rules run and signed webhooks go out'],
+  ['Copy to the participant', 'Their answers, as a PDF, if the form asks for it'],
+  ['Documents', 'PDF, Word or Excel, attached to the response'],
+  ['Routing', 'A referral, client, incident or agreement in the care platform'],
+];
+// the five scores, and what each one answers
+const scores = [
+  ['Completion', 'How much of the form was actually answered, with required questions counting double.'],
+  ['Risk', 'Points from the rules the team wrote. Bands at 15, 40 and 70, so attention goes where it is needed.'],
+  ['Compliance', 'Starts at 100 and drops for missing consents, declarations and signatures.'],
+  ['Evidence', 'Falls when a required signature or attachment is not there.'],
+  ['Confidence', 'Falls as required answers go missing, so a thin response is never read as a complete one.'],
+];
+// what the product had to carry because the work is legal and confidential
+const trust = [
+  ['Consent, recorded', 'Signing opens with a versioned electronic records consent that names the Electronic Transactions Act 1999.'],
+  ['Identity, checked', 'An email link, an access code or an SMS code before anyone signs. Codes are only ever stored as hashes.'],
+  ['Documents that fail closed', 'The content is hashed when it is sent and checked again before every signature. If an answer changed, the envelope stops itself and says why.'],
+  ['A trail nobody can edit', 'Signing events are hash chained, and the audit log is written by the database itself. Even an administrator cannot alter it.'],
+  ['Separated by organisation', 'Every table is row-level secured, so a workspace only ever sees its own data. The platform console shows counts, never participant details.'],
+  ['Versioned forever', 'Each publish freezes a version, and every response stays tied to the exact version it was filled in on.'],
+];
+const numbers: [string, string][] = [
+  ['43', 'field types, in five groups'],
+  ['6', 'jobs run after every submit'],
+  ['5', 'scores on every response'],
+  ['0 to 30', 'risk the AI can add, and never subtract'],
+  ['7', 'signer roles recognised'],
+  ['5 min', 'safety sweep for anything stuck'],
+];
+---
+<Base title={`${d.title} · Oluwayemi Akinbande`} ogTitle={d.title} description={d.summary}>
+  <article class="study">
+    <div class="atmos" aria-hidden="true"></div>
+    <header class="wrap head">
+      <div class="lead">
+        <p class="mono crumbs" data-reveal><a href="/work/">Work</a><span class="sep">/</span><span>{d.org}</span></p>
+        <h1 data-reveal data-reveal-delay="0.1">{d.title}</h1>
+        <p class="sum" data-reveal data-reveal-delay="0.2">{d.summary}</p>
+      </div>
+      <div data-reveal data-reveal-delay="0.25"><Facts d={d} /></div>
+    </header>
+
+    <div class="wrap body">
+      <section class="sec">
+        <figure class="wide film flow" data-reveal>
+          <video poster="/orbitform/orbitform-flow.jpg" autoplay muted loop playsinline preload="auto"
+            aria-label="The system flow: build a form, collect a response, process it, review it, with each part connecting to the next"></video>
+        </figure>
+        <p class="cap mono" data-reveal>Build, collect, process, review</p>
+      </section>
+
+      <section class="sec">
+        <div class="copy" data-reveal>
+          <h2>Most form tools stop at Submit</h2>
+          <p>For a disability provider, Submit is where the work starts. A referral has to become a client record. An incident has to reach the right person today. An agreement has to be signed before support can begin, and all of it has to stand up years later, in an audit. OrbitForm was designed around that gap.</p>
+        </div>
+        <ul class="rules wide">
+          {problems.map(([t, p], i) => <li class="panel" data-reveal data-reveal-delay={String((i % 2) * 0.07)}><h3>{t}</h3><p>{p}</p></li>)}
+        </ul>
+      </section>
+
+      <section class="sec">
+        <div class="copy" data-reveal><h2>What was designed</h2></div>
+        <ul class="cards wide" id="glance">
+          {breakdown.map((b, i) => (
+            <li class="bd" data-reveal data-reveal-delay={String((i % 3) * 0.08)} style={`--i:${i}`}><span class="mono k">{b.k}</span><b>{b.v}</b><span class="s">{b.s}</span></li>
+          ))}
+        </ul>
+      </section>
+
+      <section class="sec">
+        <div class="copy" data-reveal>
+          <h2>Building a form should take minutes, not a meeting</h2>
+          <p>A coordinator can describe the form in a sentence and let it be drafted, start from one of the NDIS templates, open a blank canvas, or photograph the paper form they already use and have it rebuilt. Forty-three field types cover the real work: costed line items, NDIS catalogue prices, a body chart to draw on, booking slots, consents and signatures.</p>
+        </div>
+        <div class="wide"><Stack items={shots([
+          ['create', 'Create a form: describe it and draft it, use a template, start from blank, or import a document'],
+          ['builder', 'The builder: the field palette on the left, the NDIS participant intake form taking shape on the right'],
+        ])} /></div>
+        <div class="wide"><Marquee items={shots([
+          ['templates', 'The template gallery: NDIS forms grouped by intake, compliance, service delivery, feedback and HR'],
+          ['design', 'The design tab: header style, conversation mode, and a live preview of what people will see'],
+          ['forms', 'All forms: every form with its submissions, views and publish state'],
+        ])} /></div>
+      </section>
+
+      <section class="sec">
+        <div class="copy" data-reveal>
+          <h2>Forms people can actually finish</h2>
+          <p>Most people meet this product on a phone, in a kitchen or a car, often at a hard moment. The form asks one thing at a time, saves from the first keystroke, and can be picked up later from a private link. Out of range, it keeps working: the answers, and a signature drawn on the screen, wait on the device and send themselves when the signal comes back. Nobody has to make an account.</p>
+        </div>
+        <div class="wide"><Marquee items={shots([
+          ['m-dashboard', 'On a phone: the dashboard opens on what needs you today'],
+          ['m-forms', 'On a phone: every form, with submissions and views'],
+          ['m-response', 'On a phone: a response, ready to review, edit or send to sign'],
+          ['m-risk', 'On a phone: the risk monitor, with what needs attention first'],
+        ])} speed={60} /></div>
+      </section>
+
+      <section class="sec">
+        <div class="copy" data-reveal>
+          <h2>Six jobs run the moment a response lands</h2>
+          <p>This is the part competitors leave to the team. A response is scored, the right people are told, the documents are written, and the record is created in the care platform. Staff can watch it happen in the response, so the work is visible rather than assumed. Every five minutes a sweep picks up anything that failed and tries it again, which means nothing waits for someone to notice.</p>
+        </div>
+        <ol class="pipe wide" data-reveal>
+          {pipeline.map(([t, s], i) => (
+            <li><span class="mono n">{String(i + 1).padStart(2, '0')}</span><b>{t}</b><span class="s">{s}</span></li>
+          ))}
+        </ol>
+      </section>
+
+      <section class="sec">
+        <div class="copy" data-reveal>
+          <h2>Rules first, AI second</h2>
+          <p>Where vulnerable people are involved, a score has to be explainable. Every point traces back to a specific answer, and the reason sits beside the number. Claude then reads the whole response the way an intake coordinator would, and writes a short summary, a suggested next step and up to four concerns. It can raise risk by up to thirty points, never lower it, and it cannot clear a flag or close anything. The rule-only scores are kept separately, so its influence is always visible. If it is unavailable, the rules simply stand.</p>
+        </div>
+        <ul class="rules wide">
+          {scores.map(([t, p], i) => <li class="panel" data-reveal data-reveal-delay={String((i % 2) * 0.07)}><h3>{t}</h3><p>{p}</p></li>)}
+        </ul>
+      </section>
+
+      <section class="sec">
+        <div class="copy" data-reveal>
+          <h2>One inbox, and everything about a response in one place</h2>
+          <p>The dashboard opens on what needs you today, not on a chart. In a response, staff see the answers, the scores with their reasons, the documents, the signature status and the jobs that have run, and can correct an answer, which rescores it, or send it for signature without leaving the drawer. Analytics only counts what it can prove: unique views, completion, time to fill, and the question where people stop.</p>
+        </div>
+        <div class="wide"><Stack items={shots([
+          ['submissions', 'The submissions inbox: search, filters, bulk status changes and export, with every export logged'],
+          ['response', 'A response: the answers, and the actions to mark reviewed, edit, send or send to sign'],
+          ['analytics', 'Analytics: unique views, completion rate, time to fill, and where people stop'],
+        ])} /></div>
+      </section>
+
+      <section class="sec">
+        <div class="copy" data-reveal>
+          <h2>See it working</h2>
+          <p>A short walk through the product, on the web and on a phone.</p>
+        </div>
+        <figure class="wide film demo" data-reveal>
+          <video poster="/orbitform/orbitform-demo.jpg" muted loop playsinline preload="none"
+            aria-label="A recorded walk through OrbitForm on the web and on a phone"></video>
+        </figure>
+      </section>
+
+      <section class="sec">
+        <div class="copy" data-reveal>
+          <h2>Signing data, not just documents</h2>
+          <p>An e-signature tool knows where the boxes are, but not what is in them. OrbitSign reads the document, finds every place that needs a signature, pairs it with its date, and works out who should sign it from seven roles, following the NDIS supported decision making model. When the last person signs, the agreement does not just get filed. It goes live in the care platform, and the service can start.</p>
+        </div>
+        <ul class="trust wide">
+          {trust.map(([t, p], i) => <li class="panel" data-reveal data-reveal-delay={String((i % 3) * 0.06)}><h3>{t}</h3><p>{p}</p></li>)}
+        </ul>
+      </section>
+
+      <section class="sec">
+        <div class="copy" data-reveal>
+          <h2>What the provider gets back</h2>
+          <p>The value is not the form. It is the hour that nobody spends retyping a referral, the agreement that reaches the right file on its own, the incident that is seen the same day, and the audit that is already assembled because the evidence was captured as the work happened. Legal wording, identity, consent, confidentiality and the record all live in one tool, so there is no gap between them for something to fall through.</p>
+        </div>
+        <ul class="nums wide" data-reveal>
+          {numbers.map(([n, s]) => <li><b>{n}</b><span>{s}</span></li>)}
+        </ul>
+      </section>
+
+      <section class="sec">
+        <div class="close wide" data-reveal>
+          <div class="close-l">
+            <span class="eyebrow">Status</span>
+            <h2>Live, with a provider running on it end to end</h2>
+            <p>Designed and built in about four weeks, and now in daily use by an NDIS provider, from the first referral through to the signed agreement. The public site claims only what the product does today, and that was a design decision as much as a marketing one.</p>
+            <div class="acts">
+              {d.link && <a class="btn btn-ghost" href={d.link} target="_blank" rel="noopener noreferrer">Visit OrbitForm<span class="sr-only"> (opens in a new tab)</span>
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M5 11 11 5M11 5H6.2M11 5v4.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </a>}
+              <a class="btn btn-ghost" href="/work/">All work
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </a>
+            </div>
+          </div>
+          <a class="close-r" href={`/work/${next.id}/`}>
+            <span class="eyebrow">Next study</span>
+            <span class="t">{next.data.title}</span>
+            <span class="mono o">{next.data.org} &middot; {next.data.year}</span>
+            <span class="go"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </a>
+        </div>
+      </section>
+    </div>
+  </article>
+</Base>
+
+<script>
+  // each film plays while it is on screen and rests when it is not; the source is attached only when it is needed,
+  // so the 25 MB walkthrough is never fetched by someone who does not scroll to it
+  function films() {
+    document.querySelectorAll<HTMLVideoElement>('.film video').forEach((v) => {
+      if (v.dataset.init) return; v.dataset.init = '1';
+      const src = v.closest('.flow') ? '/orbitform/orbitform-flow.mp4' : '/orbitform/orbitform-demo.mp4';
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) { v.controls = true; v.src = src; return; }
+      new IntersectionObserver((es) => es.forEach((e) => {
+        if (!e.isIntersecting) { v.pause(); return; }
+        if (!v.src) v.src = src;
+        v.play().catch(() => {});
+      }), { threshold: 0.25 }).observe(v);
+    });
+  }
+  document.addEventListener('astro:page-load', films);
+</script>
+
+<style>
+  .study { position: relative; padding-top: calc(var(--nav-h) + clamp(40px, 8vw, 96px)); padding-bottom: clamp(72px, 10vw, 140px); }
+  /* OrbitForm orange as the atmosphere behind the header: a deep burnt wash with two soft lights drifting over it,
+     gone before the first section so the screens keep their own light */
+  .atmos { position: absolute; left: 0; right: 0; top: 0; height: min(92vh, 900px); pointer-events: none; z-index: 0; overflow: hidden;
+    background: linear-gradient(180deg, rgba(122,38,0,0.44) 0%, rgba(122,38,0,0.14) 46%, transparent 76%);
+    -webkit-mask-image: linear-gradient(180deg, #000 55%, transparent 100%); mask-image: linear-gradient(180deg, #000 55%, transparent 100%); }
+  .atmos::before, .atmos::after { content: ''; position: absolute; border-radius: 50%; filter: blur(38px); will-change: transform; }
+  .atmos::before { width: 72vw; height: 72vw; max-width: 1000px; max-height: 1000px; left: -16vw; top: -34vw;
+    background: radial-gradient(circle, rgba(255,81,1,0.5) 0%, rgba(160,50,0,0.4) 40%, rgba(122,38,0,0.16) 62%, transparent 74%); animation: driftA 22s ease-in-out infinite alternate; }
+  .atmos::after { width: 48vw; height: 48vw; max-width: 660px; max-height: 660px; right: -10vw; top: -6vw;
+    background: radial-gradient(circle, rgba(255,120,60,0.3) 0%, rgba(255,81,1,0.14) 46%, transparent 70%); animation: driftB 26s ease-in-out infinite alternate; }
+  @keyframes driftA { from { transform: translate(0, 0); } to { transform: translate(6vw, 4vw); } }
+  @keyframes driftB { from { transform: translate(0, 0); } to { transform: translate(-5vw, 5vw); } }
+  @media (prefers-reduced-motion: reduce) { .atmos::before, .atmos::after { animation: none; } }
+
+  .head, .body { position: relative; z-index: 1; }
+  .head :global(.facts) { border-color: rgba(255,81,1,0.2); background: linear-gradient(180deg, rgba(122,38,0,0.3), var(--surface) 60%); }
+  .head { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr); gap: clamp(28px, 5vw, 72px); align-items: start; }
+  .lead { display: grid; gap: 18px; }
+  .crumbs { display: flex; gap: 10px; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); }
+  .crumbs a:hover { color: var(--fg); } .sep { opacity: 0.5; }
+  h1 { font-size: clamp(32px, 4.6vw, 60px); letter-spacing: -0.04em; max-width: 18ch; }
+  .sum { color: var(--muted); font-size: clamp(16px, 1.4vw, 19px); line-height: 1.6; max-width: 54ch; }
+
+  .body { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(72px, 10vw, 140px); margin-top: clamp(56px, 8vw, 112px); }
+  .sec { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(22px, 3vw, 36px); justify-items: center; min-width: 0; }
+  .copy { display: grid; gap: 14px; justify-items: center; text-align: center; max-width: 760px; }
+  .copy h2 { font-size: clamp(26px, 3vw, 40px); max-width: 22ch; }
+  .copy p { color: var(--muted); font-size: clamp(15.5px, 1.25vw, 17px); line-height: 1.7; max-width: 60ch; }
+  .wide { width: 100%; max-width: 1240px; margin: 0 auto; min-width: 0; }
+
+  /* the films sit on the same warm ground as his exports, so the frame and the picture are one */
+  .film { margin: 0; padding: 0; border: 1px solid rgba(255,81,1,0.18); border-radius: 18px; overflow: hidden; background: #FFF6F2; }
+  .film video { display: block; width: 100%; height: auto; }
+  .flow video { aspect-ratio: 3840 / 2134; }
+  .demo video { aspect-ratio: 16 / 9; }
+  .cap { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); }
+
+  /* what was designed: six dark cards in the product's burnt orange, with a slow light passing over them */
+  .cards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .bd { --sweep: -60%; position: relative; overflow: hidden; padding: clamp(22px, 2.6vw, 30px); display: grid; gap: 10px; align-content: start; border-radius: 16px;
+    border: 1px solid rgba(255,81,1,0.2); background: linear-gradient(160deg, #2A0F02 0%, #1C0B02 45%, #120802 100%); box-shadow: inset 0 1px 0 rgba(255,150,100,0.1); }
+  .bd::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(115deg, transparent 0%, rgba(255,150,100,0.12) 50%, transparent 100%); transform: translateX(var(--sweep)); }
+  .bd .k { font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: #FF8A4C; }
+  .bd b { font-size: clamp(17px, 1.6vw, 20px); font-weight: 600; letter-spacing: -0.02em; line-height: 1.3; color: #FDF4EF; }
+  .bd .s { color: rgba(253,244,239,0.66); font-size: 13.5px; line-height: 1.5; }
+
+  .rules, .trust { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  .rules { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .trust { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .rules li, .trust li { padding: 22px 24px; display: grid; gap: 8px; align-content: start; transition: border-color 0.3s, translate 0.4s var(--ease); }
+  .rules li:hover, .trust li:hover { border-color: rgba(255,81,1,0.35); translate: 0 -2px; }
+  .rules h3, .trust h3 { font-size: 17.5px; letter-spacing: -0.02em; }
+  .rules p, .trust p { color: var(--muted); font-size: 14.5px; line-height: 1.6; }
+
+  /* the six jobs, on one line that runs through them */
+  .pipe { position: relative; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+  .pipe::before { content: ''; position: absolute; left: 8%; right: 8%; top: 17px; height: 2px; border-radius: 2px; background: linear-gradient(90deg, rgba(255,81,1,0.65), rgba(255,81,1,0.12)); }
+  .pipe li { position: relative; display: grid; gap: 8px; justify-items: center; text-align: center; }
+  .pipe .n { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; font-size: 11px; color: #FFD9C7;
+    border: 1px solid rgba(255,81,1,0.5); background: #1C0B02; }
+  .pipe b { font-size: 14.5px; letter-spacing: -0.01em; }
+  .pipe .s { font-size: 12.5px; line-height: 1.45; color: var(--muted); }
+
+  .nums { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+  .nums li { display: grid; gap: 4px; padding: 20px 16px; border: 1px solid var(--line-a); border-radius: 14px; background: var(--surface); text-align: center; }
+  .nums b { font-size: clamp(22px, 2.4vw, 30px); font-weight: 600; letter-spacing: -0.03em; color: #FF8A4C; }
+  .nums span { font-size: 12.5px; line-height: 1.45; color: var(--muted); }
+
+  .acts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+  .close { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); border: 1px solid rgba(255,81,1,0.18); border-radius: var(--r); overflow: hidden; background: linear-gradient(160deg, #23100A 0%, var(--surface) 55%); }
+  .close-l { padding: clamp(28px, 4vw, 48px); display: grid; gap: 14px; align-content: start; justify-items: start; }
+  .close-l h2 { font-size: clamp(24px, 2.8vw, 34px); letter-spacing: -0.03em; }
+  .close-l p { color: var(--muted); font-size: 15px; line-height: 1.65; max-width: 56ch; }
+  .close-r { position: relative; padding: clamp(28px, 4vw, 48px); border-left: 1px solid var(--line-a); display: grid; gap: 10px; align-content: center; transition: background 0.25s; }
+  .close-r:hover { background: rgba(235,238,245,0.03); }
+  .close-r .t { font-size: clamp(20px, 2.4vw, 30px); font-weight: 600; letter-spacing: -0.03em; max-width: 16ch; }
+  .close-r .o { font-size: 11px; color: var(--dim); letter-spacing: 0.08em; text-transform: uppercase; }
+  .close-r .go { position: absolute; right: clamp(20px, 3vw, 32px); bottom: clamp(20px, 3vw, 32px); width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line-a); display: grid; place-items: center; color: var(--fg); transition: transform 0.3s var(--ease), border-color 0.2s; }
+  .close-r:hover .go { transform: translateX(4px); border-color: #FF5101; color: #FF8A4C; }
+
+  @media (max-width: 1060px) { .pipe { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 26px; } .pipe::before { display: none; } .nums { grid-template-columns: repeat(3, minmax(0, 1fr)); } .trust { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 860px) { .head, .rules, .close { grid-template-columns: 1fr; } .close-r { border-left: 0; border-top: 1px solid var(--line-a); } .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 560px) { .cards, .trust { grid-template-columns: 1fr; } .pipe, .nums { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+</style>
