@@ -5,7 +5,7 @@
    changes with it. No budget or salary questions.
    Layout rules, so nothing looks off: every field is a label above a 46px control, whether the control is a text box,
    a select or a segmented choice; one-answer questions are segmented controls in equal parts; any-answer questions are
-   a grid of check boxes, six to a list. Contract length only appears when Contract is chosen.
+   a grid of check boxes in full rows (an odd list ends on a full-width option on phones). Contract length only appears when Contract is chosen.
    Sending: with PUBLIC_CONTACT_ENDPOINT set (a Formspree-style form URL) the answers are posted as JSON; without it,
    the visitor's email app opens with every answer filled in, addressed to hello@yemmy.design. */
 const endpoint = import.meta.env.PUBLIC_CONTACT_ENDPOINT ?? '';
@@ -14,7 +14,7 @@ const line = (d: string) => `<svg viewBox="0 0 24 24" fill="none" stroke="curren
 const intents = [
   { v: 'hire', t: 'Hiring for a role', d: 'A full-time or contract position', icon: line('M4 8h16v11H4zM9 8V5h6v3M4 13h16') },
   { v: 'project', t: 'A project or contract', d: 'Design work with a clear scope', icon: line('M12 3 3 8l9 5 9-5-9-5zM3 13l9 5 9-5') },
-  { v: 'product', t: 'Redesigning a product', d: 'A SaaS or app that needs a fresh start', icon: line('M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5') },
+  { v: 'product', t: 'Redesigning a product', d: 'A website, SaaS or app that needs a fresh start', icon: line('M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5') },
   { v: 'intro', t: 'An introduction', d: 'A referral, a recommendation or an invitation', icon: line('M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3.5 20c0-3.2 2.5-5.2 5.5-5.2s5.5 2 5.5 5.2M16 11.2a2.6 2.6 0 1 0 0-5.2M17.5 14.9c1.9.6 3 2.3 3 5.1') },
   { v: 'other', t: 'Something else', d: 'A question, a talk or a quick hello', icon: line('M4 5h16v11H9l-5 4z') },
 ];
@@ -72,7 +72,7 @@ const length = ['Under 3 months', '3 to 6 months', '6 to 12 months', '1 year or 
     <fieldset class="sec more" data-for="project" disabled>
       <legend class="h"><span class="n" aria-hidden="true"></span>About the project</legend>
       <div class="f" role="group" aria-labelledby="cf-pneeds-l"><span class="lab" id="cf-pneeds-l">What do you need? <span class="opt">Choose any</span></span>
-        <div class="picks">{['Service design', 'UX and UI design', 'Design system', 'Research and testing', 'Accessibility review', 'Not sure yet'].map((o) => <label class="pick"><input type="checkbox" name="needs" value={o} /><span>{o}</span></label>)}</div></div>
+        <div class="picks">{['Service design', 'UX and UI design', 'Website design or revamp', 'Mobile app design', 'Design system', 'Front-end build', 'Research and testing', 'Accessibility review', 'Not sure yet'].map((o) => <label class="pick"><input type="checkbox" name="needs" value={o} /><span>{o}</span></label>)}</div></div>
       <div class="f" role="radiogroup" aria-labelledby="cf-pstart-l"><span class="lab" id="cf-pstart-l">When should it start?</span>
         <div class="seg">{start.map((o) => <label><input type="radio" name="start" value={o} /><span>{o}</span></label>)}</div></div>
       <div class="f" role="radiogroup" aria-labelledby="cf-plen-l"><span class="lab" id="cf-plen-l">How long will it run?</span>
@@ -385,7 +385,8 @@ const length = ['Under 3 months', '3 to 6 months', '6 to 12 months', '1 year or 
 
   /* narrower forms: four-part choices wrap into two rows of two, still equal */
   @media (max-width: 720px) { .seg:has(> label:nth-of-type(4)) { grid-auto-flow: row; grid-template-columns: repeat(2, minmax(0, 1fr)); height: auto; } .seg:has(> label:nth-of-type(4)) span { height: 38px; } }
-  @media (max-width: 620px) { .intents, .grid2 { grid-template-columns: 1fr; } .picks { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 620px) { .intents, .grid2 { grid-template-columns: 1fr; } .picks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .picks .pick:last-child:nth-child(odd) { grid-column: 1 / -1; } }   /* an odd list ends on a full-width option, so no row is left half empty */
   @media (max-width: 420px) { .seg { grid-auto-flow: row; grid-template-columns: 1fr; height: auto; } .seg span { height: 38px; } }
   @media (prefers-reduced-motion: reduce) { .intent { animation: none; } }
 </style>
