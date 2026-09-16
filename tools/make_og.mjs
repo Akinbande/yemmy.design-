@@ -21,7 +21,8 @@ const crop = async (name, box) => {
 };
 const orbit = await crop('orbitform', { left: 286, top: 216, width: 1830, height: 1125 });
 const collga = await crop('collga', { left: 286, top: 196, width: 1826, height: 1136 });
-const luca = await crop('luca', { left: 850, top: 350, width: 702, height: 1207 });
+// the whole Luca Home screen (1125x2436, status bar to tab bar), so the phone shows a complete screen
+const luca = pathToFileURL(path.join(ROOT, 'src/assets/luca/app-home.png')).href;
 const portrait = pathToFileURL(path.join(ROOT, 'src/assets/portrait.jpg')).href;
 const font = (f) => pathToFileURL(path.join(ROOT, 'node_modules', f)).href;
 
@@ -62,10 +63,16 @@ h1 .sel s:nth-of-type(3) { left: -4px; bottom: -6px } h1 .sel s:nth-of-type(4) {
   background-image: radial-gradient(circle at 14px 11px, #3A3D45 3.5px, transparent 4px), radial-gradient(circle at 28px 11px, #3A3D45 3.5px, transparent 4px), radial-gradient(circle at 42px 11px, #3A3D45 3.5px, transparent 4px); }
 .win img { display: block; width: 100%; }
 .back { left: 170px; top: 40px; width: 560px; transform: rotateY(-16deg) rotateX(4deg); opacity: 0.55; filter: saturate(0.8); }
-.front { left: 70px; top: 170px; width: 600px; transform: rotateY(-16deg) rotateX(4deg); }
-.phone { position: absolute; left: 20px; top: 300px; width: 176px; height: 300px; border-radius: 28px; overflow: hidden; background: #fff;
-  box-shadow: 0 0 0 5px #16181D, 0 0 0 6px rgba(235,238,245,0.22), 0 40px 70px -10px rgba(0,0,0,0.8); transform: rotate(-4deg); }
-.phone img { width: 100%; display: block; }
+.front { left: 118px; top: 170px; width: 600px; transform: rotateY(-16deg) rotateX(4deg); }
+.phone { position: absolute; left: 4px; top: 138px; width: 198px; padding: 7px; border-radius: 36px; background: #0E0F12;
+  box-shadow: inset 0 0 0 1.5px rgba(235,238,245,0.22), 0 0 0 1px rgba(0,0,0,0.6), 0 50px 90px -20px rgba(0,0,0,0.85), 0 0 50px rgba(59,111,235,0.16);
+  transform: rotateY(-16deg) rotateX(4deg); transform-origin: 50% 50%; }
+.phone .screen { position: relative; border-radius: 29px; overflow: hidden; background: #F8F8F8; aspect-ratio: 1125 / 2436; }
+.phone .screen img { width: 100%; height: 100%; display: block; }
+.phone .island { position: absolute; left: 50%; top: 7px; width: 58px; height: 17px; margin-left: -29px; border-radius: 10px; background: #0E0F12; }
+.phone .btn { position: absolute; width: 3px; border-radius: 2px; background: #22252B; }
+.phone .btn.p { right: -3px; top: 120px; height: 56px; }
+.phone .btn.v1 { left: -3px; top: 96px; height: 34px; } .phone .btn.v2 { left: -3px; top: 140px; height: 34px; }
 .fade { position: absolute; inset: auto 0 0 0; height: 150px; background: linear-gradient(transparent, #09090A); }
 </style></head><body><div class="card">
   <div class="grid"></div>
@@ -73,7 +80,7 @@ h1 .sel s:nth-of-type(3) { left: -4px; bottom: -6px } h1 .sel s:nth-of-type(4) {
     <div class="win back"><img src="${collga}"></div>
     <div class="win front"><img src="${orbit}"></div>
     <div class="fade"></div>
-    <div class="phone"><img src="${luca}"></div>
+    <div class="phone"><i class="btn p"></i><i class="btn v1"></i><i class="btn v2"></i><div class="screen"><img src="${luca}"><span class="island"></span></div></div>
   </div>
   <div class="copy">
     <div class="id"><span class="face"></span><span class="mark">yemmy<i>.</i></span></div>
