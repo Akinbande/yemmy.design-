@@ -1,9 +1,13 @@
 ---
-/* Photography: his own photographs, from media1, at full resolution (encoded once at WebP q92, his call).
-   No captions: he has not said where or when any of these were taken, and the page reads better as a wall of
-   pictures. Every photo carries alt text describing what is in the frame. */
+/* Photography: his own photographs from media1, at full resolution (WebP q92, his call). A masonry wall in CSS
+   columns, so every photo shows whole at its own shape, nothing cropped. No captions: he has not said where or when
+   any were taken; alt text describes each frame. Ordered so desk, city, travel and portraits alternate, which is the
+   point of the page: the work, and the life around it. */
 import Base from '../../layouts/Base.astro';
 import { Image } from 'astro:assets';
+import workstation from '../../assets/photography/workstation.webp';
+import balconyLean from '../../assets/photography/balcony-lean.webp';
+import balconyStand from '../../assets/photography/balcony-stand.webp';
 import snowCorner from '../../assets/photography/snow-corner.webp';
 import downtownTower from '../../assets/photography/downtown-tower.webp';
 import studioBell from '../../assets/photography/studio-bell.webp';
@@ -14,30 +18,31 @@ import officeCorridor from '../../assets/photography/office-corridor.webp';
 import courtyard from '../../assets/photography/courtyard.webp';
 import viewpoint from '../../assets/photography/viewpoint.webp';
 
-// wide photos take two columns, upright ones two rows, so the wall stays dense without cropping anything
 const photos = [
-  { src: snowCorner, span: 'tall', alt: 'A snowy intersection, traffic lights under falling snow, with a burger shop and a wellness bar on the far corner' },
-  { src: centralPhuket, span: 'wide', alt: 'A mall entrance under a deep green living wall, with people walking through in the afternoon' },
-  { src: studioBell, span: 'tall', alt: 'A curved building clad in dark and bronze tile, rising against a clear winter sky' },
-  { src: palmsSea, span: 'tall', alt: 'Two fan palms framing an open stretch of turquoise sea, with a single palm below on the shore' },
-  { src: officeCorridor, span: 'tall', alt: 'Oluwayemi in a teal agbada, standing in an office corridor beside a glass meeting room and a wall of plants' },
-  { src: downtownTower, span: 'tall', alt: 'A glass tower above older brick and sandstone buildings, shot looking up from the street' },
-  { src: welcomeLawn, span: 'wide', alt: 'A wooden signpost reading welcome in four languages, on a lawn in front of a building covered in climbing green' },
-  { src: viewpoint, span: 'tall', alt: 'Oluwayemi at a hilltop railing in a white shirt, with the coastline and a wide cloudy sky behind him' },
-  { src: courtyard, span: 'tall', alt: 'Oluwayemi walking across a paved courtyard between apartment blocks in the late afternoon' },
+  { src: workstation, alt: 'His desk at dusk: a curved monitor, a laptop, headphones and a tablet in a stand, in front of arched windows with hills beyond' },
+  { src: balconyLean, alt: 'Oluwayemi leaning on a balcony rail in a white zip polo and jeans, on a bright winter day' },
+  { src: palmsSea, alt: 'Two fan palms framing an open stretch of turquoise sea, with a single palm below on the shore' },
+  { src: downtownTower, alt: 'A glass tower above older brick and sandstone buildings, shot looking up from the street' },
+  { src: officeCorridor, alt: 'Oluwayemi in a teal agbada, standing in an office corridor beside a glass meeting room and a wall of plants' },
+  { src: centralPhuket, alt: 'A mall entrance under a deep green living wall, with people walking through in the afternoon' },
+  { src: snowCorner, alt: 'A snowy intersection, traffic lights under falling snow, with a burger shop and a wellness bar on the far corner' },
+  { src: balconyStand, alt: 'Oluwayemi standing on a balcony with his hands in his pockets, city rooftops and blue sky behind him' },
+  { src: studioBell, alt: 'A curved building clad in dark and bronze tile, rising against a clear winter sky' },
+  { src: viewpoint, alt: 'Oluwayemi at a hilltop railing in a white shirt, with the coastline and a wide cloudy sky behind him' },
+  { src: welcomeLawn, alt: 'A wooden signpost reading welcome in four languages, on a lawn in front of a building covered in climbing green' },
+  { src: courtyard, alt: 'Oluwayemi walking across a paved courtyard between apartment blocks in the late afternoon' },
 ];
 ---
-<Base title="Photography · Oluwayemi Akinbande" description="Photographs by Oluwayemi Akinbande: streets, buildings and light.">
+<Base title="Photography · Oluwayemi Akinbande" description="Photographs by Oluwayemi Akinbande: the work, and the life around it.">
   <section class="page wrap">
     <header class="head">
       <p class="eyebrow accent" data-reveal>Photography</p>
-      <h1 data-reveal data-reveal-delay="0.1">Things I stop to look at.</h1>
-      <p class="lede" data-reveal data-reveal-delay="0.2">Streets, buildings and light, from the places I have lived, worked and visited.</p>
+      <h1 data-reveal data-reveal-delay="0.1">The work, and the life around it.</h1>
     </header>
 
-    <ul class="grid">
+    <ul class="wall">
       {photos.map((p, i) => (
-        <li class={`shot ${p.span}`} data-reveal data-reveal-delay={String((i % 3) * 0.06)}>
+        <li class="shot" data-reveal data-reveal-delay={String((i % 3) * 0.06)}>
           <figure>
             <Image src={p.src} alt={p.alt} widths={[600, 900, 1400, 2000]} sizes="(max-width: 620px) 100vw, (max-width: 1060px) 50vw, 33vw"
               format="webp" quality={86} loading={i < 3 ? 'eager' : 'lazy'} />
@@ -51,27 +56,18 @@ const photos = [
 <style>
   .page { padding-top: calc(var(--nav-h) + clamp(40px, 8vw, 96px)); padding-bottom: clamp(72px, 10vw, 140px); }
   .head { display: grid; gap: 16px; margin-bottom: clamp(32px, 5vw, 56px); }
-  h1 { font-size: clamp(34px, 5vw, 64px); letter-spacing: -0.04em; max-width: 14ch; }
-  .lede { color: var(--muted); font-size: clamp(16px, 1.4vw, 19px); max-width: 54ch; line-height: 1.6; }
+  h1 { font-size: clamp(34px, 5vw, 64px); letter-spacing: -0.04em; max-width: 16ch; }
 
-  /* a dense wall: three columns, upright photos two rows tall, wide ones two columns across */
-  .grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
-    grid-auto-rows: clamp(150px, 15vw, 230px); grid-auto-flow: dense; gap: 12px; }
-  .shot { min-width: 0; }
-  .shot.tall { grid-row: span 2; }
-  .shot.wide { grid-column: span 2; }
-  .shot figure { margin: 0; height: 100%; overflow: hidden; border-radius: 14px; border: 1px solid var(--line-a); background: var(--surface);
+  /* masonry in columns: each photo keeps its own shape, so nothing is ever cropped */
+  .wall { list-style: none; margin: 0; padding: 0; columns: 3; column-gap: 12px; }
+  .shot { break-inside: avoid; margin: 0 0 12px; }
+  .shot figure { margin: 0; overflow: hidden; border-radius: 14px; border: 1px solid var(--line-a); background: var(--surface);
     transition: border-color 0.35s, translate 0.45s var(--ease); }
-  .shot figure :global(img) { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 1.2s var(--ease); }
+  .shot figure :global(img) { width: 100%; height: auto; display: block; transition: transform 1.2s var(--ease); }
   .shot:hover figure { border-color: rgba(235, 238, 245, 0.24); translate: 0 -3px; }
-  .shot:hover figure :global(img) { transform: scale(1.03); }
+  .shot:hover figure :global(img) { transform: scale(1.02); }
 
-  @media (max-width: 1060px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: clamp(140px, 22vw, 210px); } }
-  @media (max-width: 620px) {
-    .grid { grid-template-columns: 1fr; grid-auto-rows: auto; }
-    .shot.tall, .shot.wide { grid-row: auto; grid-column: auto; }
-    .shot figure { aspect-ratio: 4 / 5; }
-    .shot.wide figure { aspect-ratio: 4 / 3; }
-  }
+  @media (max-width: 1060px) { .wall { columns: 2; } }
+  @media (max-width: 620px) { .wall { columns: 1; } }
   @media (prefers-reduced-motion: reduce) { .shot:hover figure { translate: none; } .shot:hover figure :global(img) { transform: none; } }
 </style>
