@@ -55,7 +55,8 @@ const intro = `${words[studies]} case studies and ${words[smaller].toLowerCase()
     <!-- the films start at 4 s on these cards, past their blank opening frames; the files themselves are untouched -->
     <section class="wrap bento" aria-label="Projects">
       <div class="r">
-        <WorkTile e={by('orbitform')} line={line.orbitform} variant="image" image="/covers/orbitform" accent={mark.orbitform} ground="#FFF6F2" />
+        <WorkTile e={by('orbitform')} line={line.orbitform} variant="video" accent={mark.orbitform}
+          video={{ src: '/orbitform/orbitform-flow.mp4#t=9', poster: '/orbitform/orbitform-flow.jpg' }} />
         <WorkTile e={by('nexorbit')} line={line.nexorbit} />
       </div>
       <div class="r full">
