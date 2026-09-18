@@ -48,4 +48,6 @@ function page() {
 
 document.addEventListener('astro:page-load', page);
 document.addEventListener('astro:before-swap', () => { ScrollTrigger.getAll().forEach((t) => t.kill()); });
-document.addEventListener('astro:after-swap', () => { lenis?.scrollTo(0, { immediate: true }); });
+// Astro has already placed the page (top for a new page, the saved position when going Back); keep Lenis in step with
+// it rather than forcing the top, which threw Back to the start of the page
+document.addEventListener('astro:after-swap', () => { lenis?.scrollTo(window.scrollY, { immediate: true, force: true }); });

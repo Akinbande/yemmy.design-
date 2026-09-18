@@ -25,12 +25,12 @@ const shots = (names: [string, string][]) => names.map(([n, alt]) => ({ src: img
 
 // what the product is, at a glance
 const breakdown = [
-  { k: 'For', v: 'NDIS providers in Australia', s: 'Intake coordinators, compliance leads and support workers' },
-  { k: 'Covers', v: 'Forms, submissions and signing', s: 'One tool from the first question to the sealed agreement' },
-  { k: 'Platforms', v: 'A studio for staff, phone forms for everyone else', s: 'Forms keep working with no connection' },
-  { k: 'Intelligence', v: 'Five scores on every response', s: 'Rules first, with an AI reading on top' },
-  { k: 'Signing', v: 'OrbitSign, built in', s: 'Identity checks, sealed documents and a signing certificate' },
-  { k: 'Built in', v: 'About four weeks', s: 'Designed and built, then launched with a provider' },
+  { k: 'For', v: 'NDIS providers in Australia', s: 'The staff who take in new clients, check compliance and give support' },
+  { k: 'Does', v: 'Forms, answers and e-signatures', s: 'From the first question to the signed agreement' },
+  { k: 'Platforms', v: 'Staff build on the web, people fill in on a phone', s: 'Forms still work without internet' },
+  { k: 'Checks', v: 'Five scores on every response', s: 'Fixed rules first, then an AI review' },
+  { k: 'Signing', v: 'OrbitSign, built in', s: 'Checks who is signing, locks the document and issues a certificate' },
+  { k: 'Build time', v: 'About four weeks', s: 'Designed, built and launched with a provider' },
 ];
 // what was going wrong before
 const problems = [
@@ -41,12 +41,12 @@ const problems = [
 ];
 // the six jobs that run after Submit
 const pipeline = [
-  ['Scoring', 'The rules run, then the AI reads the response'],
+  ['Scoring', 'The rules check the answers, then the AI reads them'],
   ['Team alert', 'The right people are emailed straight away'],
-  ['Automations', 'The team\'s rules run and signed webhooks go out'],
+  ['Automations', 'The team\'s own rules run, and other systems are told'],
   ['Copy to the participant', 'Their answers, as a PDF, if the form asks for it'],
-  ['Documents', 'PDF, Word or Excel, attached to the response'],
-  ['Routing', 'A referral, client, incident or agreement in the care platform'],
+  ['Documents', 'A PDF, Word or Excel file is created and attached'],
+  ['Care record', 'A referral, client, incident or agreement is added to the care system'],
 ];
 // the five scores, and what each one answers
 const scores = [
@@ -58,12 +58,12 @@ const scores = [
 ];
 // what the product had to carry, because the work is legal and confidential
 const trust = [
-  ['Consent, recorded', 'Signing opens with a versioned electronic records consent, naming the Electronic Transactions Act 1999.'],
-  ['Identity, checked', 'An email link, an access code or an SMS code before anyone signs. Codes are stored only as hashes.'],
-  ['Documents that fail closed', 'Content is hashed when it is sent and checked again before each signature. If an answer changed, the envelope stops itself.'],
-  ['A trail nobody can edit', 'Signing events are hash-chained, and the audit log is written by the database. Even an administrator cannot alter it.'],
-  ['Separated by organisation', 'Every table is row-level secured, so a workspace only sees its own data. The platform console shows counts, never details.'],
-  ['Versioned forever', 'Each publish freezes a version, and every response stays tied to the exact version it was filled in on.'],
+  ['Consent, recorded', 'Before signing, people agree to sign electronically under the Electronic Transactions Act 1999, and that wording is versioned.'],
+  ['Identity, checked', 'Signers confirm who they are with an email link, an access code or an SMS code. The codes are never stored in readable form.'],
+  ['Documents that cannot change', 'Each document is fingerprinted when it is sent and checked again before every signature. If anything changed, signing stops.'],
+  ['A record nobody can edit', 'Every signing step is written to a log that nobody can change, not even an administrator.'],
+  ['Each provider\'s data kept apart', 'A provider only ever sees its own data. The platform team sees totals, never personal details.'],
+  ['Every version kept', 'Each published version of a form is saved, and every response stays linked to the version it was filled in on.'],
 ];
 const numbers: [string, string][] = [
   ['43', 'field types, in five groups'],
@@ -71,7 +71,7 @@ const numbers: [string, string][] = [
   ['5', 'scores on every response'],
   ['0 to 30', 'risk points the AI can add, never subtract'],
   ['7', 'signer roles recognised'],
-  ['5 min', 'safety sweep for anything stuck'],
+  ['5 min', 'between retries of any job that failed'],
 ];
 // the board: twenty-eight things the product handles, in five groups
 const notes: [string, string, string][] = [
@@ -146,7 +146,7 @@ const noteColors = { build: '#FFD3B6', collect: '#FFE6C7', process: '#FFC4A3', r
       <section class="sec">
         <div class="copy" data-reveal>
           <h2>Building a form should take minutes, not a meeting</h2>
-          <p>A coordinator can describe the form in a sentence and let it be drafted, start from one of the NDIS templates, open a blank canvas, or photograph the paper form they already use and have it rebuilt. Forty-three field types cover the real work: costed line items, NDIS catalogue prices, a body chart to draw on, booking slots, consents and signatures.</p>
+          <p>A coordinator can describe the form in a sentence and OrbitForm drafts it, or they can start from one of the NDIS templates, open a blank canvas, or photograph the paper form they already use and have it rebuilt. Forty-three field types cover the real work: costed line items, NDIS catalogue prices, a body chart to draw on, booking slots, consents and signatures.</p>
         </div>
         <div class="wide"><Stack items={shots([
           ['create', 'Create a form: describe it and draft it, use a template, start from blank, or import a document'],
@@ -175,7 +175,7 @@ const noteColors = { build: '#FFD3B6', collect: '#FFE6C7', process: '#FFC4A3', r
       <section class="sec">
         <div class="copy" data-reveal>
           <h2>Six jobs run the moment a response lands</h2>
-          <p>This is the part competitors leave to the team. A response is scored, the right people are told, the documents are written, and the record is created in the care platform. Staff can watch each job run in the response. Every five minutes a sweep picks up anything that failed and tries it again.</p>
+          <p>In other form tools, staff do this by hand. Here, each response is scored, the right people are emailed, the documents are created and the record is added to the care system. Staff can see each job in the response, and every five minutes OrbitForm retries any job that failed.</p>
         </div>
         <div class="wide pipe-wrap" id="of-pipe" data-reveal>
           <i class="pipe-rail" aria-hidden="true"><i class="pipe-fill"></i><i class="pipe-spark"></i></i>
@@ -240,8 +240,8 @@ const noteColors = { build: '#FFD3B6', collect: '#FFE6C7', process: '#FFC4A3', r
 
       <section class="sec">
         <div class="copy" data-reveal>
-          <h2>Signing data, not just documents</h2>
-          <p>An e-signature tool knows where the boxes are, but not what is in them. OrbitSign reads the document, finds every place that needs a signature, pairs it with its date, and works out who should sign it from seven roles, following the NDIS supported decision-making model. When the last person signs, the agreement is filed and goes live in the care platform, and the service can start.</p>
+          <h2>Signing that understands the document</h2>
+          <p>Most e-signature tools only know where the signature boxes are. OrbitSign reads the document, finds every place that needs a signature and a date, and works out who should sign from seven roles, following the NDIS supported decision-making model. When the last person signs, the agreement is filed in the care system and the service can start.</p>
         </div>
         <ul class="trust wide">
           {trust.map(([t, p], i) => <li class="panel" data-reveal data-reveal-delay={String((i % 3) * 0.06)}><h3>{t}</h3><p>{p}</p></li>)}
@@ -251,7 +251,7 @@ const noteColors = { build: '#FFD3B6', collect: '#FFE6C7', process: '#FFC4A3', r
       <section class="sec">
         <div class="copy" data-reveal>
           <h2>What the provider gets back</h2>
-          <p>Nobody spends an hour retyping a referral. Agreements reach the right file on their own, incidents are seen the same day, and the audit evidence is already collected because it was captured as the work happened. Legal wording, identity, consent, confidentiality and the record all live in one tool, so there is no gap between them for something to fall through.</p>
+          <p>Nobody spends an hour retyping a referral. Agreements reach the right file on their own, incidents are seen the same day, and the audit evidence is already collected because it was captured as the work happened. Consent, identity checks, signatures and records all sit in one tool, so nothing gets lost between systems.</p>
         </div>
         <ul class="nums wide" data-reveal>
           {numbers.map(([n, s]) => <li><b>{n}</b><span>{s}</span></li>)}
@@ -263,7 +263,7 @@ const noteColors = { build: '#FFD3B6', collect: '#FFE6C7', process: '#FFC4A3', r
           <div class="close-l">
             <span class="eyebrow">Status</span>
             <h2>Live, with a provider running on it end to end</h2>
-            <p>Designed and built in about four weeks, and now in daily use by an NDIS provider, from the first referral through to the signed agreement. The public site claims only what the product does today, and that was a design decision as much as a marketing one.</p>
+            <p>Designed and built in about four weeks, and now in daily use by an NDIS provider, from the first referral through to the signed agreement. The public website lists only what the product does today.</p>
             <div class="acts">
               {d.link && <a class="btn btn-ghost" href={d.link} target="_blank" rel="noopener noreferrer">Visit OrbitForm<span class="sr-only"> (opens in a new tab)</span>
                 <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M5 11 11 5M11 5H6.2M11 5v4.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>

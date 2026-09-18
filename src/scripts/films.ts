@@ -82,4 +82,15 @@ export function films(selector: string, { threshold = 0.25 }: Options = {}) {
   });
 }
 
-document.addEventListener('astro:before-swap', () => { cleanups.forEach((c) => c()); cleanups = []; });
+// Leaving a page: stop every film's download. A <video> taken out of the page keeps fetching until it is garbage
+// collected, so a 4K film could hold the connection for many seconds and leave the next page (or Back) blank on a phone.
+document.addEventListener('astro:before-swap', () => {
+  cleanups.forEach((c) => c());
+  cleanups = [];
+  document.querySelectorAll<HTMLVideoElement>('video').forEach((v) => {
+    v.pause();
+    v.removeAttribute('src');
+    v.querySelectorAll('source').forEach((s) => s.remove());
+    v.load();
+  });
+});
