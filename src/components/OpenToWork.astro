@@ -1,0 +1,46 @@
+---
+/* Open to work: the availability card and the three facts beside it. Shared by the About page and the Photography
+   page, where it sits just before the footer. */
+import { social } from '../config';
+---
+<div class="avail-grid">
+  <div class="panel card avail" data-reveal>
+    <span class="open"><i class="pulse" aria-hidden="true"></i>Open to work</span>
+    <h2 id="av-h">Senior Service &amp; UX Design roles.</h2>
+    <p class="also">Freelance or contract work too.</p>
+    <div class="cta">
+      <a class="btn btn-primary" href="/contact/">Get in touch
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a class="btn btn-ghost" href={social.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn<span class="sr-only"> (opens in a new tab)</span></a>
+    </div>
+  </div>
+  <dl class="panel card facts" data-reveal data-reveal-delay="0.12">
+    <div><dt>Sectors</dt><dd>Government-funded care, digital government, healthcare, fintech, energy and SaaS</dd></div>
+    <div><dt>Standards</dt><dd>WCAG 2.2 AA, design tokens, component libraries and design governance</dd></div>
+    <div><dt>Tools</dt><dd>Figma, Framer and production front-end</dd></div>
+  </dl>
+</div>
+
+<style>
+  .avail-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: 14px; }
+  .card { padding: clamp(24px, 3vw, 36px); }
+  .cta { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+  .avail { display: grid; gap: 12px; align-content: start; border-color: rgba(61,214,140,0.22); background: linear-gradient(160deg, rgba(61,214,140,0.06), var(--surface) 55%); }
+  .open { display: inline-flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ok); }
+  .pulse { position: relative; width: 8px; height: 8px; border-radius: 50%; background: var(--ok); }
+  .pulse::after { content: ''; position: absolute; inset: -6px; border-radius: 50%; border: 1px solid var(--ok); animation: ring 2.2s ease-out infinite; }
+  @keyframes ring { 0% { transform: scale(0.4); opacity: 0.9; } 100% { transform: scale(1.6); opacity: 0; } }
+  .avail h2 { font-size: clamp(22px, 2.4vw, 30px); letter-spacing: -0.025em; }
+  .also { color: var(--muted); font-size: 15px; }
+  .facts { margin: 0; padding: 6px 0; }
+  .facts > div { display: grid; grid-template-columns: 110px 1fr; gap: 16px; padding: 16px clamp(22px, 2.6vw, 30px); border-bottom: 1px solid var(--line-a); }
+  .facts > div:last-child { border-bottom: 0; }
+  .facts dt { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); padding-top: 3px; }
+  .facts dd { margin: 0; font-size: 14.5px; line-height: 1.55; }
+  @media (max-width: 860px) {
+    .avail-grid { grid-template-columns: 1fr; }
+    .facts > div { grid-template-columns: 1fr; gap: 6px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .pulse::after { animation: none; opacity: 0.5; transform: scale(1.2); } }
+</style>
