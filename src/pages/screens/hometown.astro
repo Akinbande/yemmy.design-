@@ -22,7 +22,7 @@ const shots = (names: [string, string][]) => names.map(([n, alt]) => ({ src: img
 // what was designed: facts read from the screens, no story
 const breakdown = [
   { k: 'Platforms', v: 'Mobile app and web app', s: 'Plus a landing page' },
-  { k: 'Sign-up', v: 'Phone number and password', s: 'Identity checked with BVN or NIN' },
+  { k: 'Sign-up', v: 'Phone number and password', s: 'Identity checked with a bank verification or national ID number' },
   { k: 'Money', v: 'Add money and send it', s: 'To any local bank, with saved beneficiaries' },
   { k: 'Bills', v: 'Airtime, data, electricity and TV', s: 'Paid from the app' },
   { k: 'Cards', v: 'Physical and virtual cards', s: 'Ordered and delivered in the app' },
@@ -33,7 +33,7 @@ const breakdown = [
 const colors = { join: '#FFD2B8', in: '#A9E0A0', out: '#FFC9CF', bills: '#F7E36A', cards: '#C7CBFF', grow: '#9FD3F5' };
 const notes: [string, string, string][] = [
   ['Sign up with a phone number', 'Sign-up', 'join'], ['Confirm the number with a code', 'Sign-up', 'join'], ['6-digit password', 'Sign-in', 'join'], ['Sign in with a fingerprint', 'Sign-in', 'join'],
-  ['Verify with BVN or NIN', 'Identity', 'join'], ['Prove where you live', 'Identity', 'join'], ['Passport, ID card or digital document', 'Identity', 'join'],
+  ['Verify with a bank or national ID number', 'Identity', 'join'], ['Prove where you live', 'Identity', 'join'], ['Passport, ID card or digital document', 'Identity', 'join'],
   ['Add money from a bank card', 'Add money', 'in'], ['Swipe to top up', 'Add money', 'in'], ['Copy account details', 'Account', 'in'], ['Create a payment link', 'Web app', 'in'],
   ['Free transfer to any local bank', 'Transfer', 'out'], ['Pick a saved beneficiary', 'Transfer', 'out'], ['Send by username', 'Pay', 'out'], ['4-digit transaction PIN', 'Security', 'out'], ['Share the receipt', 'Transfer', 'out'],
   ['Airtime and data from ₦100', 'Bills', 'bills'], ['Electricity', 'Bills', 'bills'], ['TV subscription', 'Bills', 'bills'], ['School fees', 'Bills', 'bills'],
